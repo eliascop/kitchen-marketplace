@@ -1,2 +1,2 @@
-# kitchen-marketpklace
+# kitchen-marketplace
 Marketplace for kitchen
