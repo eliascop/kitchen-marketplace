@@ -1,0 +1,13 @@
+<div class="user-form-container">
+    <h2>Cadastro de Usuários</h2>
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <input type="text" formControlName="login" placeholder="Usuário" />
+        <input type="text" formControlName="name" placeholder="Nome do Usuário" />
+        <input type="text" formControlName="phone" placeholder="Telefone" [value]="userForm.controls['phone'].value | phoneNumber" (input)="updateFormControl($event)" maxlength="13"/>
+        <input type="text" formControlName="email" placeholder="E-mail" />
+        <app-password-input formControlName="password" placeholder="Senha"></app-password-input>
+        <app-password-input formControlName="passwordconfirm" placeholder="Cofirme a Senha"></app-password-input>
+        <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+        <button type="submit" [disabled]="userForm.invalid" class="submit-button">Salvar</button>
+    </form>
+</div>

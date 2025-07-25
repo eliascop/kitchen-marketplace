@@ -1,0 +1,17 @@
+<h1>Lista de Usuários</h1>
+<div *ngIf="users.length > 0" class="item-container">
+    <div *ngFor="let user of users" class="item-card">
+        <div class="item-details">
+          <p class="item-id">Usuário: {{ user.id }}. {{ user.login }}</p>
+          <p class="item-description">Nome: {{ user.name }}</p>
+          <p class="item-type">Email: {{ user.email }}</p>
+          <p class="item-total">Telefone: {{user.phone | phoneNumber}}</p>
+        </div>
+        <div>
+          <button type="button" (click)="removeUser(user.id)" *ngIf="user.id !== 1" class="fa-solid fa-trash"></button>
+        </div>
+    </div>
+  </div>
+  <div *ngIf="users.length == 0" class="no-item">
+    <h1>Nenhum usuário cadastrado</h1>
+  </div>

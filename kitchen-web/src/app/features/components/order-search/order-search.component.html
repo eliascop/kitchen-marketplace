@@ -1,0 +1,14 @@
+<div class="search-container">
+  <input
+    type="text"
+    (input)="onInputChange($event)"
+    placeholder="Filtrar por número de pedido"
+  />
+
+  <select (change)="onStatusChange($event)">
+    <option value="">Filtrar por Todos os status</option>
+    <option *ngFor="let status of orderStatusList" [value]="status">
+      {{ status }}
+    </option>
+  </select>
+</div>

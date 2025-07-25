@@ -1,0 +1,68 @@
+<div class="user-form-container">
+    <h2>Meus dados cadastrais</h2>
+    <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+  
+        <fieldset>
+            <legend>Informações do Usuário</legend>
+            <input type="hidden" formControlName="id" />        
+            <input type="text" formControlName="login" placeholder="Usuário" />
+            <input type="text" formControlName="name" placeholder="Nome do Usuário" />
+            <input type="text" formControlName="phone" placeholder="Telefone"
+                [value]="userForm.controls['phone'].value | phoneNumber"
+                (input)="updateFormControl($event)" maxlength="13" />
+            <input type="text" formControlName="email" placeholder="E-mail" />
+        </fieldset>
+  
+        <fieldset>
+            <legend>Endereço de Entrega</legend>
+            <input type="text" formControlName="shippingZipCode" placeholder="CEP" (blur)="onCepBlur('shipping')" maxlength="9" />
+            <div *ngIf="cepLoading" class="loading-text">Buscando endereço...</div>
+            <div *ngIf="cepErrorMessage" class="error-message">{{ cepErrorMessage }}</div>
+            <div class="address-row">        
+                <input type="text" formControlName="shippingStreet" placeholder="Rua" />
+                <input type="text" class="input-small" formControlName="shippingNumber" placeholder="Número" />
+            </div>
+            <div class="address-row">
+                <input type="text" formControlName="shippingDistrict" placeholder="Bairro" />                
+                <input type="text" class="input-small" formControlName="shippingComplement" placeholder="Complemento" />
+            </div>
+        
+            <div class="address-row">
+                <input type="text" formControlName="shippingCity" placeholder="Cidade" />
+                <input type="text" class="input-small" formControlName="shippingState" placeholder="UF" />
+                <input type="text" class="input-small" formControlName="shippingCountry" placeholder="País" />
+            </div>
+        </fieldset>
+  
+  
+        <label>
+            <input type="checkbox" [checked]="hideBillingForm" (change)="onCheckboxChange($event)" />
+            Usar endereço de entrega como faturamento
+        </label>
+  
+        <fieldset id="shipping-form" *ngIf="!hideBillingForm">
+            <legend>Endereço de Faturamento</legend>
+            <input type="text" formControlName="billingZipCode" placeholder="CEP" (blur)="onCepBlur('billing')" maxlength="9"/>
+            <div class="address-row">
+                <input type="text" formControlName="billingStreet" placeholder="Rua" />
+                <input type="text" formControlName="billingNumber" placeholder="Número" class="input-small" />
+            </div>
+    
+            <div class="address-row">
+                <input type="text" formControlName="billingDistrict" placeholder="Bairro" />                
+                <input type="text" formControlName="billingComplement" placeholder="Complemento" class="input-small" />
+            </div>
+    
+            <div class="address-row">
+                <input type="text" formControlName="billingCity" placeholder="Cidade" />
+                <input class="input-small" type="text" formControlName="billingState" placeholder="UF" />
+                <input class="input-small" type="text" formControlName="billingCountry" placeholder="País" />
+            </div>
+    
+        </fieldset>
+  
+      <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+      <button type="submit" [disabled]="userForm.invalid" class="submit-button">Salvar Alterações</button>
+    </form>
+  </div>
+  

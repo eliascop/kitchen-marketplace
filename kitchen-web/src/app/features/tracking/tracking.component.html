@@ -1,0 +1,19 @@
+<div class="main-container">
+  <div class="main">
+    <h2>Pedido realizado com sucesso!</h2>
+    <div class="order-tracking" *ngIf="order; else loading">
+      <p class="order-status">Status do Pedido #{{ order.id }} - {{ order.status }}</p>
+      <p>{{statusMessage}}</p>
+      <p>Detalhes:</p>
+      <ul class="order-details">
+        <li *ngFor="let item of order.items">
+          {{ item.quantity }}x {{ item.product.name }}
+        </li>
+      </ul>
+      <p>Total: <strong> {{order.total | number: '1.2-2' }} </strong></p>
+    </div>
+      <ng-template #loading>
+        <p class="loading-tracking"><i class="fa-solid fa-hourglass-start"></i>Carregando informações do pedido...</p>
+      </ng-template>
+  </div>
+</div>

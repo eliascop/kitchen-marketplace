@@ -1,0 +1,41 @@
+<div class="wallet-container">
+
+  <div class="wallet-header">
+    <h2>Minha Carteira</h2>
+    <span *ngIf="wallet">Meu saldo atual: R$ {{ wallet.balance | number:'1.2-2' }}</span>
+  </div>
+
+  <h3 (click)="toggleSection('balance')" class="toggle-header">
+    <span [ngClass]="{ rotated: isAddBalanceOpen }">▶</span> Adicionar Saldo
+  </h3>
+
+  <div class="wallet-form" [@accordion]="isAddBalanceOpen ? 'open' : 'closed'">
+    <form [formGroup]="walletForm" (ngSubmit)="credit()">
+      <label for="creditAmount">Valor a ser creditado</label>
+      <app-currency-input formControlName="amount" [required]="true"></app-currency-input>
+
+      <label for="creditDesc">Uma descrição desse valor</label>
+      <input id="creditDesc" type="text" formControlName="description">
+      <div class="error" *ngIf="walletForm.get('description')?.hasError('required') && walletForm.get('description')?.touched">
+        Descrição é obrigatória.
+      </div>
+
+      <button type="submit" class="submit-button" [disabled]="walletForm.invalid">Creditar</button>
+    </form>
+  </div>
+
+  <h3 (click)="toggleSection('transactions')" class="toggle-header">
+    <span [ngClass]="{ rotated: isTransactionsOpen }">▶</span> Transações
+  </h3>
+
+  <div class="transactions" [@accordion]="isTransactionsOpen ? 'open' : 'closed'">
+    <ul>
+      <li *ngFor="let tx of transactions">
+        {{ tx.createdAt | formatDateTime }} -
+        <strong>{{ tx.type }}</strong> -
+        <strong>{{ tx.status }}</strong>: R$
+        {{ tx.amount | number: '1.2-2' }} ({{ tx.description }})
+      </li>
+    </ul>
+  </div>
+</div>

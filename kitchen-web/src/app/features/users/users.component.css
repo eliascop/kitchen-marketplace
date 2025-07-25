@@ -1,0 +1,13 @@
+.item-card{
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+}
+.item-details{
+    flex-grow: 1;
+}
+button {
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding-bottom: 5px;
+}

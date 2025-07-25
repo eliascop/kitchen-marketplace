@@ -1,0 +1,13 @@
+<div class="currency-wrapper">
+  <label *ngIf="label">{{ label }}</label>
+  <div class="input-group">
+    <input
+      type="text"
+      [required]="required"
+      [attr.placeholder]="placeholder"
+      [value]="rawValue"
+      (input)="onInput($event)"
+      (blur)="onBlur()" 
+      (focus)="onFocus()" />
+  </div>
+</div>

@@ -1,0 +1,147 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: kitchen
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - kitchen-network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-reverse-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - kitchen-api
+      - kitchen-monitoring
+      - kitchen-web
+    networks:
+      - kitchen-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - kitchen-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - kitchen-network
+
+  kitchen-api:
+    build:
+      context: ./kitchen-backend
+      dockerfile: Dockerfile
+    container_name: kitchen-api
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kitchen?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      APP_BASE_URL: http://localhost
+    networks:
+      - kitchen-network
+
+  kitchen-preparing-simulator:
+    build:
+      context: ./kitchen-order-preparing-simulator
+      dockerfile: Dockerfile
+    container_name: kitchen-preparing-simulator
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kitchen?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+
+    networks:
+      - kitchen-network
+
+  kitchen-monitoring:
+    build:
+      context: ./kitchen-order-monitoring
+      dockerfile: Dockerfile
+    container_name: kitchen-monitoring
+    depends_on:
+      kafka:
+        condition: service_started
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - kitchen-network
+
+#  schema-registry:
+#    image: confluentinc/cp-schema-registry:7.5.0
+#    container_name: schema-registry
+#    depends_on:
+#      - kafka
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+#      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+
+  kitchen-web:
+    build:
+      context: ./kitchen-web
+      dockerfile: Dockerfile
+    container_name: kitchen-web
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./kitchen-web:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: npm run start:public
+    networks:
+      - kitchen-network
+
+networks:
+  kitchen-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  node_modules:

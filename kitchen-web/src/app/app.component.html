@@ -1,0 +1,24 @@
+<div class="page">
+  <div class="header">
+    <div>
+      <h1 class="title">Seja bem vindo a Kitchen</h1>
+      <a *ngIf="!isHomePage()" href="#" (click)="goHome($event)" class="go-home">Ir para a home</a>
+    </div>
+    <div *ngIf="user">
+      <span class="title-hello">Olá, {{ user.name }}  </span><br>
+      <span class="text-sm">
+        <a href="#" (click)="myWallet($event)" class="logout">Minha carteira: <span class="font-semibold text-green-400">R$ {{ balance | number: '1.2-2' }}</span></a>
+      </span><br>
+      <a href="#" (click)="logout($event)" class="logout">Sair</a>
+    </div>
+  </div>
+
+  <div class="app-content">
+    <app-toast></app-toast>
+    <router-outlet></router-outlet>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Minha Aplicação. Todos os direitos reservados.</p>
+  </footer>
+</div>

@@ -1,0 +1,13 @@
+<div class="container">
+    <div class="card">
+      <h1 class="title">Painel Principal</h1>
+      
+      <button class="btn btn-blue" (click)="newOrder()" *ngIf="userProfile!==1">Novo Pedido</button>
+      <button class="btn btn-blue" (click)="ordersPainel()" *ngIf="userProfile==1">Monitor de Pedido</button>
+      <button class="btn btn-blue" (click)="orderList()">Listar Pedidos</button>
+      <button class="btn btn-blue" (click)="productList()">Listar Produtos</button>
+      <button class="btn btn-blue" (click)="userList()" *ngIf="userProfile==1">Listar Usuários</button>
+      <button class="btn btn-blue" (click)="userDetails()">Meu cadastro</button>
+    </div>
+  </div>
+  

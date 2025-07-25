@@ -1,0 +1,70 @@
+<div class="cart-form-container">
+  <h1 class="title">Menu de opções</h1>
+  <form [formGroup]="cartForm">
+    <div class="form-product-type">
+      <label for="product-type">
+        Selecione o que deseja:
+      </label>
+      <select formControlName="productType" (change)="onTypeChange()">
+        <option *ngFor="let type of productTypes" [value]="type.key">{{ type.label }}</option>
+      </select>
+    </div>
+    <div class="form-product-name">
+      <label for="product-name">
+        Selecione o tipo:
+      </label>
+      <div>
+        <select formControlName="productId" class="product-name">
+          <option value="0" disabled>Selecione um produto</option>
+          <option *ngFor="let product of products" [value]="product.id">{{ product.name }}</option>
+        </select>
+        <select formControlName="quantity" class="product-quantity">
+          <option [value]="1">1</option>
+          <option [value]="2">2</option>
+          <option [value]="3">3</option>
+          <option [value]="4">4</option>
+          <option [value]="5">5</option>
+        </select>
+      </div>
+    </div>
+    <div>
+      <button type="button" (click)="addProductToCart()" class="submit-button" [disabled]="cartForm.invalid || cartForm.get('productId')?.value === 0"> Adicionar </button>
+    </div>
+  </form>
+
+  <hr>
+
+  <div *ngIf="order.items.length === 0" style="text-align: center;">
+    <p>Seu carrinho está vazio.</p>
+  </div>
+
+  <div>
+    <div *ngIf="order.items.length > 0" class="cart-container">
+      <ul class="cart-list">
+        <li *ngFor="let item of order.items; let i = index" class="cart-row">
+          <div class="cart-detail">
+            <div class="cart-info">
+              <span>{{i+1}}. </span>
+              <span class="item-quantity">{{ item.quantity }}x {{ item.product.name }}</span>
+              <span class="item-total">-  Preço R$ {{ item.product.price | number: '1.2-2' }}</span>
+            </div>
+            <span class="item-description">{{item.product.description}} </span>
+          </div>
+          <div class="cart-action">
+            <span class="item-total">Sub-total R$ {{ item.product.price*item.quantity | number: '1.2-2' }}</span>
+            <button type="button" (click)="removeItem(i)" class="fa-solid fa-trash" style="margin-left: 10px;"></button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="order.items.length > 0">
+      <p style="text-align: right;margin-right: 10px;">
+        <strong>Total: </strong>R$ {{ order.total | number: '1.2-2' }}
+      </p>
+      <div style="text-align: right;">
+        <button type="button" (click)="submitCart()" class="btn-add-order">Pagar</button>
+      </div>
+    </div>
+  </div>
+</div>

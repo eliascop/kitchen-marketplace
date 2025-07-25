@@ -1,0 +1,50 @@
+<div class="modal-backdrop">
+    <div class="modal">
+      <button (click)="close.emit()" class="close-button">×</button>
+      
+      <h2>{{ product.name }}</h2>
+      <p>{{ product.description }}</p>
+      <p>Categoria: {{ product.categoryName }}</p>
+      <p>Catálogo: {{ product.catalogName }}</p>
+      <p>Preço base: R$ {{ product.price | number:'1.2-2' }}</p>
+      <p>Status: {{ product.active ? 'Ativo' : 'Inativo' }}</p>
+  
+      <h3>SKUs</h3>
+      <table class="sku-table" *ngIf="product.skus?.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>SKU</th>
+            <th>Preço</th>
+            <th>Atributos</th>
+            <th>Estoque</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sku of product.skus">
+            <td>{{ sku.id }}</td>
+            <td>{{ sku.sku }}</td>
+            <td>R$ {{ sku.price | number:'1.2-2' }}</td>
+            <td>
+              <ul>
+                <li *ngFor="let attr of sku.attributes">
+                  {{ attr.name }}: {{ attr.attributeValue }}
+                </li>
+              </ul>
+            </td>
+            <td>
+              <p>Total: {{ sku.stock.totalQuantity }}</p>
+              <p>Reservado: {{ sku.stock.reservedQuantity }}</p>
+              <p>Vendido: {{ sku.stock.soldQuantity }}</p>
+              <p>Disponível: {{ sku.stock.availableQuantity }}</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <div *ngIf="!product.skus?.length">
+        <p>Nenhum SKU cadastrado.</p>
+      </div>
+    </div>
+  </div>
+  

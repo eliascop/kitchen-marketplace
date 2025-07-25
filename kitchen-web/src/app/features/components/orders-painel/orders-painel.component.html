@@ -1,0 +1,30 @@
+<h1>📦 Monitor de Pedidos</h1>
+
+<div class="grid">
+  <div class="column">
+    <h2>🕐 Fila</h2>
+    <ul id="pending">
+      <li *ngFor="let order of orders['PENDING']" [attr.id]="'order-' + order.id">
+        <span>Pedido {{ order.id }} - {{ order.creation | formatDateTime }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="column">
+    <h2>🍳 Em Preparo</h2>
+    <ul id="preparing">
+      <li *ngFor="let order of orders['PREPARING']" [attr.id]="'order-' + order.id">
+        <span>Pedido {{ order.id }} - {{ order.creation | formatDateTime}}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="column">
+    <h2>✅ Pronto</h2>
+    <ul id="prepared">
+      <li *ngFor="let order of orders['PREPARED']" [attr.id]="'order-' + order.id" [ngClass]="{ 'blink': order.blink }" style="text-align: center;">
+        <span>Pedido {{ order.id }} - {{ order.creation | formatDateTime}}</span>
+      </li>
+    </ul>
+  </div>
+</div>

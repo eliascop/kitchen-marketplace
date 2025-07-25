@@ -1,0 +1,50 @@
+input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  
+.currency-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+
+  label {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .input-group {
+    display: flex;
+    align-items: center;
+    border: none;
+    border-radius: 6px;
+    overflow: hidden;
+
+    &.invalid {
+      border-color: red;
+    }
+
+    .prefix {
+      padding: 0 0.75rem;
+      background: #f3f3f3;
+      border-right: 1px solid #ddd;
+      font-size: 1rem;
+    }
+
+    input {
+      border: 1px solid #ccc;
+      padding: 0.8rem;
+      font-size: 1rem;
+      text-align: right;
+      flex: 1;
+      outline: none;
+    }
+  }
+
+  .error {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
+}
