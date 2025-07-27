@@ -7,9 +7,10 @@ public record ProductResponseDTO(
         Long id,
         String name,
         String description,
+        String imageUrl,
         BigDecimal price,
-        String catalogName,
-        String categoryName,
+        String catalog,
+        String category,
         boolean active,
         List<ProductSkuResponseDTO> skus
 ) {}

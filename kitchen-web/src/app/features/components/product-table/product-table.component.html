@@ -14,8 +14,8 @@
       <th (click)="sortBy('id')">ID</th>
       <th (click)="sortBy('name')">Nome</th>
       <th (click)="sortBy('description')">Descrição</th>
-      <th (click)="sortBy('catalogName')">Catálogo</th>
-      <th (click)="sortBy('categoryName')">Categoria</th>
+      <th (click)="sortBy('catalog')">Catálogo</th>
+      <th (click)="sortBy('category')">Categoria</th>
       <th (click)="sortBy('price')">Preço</th>
       <th (click)="sortBy('active')">Status</th>
       <th>Ações</th>
@@ -26,8 +26,8 @@
       <td>{{ product.id }}</td>
       <td>{{ product.name }}</td>
       <td>{{ product.description }}</td>
-      <td>{{ product.catalogName }}</td>
-      <td>{{ product.categoryName }}</td>
+      <td>{{ product.catalog }}</td>
+      <td>{{ product.category }}</td>
       <td>R$ {{ product.price | number: '1.2-2' }}</td>
       <td>{{ product.active ? 'Ativo' : 'Inativo' }}</td>
       <td>

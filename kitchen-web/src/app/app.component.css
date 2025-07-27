@@ -15,11 +15,6 @@ html, body {
 }
 
 .app-content {
-  background-image: url('./assets/images/background.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center center;
-
   min-height: 80vh;
   width: auto;
 

@@ -1,0 +1,13 @@
+<div class="product-carousel">
+  <h2 class="carousel-title">{{ title }}</h2>
+  <div class="product-list">
+    <div *ngFor="let product of products" class="product-card" (click)="viewProductDetails(product.id!)">
+      <img [src]="product.imageUrl" alt="{{ product.name }}" class="product-image">
+      <div class="product-name">{{ product.name }}</div>
+      <div>{{ product.description }} </div>
+      <div class="product-price">R$ {{ product.price | number: '1.2-2' }}</div> 
+      <button class="add-to-cart-button">Ver produto</button>
+    </div>
+    <p *ngIf="products.length === 0" class="no-products-message">Nenhum produto disponível nesta categoria.</p>
+  </div>
+</div>

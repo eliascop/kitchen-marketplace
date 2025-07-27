@@ -17,6 +17,7 @@ import { NewUserComponent } from './features/new-user/new-user.component';
 import { WalletComponent } from './features/wallet/wallet.component';
 import { OrdersPainelComponent } from './features/components/orders-painel/orders-painel.component';
 import { UserDetailsComponent } from './features/user-details/user-details.component';
+import { ProductDetailComponent } from './features/product-detail/product-detail.component';
 
 export const routes = [
   { path: 'login', component: LoginComponent },
@@ -31,6 +32,7 @@ export const routes = [
   { path: 'orders-painel', component: OrdersPainelComponent, canActivate: [AuthGuardService] },
   { path: 'products', component: ProductsComponent, canActivate: [AuthGuardService] },
   { path: 'new-product', component: NewProductComponent, canActivate: [AuthGuardService] },
+  { path: 'product/:id', component: ProductDetailComponent,canActivate: [AuthGuardService]  },
   { path: 'tracking/:orderId', component: TrackingComponent, canActivate: [AuthGuardService] },
   { path: '**', redirectTo: '/login' }
 ];

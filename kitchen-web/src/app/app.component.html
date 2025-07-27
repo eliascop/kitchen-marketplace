@@ -2,12 +2,14 @@
   <div class="header">
     <div>
       <h1 class="title">Seja bem vindo a Kitchen</h1>
+      <a href="#" (click)="userList($event)" class="logout">Lista de usuários</a><br>
       <a *ngIf="!isHomePage()" href="#" (click)="goHome($event)" class="go-home">Ir para a home</a>
     </div>
     <div *ngIf="user">
-      <span class="title-hello">Olá, {{ user.name }}  </span><br>
+      <span class="title-hello">Olá, <a href="#" (click)="userDetails($event)" class="logout">{{ user.name }}</a></span><br>
       <span class="text-sm">
-        <a href="#" (click)="myWallet($event)" class="logout">Minha carteira: <span class="font-semibold text-green-400">R$ {{ balance | number: '1.2-2' }}</span></a>
+        <a href="#" (click)="myOrders($event)" class="logout">Meus pedidos</a><br>
+        <a href="#" (click)="myProducts($event)" class="logout">Meus produtos</a>
       </span><br>
       <a href="#" (click)="logout($event)" class="logout">Sair</a>
     </div>

@@ -1,62 +1,148 @@
 .container {
-    min-height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  }
-  
-  .card {
-    background: white;
-    padding: 2.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+.card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #1f2937;
+}
+
+.btn {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-blue {
+  background-color: #2563eb;
+}
+
+.btn-blue:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-green {
+  background-color: #16a34a;
+}
+
+.btn-green:hover {
+  background-color: #15803d;
+}
+
+.btn-indigo {
+  background-color: #4f46e5;
+}
+
+.btn-indigo:hover {
+  background-color: #4338ca;
+}
+
+.home-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.section-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  width: 100%;
+  max-width: 800px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 150px;
+}
+
+.nav-button:hover {
+  background-color: #e0e0e0;
+  border-color: #999;
+}
+
+.nav-button.active {
+  background-color: #004080;
+  color: white;
+  border-color: #004080;
+  box-shadow: 0 4px 8px rgba(0, 64, 128, 0.2);
+}
+
+.marketplace-section {
+  padding: 2rem;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.marketplace-title {
+  font-size: 2.5rem;
+  color: #004080;
+  text-align: center;
+  margin-bottom: 3rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.home-page-wrapper > .container {
+    min-height: unset;
     width: 100%;
-    max-width: 400px;
-    text-align: center;
-  }
-  
-  .title {
-    font-size: 1.875rem;
-    font-weight: bold;
+    max-width: 450px;
     margin-bottom: 2rem;
-    color: #1f2937;
+}
+
+@media (max-width: 768px) {
+  .section-navigation {
+    flex-direction: column;
+    gap: 0.5rem;
   }
-  
-  .btn {
+
+  .nav-button {
     width: 100%;
-    padding: 0.75rem;
-    margin-top: 1rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 0.75rem;
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s ease;
   }
-  
-  .btn-blue {
-    background-color: #2563eb;
+
+  .marketplace-title {
+    font-size: 2rem;
   }
-  
-  .btn-blue:hover {
-    background-color: #1d4ed8;
+}
+
+@media (max-width: 480px) {
+  .marketplace-section {
+    padding: 1rem;
   }
-  
-  .btn-green {
-    background-color: #16a34a;
-  }
-  
-  .btn-green:hover {
-    background-color: #15803d;
-  }
-  
-  .btn-indigo {
-    background-color: #4f46e5;
-  }
-  
-  .btn-indigo:hover {
-    background-color: #4338ca;
-  }
-  
+}

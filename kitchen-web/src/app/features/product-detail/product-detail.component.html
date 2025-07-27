@@ -1,0 +1,59 @@
+<div class="product-detail-container">
+    <button class="btn-back" (click)="goBack()">&#8592; Voltar</button>
+  
+    <ng-container *ngIf="product">
+      <div class="product-header">
+        <img [src]="product.imageUrl" alt="{{ product.name }}" class="product-main-image">
+        <div class="product-info">
+          <h1 class="product-name-detail">{{ product.name }}</h1>
+          <p class="product-category">Categoria: {{ product.category }}</p>
+          <p class="product-catalog">Catálogo: {{ product.catalog }}</p>
+          <p class="product-description">{{ product.description }}</p>
+  
+          <p class="product-price-detail">
+            Preço:
+            <span *ngIf="selectedSku; else basePrice">
+              {{ selectedSku.price | number: '1.2-2' }}
+            </span>
+            <ng-template #basePrice>
+              {{ product.price | number: '1.2-2' }}
+            </ng-template>
+          </p>
+  
+          <div *ngIf="product.skus && product.skus.length > 0" class="sku-selection">
+            <h2>Variações Disponíveis:</h2>
+            <div class="sku-list">
+              <div *ngFor="let sku of product.skus"
+                   class="sku-card"
+                   [class.selected]="selectedSku === sku"
+                   (click)="selectSku(sku)">
+                <div class="sku-attributes">
+                  <span *ngIf="getAttributeValue(sku, 'Cor')">Cor: <strong>{{ getAttributeValue(sku, 'Cor') }}</strong></span>&nbsp;
+                  <span *ngIf="getAttributeValue(sku, 'Tamanho')">Tamanho: <strong>{{ getAttributeValue(sku, 'Tamanho') }}</strong></span>
+                </div>
+                <div class="sku-stock" [class.out-of-stock]="sku.stock.availableQuantity === 0">
+                  Em Estoque: {{ sku.stock.availableQuantity }}
+                  <span *ngIf="sku.stock.availableQuantity === 0" class="out-of-stock-label"> (Esgotado)</span>
+                </div>
+                <div class="sku-price">
+                  Preço: {{ sku.price | number: '1.2-2' }}
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <button class="btn btn-blue add-to-cart-btn" (click)="addToCart()" [disabled]="!selectedSku || selectedSku.stock.availableQuantity === 0">
+            Adicionar ao Carrinho
+          </button>
+          <p *ngIf="selectedSku && selectedSku.stock.availableQuantity === 0" class="stock-warning">
+            Este item está esgotado no momento.
+          </p>
+  
+        </div>
+      </div>
+    </ng-container>
+  
+    <ng-container *ngIf="!product" class="no-product-found">
+      <p>Produto não encontrado ou não disponível.</p>
+    </ng-container>
+  </div>

@@ -1,43 +1,38 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { User } from '../../core/model/user.model';
 import { AuthService } from '../../core/service/auth.service';
 import { CommonModule } from '@angular/common';
+
+import { ProductCarouselComponent } from '../product-carousel/product-carousel.component';
+import { Product } from '../../core/model/product.model';
+import { ProductService } from '../../core/service/product.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ProductCarouselComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   userProfile: number | undefined;
-  constructor(authService: AuthService, private router: Router) {
+  latestAutumnProducts: Product[] = [];
+  summerProducts: Product[] = [];
+  promotionProducts: Product[] = [];
+  bargainProducts: Product[] = [];
+
+  constructor(private authService: AuthService, 
+              private productService: ProductService) {
     this.userProfile = authService.currentUserId!;
   }
 
-  newOrder() {
-    this.router.navigate(['/cart']);
+  ngOnInit(): void {
+    this.loadProducts();
   }
 
-  ordersPainel(){
-    this.router.navigate(['/orders-painel']);
-  }
-
-  orderList() {
-    this.router.navigate(['/orders']);
-  }
-
-  productList() {
-    this.router.navigate(['/products']);
-  }
-
-  userList() {
-    this.router.navigate(['/users']);
-  }
-
-  userDetails(){
-    this.router.navigate(['/user-details']);
+  loadProducts(): void {
+    this.productService.getProducts().subscribe(data => {
+      this.summerProducts = data.data!;
+    });
   }
 }

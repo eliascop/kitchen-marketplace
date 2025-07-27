@@ -35,6 +35,8 @@ public class Product implements Serializable {
     @NotBlank(message = "Price must not be blank")
     private BigDecimal price;
 
+    private String imageUrl;
+
     @ManyToOne
     @JoinColumn(name = "catalog_id")
     private Catalog catalog;

@@ -52,11 +52,32 @@ export class AppComponent {
     this.router.navigate(['/']);
   }
 
-  myWallet(event: Event){
+  userList(event: Event){
+    if (event){
+      event.preventDefault();
+    }
+    this.router.navigate(['/users']);
+  }
+
+  myProducts(event: Event){
+    if (event){
+      event.preventDefault();
+    }
+    this.router.navigate(['/products']);
+  }
+
+  myOrders(event: Event) {
+    if (event){
+      event.preventDefault();
+    }
+    this.router.navigate(['/orders']);
+  }
+
+  userDetails(event: Event){
     if (event) {
       event.preventDefault();
     }
-    this.router.navigate(['/wallet']);
+    this.router.navigate(['/user-details']);
   }
 
   loadBalance(): void {

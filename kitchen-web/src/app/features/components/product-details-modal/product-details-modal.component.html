@@ -3,11 +3,18 @@
       <button (click)="close.emit()" class="close-button">×</button>
       
       <h2>{{ product.name }}</h2>
-      <p>{{ product.description }}</p>
-      <p>Categoria: {{ product.categoryName }}</p>
-      <p>Catálogo: {{ product.catalogName }}</p>
-      <p>Preço base: R$ {{ product.price | number:'1.2-2' }}</p>
-      <p>Status: {{ product.active ? 'Ativo' : 'Inativo' }}</p>
+      <div style="display: flex; flex-direction: row; width: 100%;">
+        <span style="flex:1">
+          <p>{{ product.description }}</p>
+          <p>Categoria: {{ product.category }}</p>
+          <p>Catálogo: {{ product.catalog }}</p>
+          <p>Preço base: R$ {{ product.price | number:'1.2-2' }}</p>
+          <p>Status: {{ product.active ? 'Ativo' : 'Inativo' }}</p>
+        </span>
+        <span>
+          <img [src]="product.imageUrl" [alt]="product.name" width="200px">
+        </span>
+      </div>
   
       <h3>SKUs</h3>
       <table class="sku-table" *ngIf="product.skus?.length > 0">
@@ -33,10 +40,7 @@
               </ul>
             </td>
             <td>
-              <p>Total: {{ sku.stock.totalQuantity }}</p>
-              <p>Reservado: {{ sku.stock.reservedQuantity }}</p>
-              <p>Vendido: {{ sku.stock.soldQuantity }}</p>
-              <p>Disponível: {{ sku.stock.availableQuantity }}</p>
+              Disponível: {{ sku.stock.availableQuantity }}
             </td>
           </tr>
         </tbody>
