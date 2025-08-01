@@ -3,6 +3,8 @@ package br.com.kitchen.api.model;
 import br.com.kitchen.api.enumerations.TransactionStatus;
 import br.com.kitchen.api.enumerations.TransactionType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,6 +16,8 @@ import java.time.LocalDateTime;
 @Table(name = "wallet_transactions", schema = "kitchen")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class WalletTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +40,4 @@ public class WalletTransaction {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
-    @Column(nullable = false, unique = true, length = 32)
-    private String secureToken;
 }

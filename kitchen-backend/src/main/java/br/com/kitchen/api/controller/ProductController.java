@@ -31,8 +31,20 @@ public class ProductController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> showAllProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        List<Product> products = service.findAll();
+
+        List<ProductResponseDTO> response = products.stream()
+                .map(ProductMapper::toResponseDTO)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/seller")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<?> showAll(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<?> showMyProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
         List<Product> products = service.findByUserId(userDetails.user().getId());
 
         List<ProductResponseDTO> response = products.stream()

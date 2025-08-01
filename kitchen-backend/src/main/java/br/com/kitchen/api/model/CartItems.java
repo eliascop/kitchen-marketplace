@@ -2,6 +2,7 @@ package br.com.kitchen.api.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name="CartItems", schema = "kitchen")
 @Data
+@NoArgsConstructor
 public class CartItems implements Serializable {
 
     @Id
@@ -24,4 +26,11 @@ public class CartItems implements Serializable {
     private int quantity;
 
     private BigDecimal itemValue;
+
+    public CartItems(Cart cart, Product product,int quantity){
+        this.cart = cart;
+        this.product = product;
+        this.quantity = quantity;
+        this.itemValue = product.getPrice();
+    }
 }

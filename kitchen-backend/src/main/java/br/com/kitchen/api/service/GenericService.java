@@ -44,24 +44,6 @@ public class GenericService<T, ID> {
         }
     }
 
-    public List<T> findByField(String fieldName, Long value) {
-        try {
-            T entity = domainClass.getDeclaredConstructor().newInstance();
-            entity.getClass()
-                    .getMethod("set" + capitalize(fieldName), Long.class)
-                    .invoke(entity, value);
-
-            ExampleMatcher matcher = ExampleMatcher.matching()
-                    .withMatcher(fieldName, ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
-
-            Example<T> example = Example.of(entity, matcher);
-            return repository.findAll(example, Sort.by(Sort.Direction.ASC, "name"));
-
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao buscar por campo: " + fieldName, e);
-        }
-    }
-
     private String capitalize(String str) {
         if (str == null || str.isEmpty()) return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1);

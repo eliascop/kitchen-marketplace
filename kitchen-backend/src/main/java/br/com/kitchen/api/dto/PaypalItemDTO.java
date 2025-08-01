@@ -8,8 +8,8 @@ import lombok.*;
 public class PaypalItemDTO {
     private String name;
     private String description;
-    private UnitAmountDTO unit_amount;
     private String quantity;
+    private UnitAmountDTO unit_amount;
 
     @Data
     @AllArgsConstructor

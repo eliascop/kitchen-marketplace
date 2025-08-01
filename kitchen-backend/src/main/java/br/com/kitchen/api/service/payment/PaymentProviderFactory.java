@@ -8,17 +8,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class PaymentServiceFactory {
+public class PaymentProviderFactory {
 
-    private final Map<String, PaymentService> services;
+    private final Map<String, PaymentProvider> services;
 
     @Autowired
-    public PaymentServiceFactory(List<PaymentService> implementations) {
+    public PaymentProviderFactory(List<PaymentProvider> implementations) {
         this.services = implementations.stream()
-                .collect(Collectors.toMap(PaymentService::getName, service -> service));
+                .collect(Collectors.toMap(PaymentProvider::getName, service -> service));
     }
 
-    public PaymentService getService(String name) {
+    public PaymentProvider getProvider(String name) {
         return services.get(name.toLowerCase());
     }
 }

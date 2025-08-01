@@ -2,7 +2,8 @@ package br.com.kitchen.api.builder;
 
 import br.com.kitchen.api.dto.PaypalItemDTO;
 import br.com.kitchen.api.dto.PaypalOrderDTO;
-import br.com.kitchen.api.model.WalletTransaction;
+import br.com.kitchen.api.model.Cart;
+import br.com.kitchen.api.model.Product;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,47 +14,52 @@ import java.util.List;
 public class PaypalOrderBuilder {
 
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static final String baseUrl = System.getenv("APP_BASE_URL");
+    private static final String baseUrl = System.getenv("paypal.base.url");
     private static final String serviceRote = "/api/payment/paypal";
 
     static {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    public static String buildOrderJson(WalletTransaction walletTx) {
-        PaypalItemDTO item = new PaypalItemDTO(
-                "CREDIT",
-                walletTx.getDescription(),
-                new PaypalItemDTO.UnitAmountDTO("BRL", scale(walletTx.getAmount())),
-                "1"
-        );
+    public static String buildOrderJson(Cart cart) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        PaypalOrderDTO.Amount amount = new PaypalOrderDTO.Amount(
-                "BRL",
-                scale(walletTx.getAmount()),
-                new PaypalOrderDTO.Breakdown(
-                        new PaypalOrderDTO.ItemTotal("BRL", scale(walletTx.getAmount()))
-                )
-        );
+        List<PaypalItemDTO> items = cart.getCartItems().stream().map(item -> {
+            Product product = item.getProduct();
+            return new PaypalItemDTO(
+                    product.getName(),
+                    product.getDescription(),
+                    String.valueOf(item.getQuantity()),
+                    new PaypalItemDTO.UnitAmountDTO("BRL", item.getItemValue().setScale(2, RoundingMode.HALF_UP).toString())
+            );
+        }).toList();
 
-        PaypalOrderDTO.PurchaseUnit purchaseUnit = new PaypalOrderDTO.PurchaseUnit(
-                "Crédito na conta KitchenApp",
+        PaypalOrderDTO paypalOrderDTO = new PaypalOrderDTO();
+        paypalOrderDTO.setIntent("CAPTURE");
+
+        PaypalOrderDTO.Amount amount = new PaypalOrderDTO.Amount();
+        amount.setCurrency_code("BRL");
+        amount.setValue(cart.getCartTotal().setScale(2, RoundingMode.HALF_UP).toString());
+        amount.setBreakdown(new PaypalOrderDTO.Breakdown(
+                new PaypalOrderDTO.ItemTotal("BRL", cart.getCartTotal().setScale(2,RoundingMode.HALF_UP).toString())
+        ));
+
+        paypalOrderDTO.setPurchase_units(List.of(new PaypalOrderDTO.PurchaseUnit(
+                "Pedido da KitchenApp",
                 amount,
-                List.of(item)
-        );
+                items
+        )));
 
-        PaypalOrderDTO order = new PaypalOrderDTO();
-        order.setIntent("CAPTURE");
-        order.setPurchase_units(List.of(purchaseUnit));
-
-        order.setApplication_context(new PaypalOrderDTO.ApplicationContext(
-                baseUrl + serviceRote + "/success?walletTxId=" + walletTx.getId()+"&secureToken=" + walletTx.getSecureToken(),
-                baseUrl + serviceRote + "/cancelled?walletTxId=" + walletTx.getId() +"&secureToken=" + walletTx.getSecureToken()));
+        paypalOrderDTO.setApplication_context(new PaypalOrderDTO.ApplicationContext(
+                "http://192.168.15.176:8082/payment/paypal/success?cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken(),
+                "http://192.168.15.176:8082/payment/paypal/cancelled?cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken()
+        ));
 
         try {
-            return mapper.writeValueAsString(order);
+            return mapper.writeValueAsString(paypalOrderDTO);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Erro ao serializar pedido PayPal", e);
+            throw new RuntimeException(e);
         }
     }
 

@@ -1,17 +1,19 @@
 package br.com.kitchen.api.model;
 
+import br.com.kitchen.api.enumerations.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
 @Table(name = "orders", schema = "kitchen")
@@ -29,11 +31,10 @@ public class Order implements Serializable {
     @Column(columnDefinition = "BIGINT")
     private Long id;
 
-    @JsonProperty("creation")
-    private Date creation;
+    private LocalDateTime creation;
 
-    @JsonProperty("status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -42,28 +43,42 @@ public class Order implements Serializable {
     @Column(precision = 10, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
 
-    @JsonProperty("user")
-    @ManyToOne
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_order_user"))
-    private User user;
+    public void updateOrderTotal() {
+        if (orderItems == null || orderItems.isEmpty()) {
+            this.total = BigDecimal.ZERO;
+            return;
+        }
+
+        this.total = orderItems.stream()
+                .map(item -> item.getProduct().getPrice()
+                        .multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
     @PrePersist
     public void prePersist() {
         if (creation == null) {
-            creation = new Date();
+            creation = LocalDateTime.now();
         }
-        if (status == null || status.isEmpty()){
-            status = "PENDING";
+        if (status == null){
+            status = OrderStatus.PREPARING;
         }
     }
 
-    @Column(name = "payment_id")
-    private String paymentId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_order_user"))
+    private User user;
 
-    public void calculateTotal() {
-        this.total = orderItems.stream()
-                .map(OrderItems::getItemValue)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
+    @OneToOne
+    @JoinColumn(name = "payment_id", unique = true, foreignKey = @ForeignKey(name = "FK_order_payment"))
+    private Payment payment;
+
+    @ManyToOne
+    @JoinColumn(name = "shipping_address_id", foreignKey = @ForeignKey(name = "FK_order_shipping_address"))
+    private Address shippingAddress;
+
+    @ManyToOne
+    @JoinColumn(name = "billing_address_id", foreignKey = @ForeignKey(name = "FK_order_billing_address"))
+    private Address billingAddress;
+
 }

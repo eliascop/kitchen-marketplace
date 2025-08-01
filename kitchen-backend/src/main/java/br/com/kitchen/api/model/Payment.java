@@ -3,7 +3,10 @@ package br.com.kitchen.api.model;
 import br.com.kitchen.api.enumerations.PaymentMethod;
 import br.com.kitchen.api.enumerations.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
@@ -32,12 +35,17 @@ public class Payment {
 
     private String gatewayTransactionId;
 
-    private String description;
+    private String paymentApprovalUrl;
+
+    @Column(nullable = false, unique = true, length = 32)
+    private String secureToken;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @OneToOne
-    private WalletTransaction walletTransaction;
+    @JoinColumn(name = "cart_id", nullable = false, unique = true)
+    private Cart cart;
+
 }
 

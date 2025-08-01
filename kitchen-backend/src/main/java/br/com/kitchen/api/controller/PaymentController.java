@@ -1,14 +1,13 @@
 package br.com.kitchen.api.controller;
 
-import br.com.kitchen.api.model.WalletTransaction;
-import br.com.kitchen.api.record.CreditRequest;
+import br.com.kitchen.api.model.Cart;
 import br.com.kitchen.api.record.CustomUserDetails;
-import br.com.kitchen.api.service.WalletService;
-import br.com.kitchen.api.service.payment.PaymentService;
-import br.com.kitchen.api.service.payment.PaymentServiceFactory;
+import br.com.kitchen.api.service.CartService;
+import br.com.kitchen.api.service.payment.PaymentProvider;
+import br.com.kitchen.api.service.payment.PaymentProviderFactory;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -20,44 +19,41 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/payment")
-@RequiredArgsConstructor
 @SecurityRequirement(name = "bearer-key")
 public class PaymentController {
 
-    private final WalletService walletService;
-    private final PaymentServiceFactory paymentServiceFactory;
+    private final CartService cartService;
+    private final PaymentProviderFactory paymentProviderFactory;
 
     @Autowired
-    public PaymentController(PaymentServiceFactory paymentServiceFactory,WalletService walletService){
-        this.walletService = walletService;
-        this.paymentServiceFactory = paymentServiceFactory;
+    public PaymentController(CartService cartService,
+                             PaymentProviderFactory paymentProviderFactory){
+        this.cartService = cartService;
+        this.paymentProviderFactory = paymentProviderFactory;
     }
 
     @Value("${frontend.base.url}")
-    private String urlHome;
+    private String urlCheckout;
 
     @PostMapping("/{provider}")
-    public ResponseEntity<Map<String, Object>> initiatePayment(@PathVariable String provider,
-                                                               @RequestBody CreditRequest creditRequest,
-                                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
-        WalletTransaction transaction = null;
+    public ResponseEntity<?> initiatePayment(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                               @PathVariable String provider) {
         try {
-            transaction = walletService.createCreditTransaction(
-                    userDetails.user().getId(), creditRequest.amount(), creditRequest.description());
 
-            PaymentService paymentService = paymentServiceFactory.getService(provider);
-            String approvalLink = paymentService.initiatePayment(transaction);
+            PaymentProvider paymentProvider = paymentProviderFactory.getProvider(provider);
+            Cart cart = cartService.getActiveCartByUserId(userDetails.user().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+            paymentProvider.createPayment(cart);
+            String linkForApproval = paymentProvider.initiatePayment(cart);
 
-            return ResponseEntity.ok(Map.of(
-                    "code", HttpStatus.CREATED.value(),
-                    "message", approvalLink
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of(
+                    "redirectUrl", linkForApproval
             ));
         } catch (Exception ex) {
-            if (transaction != null) {
-                walletService.cancelTransaction(transaction.getId());
-            }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "code", HttpStatus.BAD_REQUEST.value(),
                     "message", "Error on initiate payment: " + ex.getMessage()
@@ -68,24 +64,22 @@ public class PaymentController {
     @GetMapping("/{provider}/success")
     public void onSuccess(@PathVariable String provider,
                           @RequestParam("token") String token,
-                          @RequestParam("walletTxId") Long walletTxId,
+                          @RequestParam("cartId") Long cartId,
                           @RequestParam("secureToken") String secureToken,
                           HttpServletResponse response) {
         try {
-            if(!walletService.isValidSecureToken(secureToken)){
+            PaymentProvider paymentProvider = paymentProviderFactory.getProvider(provider);
+            if(!paymentProvider.isValidSecureToken(secureToken)){
                 redirect(response, "error", "invalid-token", "Invalid or expired Token.");
                 return;
             }
+            Cart cart = cartService.findById(cartId)
+                    .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
 
-            PaymentService paymentService = paymentServiceFactory.getService(provider);
-            String status = paymentService.confirmPayment(token);
+            cart.getPayment().setGatewayTransactionId(token);
+            cartService.save(cart);
 
-            if ("SUCCESS".equalsIgnoreCase(status) || "COMPLETED".equalsIgnoreCase(status)) {
-                walletService.validateTransaction(walletTxId);
-                redirect(response, "succeeded");
-            } else {
-                redirect(response, status.toLowerCase());
-            }
+            redirect(response, "succeeded");
         } catch (Exception e) {
             redirect(response, "error", "errortocancel", e.getMessage());
         }
@@ -94,10 +88,9 @@ public class PaymentController {
     @GetMapping("/{provider}/cancelled")
     public void onCancelled(@PathVariable String provider,
                             @RequestParam("token") String token,
-                            @RequestParam("walletTxId") Long walletTxId,
+                            @RequestParam("cartId") Long cartId,
                             HttpServletResponse response) {
         try {
-            walletService.cancelTransaction(walletTxId);
             redirect(response, "cancelled");
         } catch (Exception e) {
             redirect(response, "errortocancel");
@@ -110,8 +103,8 @@ public class PaymentController {
 
     private void redirect(HttpServletResponse response, String status, String message, String errorDetail) {
         try {
-            StringBuilder url = new StringBuilder(urlHome)
-                    .append("/wallet?paymentStatus=")
+            StringBuilder url = new StringBuilder(urlCheckout)
+                    .append("/payments?paymentStatus=")
                     .append(encode(status));
 
             if (message != null) {
@@ -123,7 +116,8 @@ public class PaymentController {
             }
 
             response.sendRedirect(url.toString());
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            log.error("Failed to redirect", ex);
         }
     }
 

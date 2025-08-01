@@ -1,7 +1,6 @@
 package br.com.kitchen.api.repository;
 
 import br.com.kitchen.api.model.Catalog;
-import br.com.kitchen.api.model.Seller;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;

@@ -49,4 +49,13 @@ public class Address {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public boolean isShipping() {
+        return AddressType.SHIPPING.equals(this.type);
+    }
+
+    public boolean isBilling() {
+        return AddressType.BILLING.equals(this.type);
+    }
+
 }

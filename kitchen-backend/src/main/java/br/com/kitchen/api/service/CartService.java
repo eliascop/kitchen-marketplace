@@ -24,17 +24,18 @@ public class CartService extends GenericService<Cart, Long>{
     }
 
     public Cart getOrCreateCart(User user) {
-        return cartRepository.findByUserId(user.getId())
+        return cartRepository.findActiveCartByUserId(user.getId())
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
                     newCart.setUser(user);
                     newCart.setCreation(LocalDateTime.now());
+                    newCart.setActive(true);
                     return cartRepository.save(newCart);
                 });
     }
 
     @Transactional
-    public void addItem(User user, Product product, int quantity) {
+    public Cart manageItems(User user, Product product, int quantity) {
         Cart cart = getOrCreateCart(user);
 
         Optional<CartItems> existingItem = cart.getCartItems().stream()
@@ -43,21 +44,27 @@ public class CartService extends GenericService<Cart, Long>{
 
         if (existingItem.isPresent()) {
             CartItems item = existingItem.get();
-            item.setQuantity(item.getQuantity() + quantity);
+            int newQuantity = item.getQuantity() + quantity;
+            if (newQuantity <= 0) {
+                cart.getCartItems().remove(item);
+                cartItemRepository.delete(item);
+            } else {
+                item.setQuantity(newQuantity);
+            }
         } else {
-            CartItems newItem = new CartItems();
-            newItem.setCart(cart);
-            newItem.setProduct(product);
-            newItem.setQuantity(quantity);
-            cart.getCartItems().add(newItem);
+            if (quantity > 0) {
+                cart.getCartItems().add(new CartItems(cart, product, quantity));
+            }else{
+                throw new IllegalArgumentException("Quantity must be positive when adding a new item.");
+            }
         }
-
-        cartRepository.save(cart);
+        cart.updateCartTotal();
+        return cartRepository.save(cart);
     }
 
     @Transactional
     public void removeItem(User user, Long productId) {
-        Cart cart = cartRepository.findByUserId(user.getId())
+        Cart cart = cartRepository.findActiveCartByUserId(user.getId())
                 .orElseThrow(() -> new IllegalStateException("Cart not found for user"));
 
         Iterator<CartItems> iterator = cart.getCartItems().iterator();
@@ -87,24 +94,16 @@ public class CartService extends GenericService<Cart, Long>{
 
     @Transactional
     public void clearCart(User user) {
-        Cart cart = getOrCreateCart(user);
+        Cart cart = cartRepository.findActiveCartByUserId(user.getId())
+                .orElseThrow(() -> new IllegalStateException("Cart not found for user"));
+
         cart.getCartItems().clear();
         cartItemRepository.deleteByCartId(cart.getId());
         cartRepository.save(cart);
     }
 
-    @Transactional
-    public void deleteCart(Cart cart) {
-        cartItemRepository.deleteByCartId(cart.getId());
-        cartRepository.delete(cart);
-    }
-
-    public Optional<Cart> findById(Long cartId) {
-        return cartRepository.findById(cartId);
-    }
-
-    public Optional<Cart> getCartByIdAndUserId(Long id, Long userId){
-        return cartRepository.findByIdAndUserId(id,userId);
+    public Optional<Cart> getActiveCartByUserId(Long userId){
+        return cartRepository.findActiveCartByUserId(userId);
     }
 
     public void save(Cart cart){

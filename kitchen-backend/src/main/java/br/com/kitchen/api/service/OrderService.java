@@ -1,11 +1,14 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.OrderDTO;
-import br.com.kitchen.api.model.Order;
-import br.com.kitchen.api.model.OrderItems;
-import br.com.kitchen.api.model.User;
+import br.com.kitchen.api.enumerations.OrderStatus;
+import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.producer.KafkaProducer;
+import br.com.kitchen.api.repository.AddressRepository;
 import br.com.kitchen.api.repository.OrderRepository;
+import br.com.kitchen.api.repository.PaymentRepository;
+import br.com.kitchen.api.service.payment.PaymentProvider;
+import br.com.kitchen.api.service.payment.PaymentProviderFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,39 +20,27 @@ import java.util.Optional;
 @Service
 public class OrderService extends GenericService<Order, Long>{
 
+    private final AddressRepository addressRepository;
     private final KafkaProducer<OrderDTO> orderProducer;
     private final OrderRepository orderRepository;
-    private final UserService userService;
-    private final WalletService walletService;
+    private final PaymentRepository paymentRepository;
+    private final PaymentProviderFactory paymentProviderFactory;
     private final CartService cartService;
 
     public OrderService(
             @Qualifier("orderKafkaProducer") KafkaProducer<OrderDTO> orderProducer,
+            AddressRepository addressRepository,
             OrderRepository orderRepository,
-            UserService userService,
-            WalletService walletService,
+            PaymentRepository paymentRepository,
+            PaymentProviderFactory paymentProviderFactory,
             CartService cartService) {
         super(orderRepository, Order.class);
+        this.addressRepository = addressRepository;
         this.orderProducer = orderProducer;
+        this.paymentProviderFactory = paymentProviderFactory;
+        this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
-        this.userService = userService;
-        this.walletService = walletService;
         this.cartService = cartService;
-    }
-
-    @Transactional
-    public Order createOrder(Order order) {
-        if (order.getUser() != null && order.getUser().getId() != null) {
-            User user = userService.findById(order.getUser().getId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            order.setUser(user);
-        }else{
-            throw new IllegalArgumentException("User must be set for the order");
-        }
-        walletService.debit(order.getUser().getId(), order.getTotal(), "COMPRA");
-        Order orderSaved = orderRepository.save(order);
-        orderProducer.sendNotification(new OrderDTO(orderSaved.getId(), orderSaved.getStatus()));
-        return orderSaved;
     }
 
     public Optional<List<Order>> findOrdersByUserId(Long userId) {
@@ -69,40 +60,66 @@ public class OrderService extends GenericService<Order, Long>{
     }
 
     @Transactional
-    public Order checkoutFromCart(Long cartId, Long userId) {
-        var cart = cartService.getCartByIdAndUserId(cartId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Cart not found or access denied"));
+    public Order checkoutFromCart(Long userId, Long shippingAddressId, Long billingAddressId) throws Exception{
+        Cart cart = getValidatedCart(userId);
+        Address shipping = getAddressOrThrow(shippingAddressId, "Shipping address not found");
+        Address billing = getAddressOrThrow(billingAddressId, "Billing address not found");
+
+        Order order = createOrderFromCart(cart, shipping, billing, cart.getPayment());
+        Order orderSaved = orderRepository.save(order);
+
+        cart.setActive(false);
+        cartService.save(cart);
+
+       // orderProducer.sendNotification(new OrderDTO(orderSaved.getId(), orderSaved.getStatus().toString()));
+
+        return orderSaved;
+    }
+
+    private Cart getValidatedCart(Long userId) {
+        Cart cart = cartService.getActiveCartByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
 
         if (cart.getCartItems().isEmpty()) {
             throw new IllegalStateException("Cart is empty");
         }
 
+        return cart;
+    }
+
+    private Address getAddressOrThrow(Long addressId, String message) {
+        return addressRepository.findById(addressId)
+                .orElseThrow(() -> new IllegalArgumentException(message));
+    }
+
+    private Payment getPaymentOrThrow(Long paymentId) {
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("Payment method not set"));
+    }
+
+    private Order createOrderFromCart(Cart cart, Address shipping, Address billing, Payment payment) {
         Order order = new Order();
         order.setUser(cart.getUser());
-        order.setStatus("PENDING_PAYMENT");
+        order.setStatus(OrderStatus.PENDING_PROCESSING);
+        order.setShippingAddress(shipping);
+        order.setBillingAddress(billing);
+        order.setPayment(payment);
 
         BigDecimal total = BigDecimal.ZERO;
-        for (var item : cart.getCartItems()) {
-            var orderItem = new OrderItems();
+
+        for (CartItems item : cart.getCartItems()) {
+            OrderItems orderItem = new OrderItems();
             orderItem.setOrder(order);
             orderItem.setProduct(item.getProduct());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setItemValue(item.getItemValue());
 
-            total = total.add(orderItem.getItemValue().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
+            total = total.add(item.getItemValue().multiply(BigDecimal.valueOf(item.getQuantity())));
             order.getOrderItems().add(orderItem);
         }
 
         order.setTotal(total);
-
-        walletService.debit(userId, total, "COMPRA via checkout");
-        Order orderSaved = orderRepository.save(order);
-
-        cart.setActive(false);
-        cartService.save(cart);
-        orderProducer.sendNotification(new OrderDTO(orderSaved.getId(), orderSaved.getStatus()));
-
-        return orderSaved;
+        return order;
     }
 
 }

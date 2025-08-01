@@ -26,6 +26,6 @@ INSERT INTO kitchen.wallets (user_id, balance, updated_at)
 VALUES (1, 100.00, CURRENT_TIMESTAMP());
 
 -- Inserir transações da carteira
-INSERT INTO kitchen.wallet_transactions (wallet_id, type, amount, description, status, created_at, secure_token)
+INSERT INTO kitchen.wallet_transactions (wallet_id, type, amount, description, status, created_at)
 VALUES
-  (1, 'CREDIT', 100.00, 'Depósito inicial', 'SUCCESS', CURRENT_TIMESTAMP(),'b2afb7feeecd4905');
+  (1, 'CREDIT', 100.00, 'Depósito inicial', 'SUCCESS', CURRENT_TIMESTAMP());

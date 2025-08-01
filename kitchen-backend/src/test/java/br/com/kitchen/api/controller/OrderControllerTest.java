@@ -78,28 +78,6 @@ class OrderControllerTest {
     }
 
     @Test
-    void shouldReturnCreatedWhenPostOrder() throws Exception {
-        Order order = OrderTestBuilder.buildValidOrder(mockUser);
-
-        mockMvc.perform(post("/orders/v1/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(order)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.code").value(201))
-                .andExpect(jsonPath("$.message").value("Order successfully created"));
-    }
-
-    @Test
-    void shouldReturnBadRequestWhenMissingUser() throws Exception {
-        Order order = OrderTestBuilder.buildValidOrder(null);
-
-        mockMvc.perform(post("/orders/v1/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(order)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void shouldReturnNotFoundWhenOrderDoesNotExist() throws Exception {
         mockMvc.perform(get("/orders/v1/{id}", 9999L))
                 .andExpect(status().isNotFound());

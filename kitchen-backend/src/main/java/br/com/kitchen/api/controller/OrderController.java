@@ -48,41 +48,20 @@ public class OrderController {
         return ResponseEntity.ok(ordersList.get());
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> newOrder(@RequestBody Order order) {
-        try{
-            Order orderSaved = orderService.createOrder(order);
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkoutFromCart(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                              @RequestParam Long shippingAddressId,
+                                              @RequestParam Long billingAddressId) {
+        try {
+            Order createdOrder = orderService.checkoutFromCart(userDetails.user().getId(), shippingAddressId, billingAddressId);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(Map.of(
-                            "code", HttpStatus.CREATED.value(),
-                            "message", "Order successfully created",
-                            "orderId", orderSaved.getId()
+                    "orderId", createdOrder.getId(),
+                    "orderStatus", createdOrder.getStatus()
                     ));
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .body(Map.of(
-                            "code", HttpStatus.BAD_REQUEST.value(),
-                            "message", "An error occurred while creating order",
-                            "details", e.getMessage()
-                    ));
-        }
-    }
-
-    @PostMapping("/checkout")
-    public ResponseEntity<?> checkoutFromCart(@RequestParam Long cartId,
-                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
-        try {
-            Order createdOrder = orderService.checkoutFromCart(cartId, userDetails.user().getId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                    "code", HttpStatus.CREATED.value(),
-                    "message", "Order successfully created from cart",
-                    "orderId", createdOrder.getId()
-            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "code", HttpStatus.BAD_REQUEST.value(),
                     "message", "Checkout failed",
                     "details", e.getMessage()
             ));
