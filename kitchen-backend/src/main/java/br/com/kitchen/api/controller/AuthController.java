@@ -4,9 +4,9 @@ import br.com.kitchen.api.dto.AuthRequestDTO;
 import br.com.kitchen.api.dto.AuthResponseDTO;
 import br.com.kitchen.api.dto.UserDTO;
 import br.com.kitchen.api.model.User;
-import br.com.kitchen.api.record.CustomUserDetails;
+import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.UserService;
-import br.com.kitchen.api.util.JwtTokenProvider;
+import br.com.kitchen.api.util.JwtTokenUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenUtil jwtTokenUtil;
     private final UserService userService;
 
     public AuthController(AuthenticationManager authenticationManager,
-                            JwtTokenProvider jwtTokenProvider,
+                            JwtTokenUtil jwtTokenUtil,
                             UserService userService){
         this.authenticationManager = authenticationManager;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.jwtTokenUtil = jwtTokenUtil;
         this.userService = userService;
     }
 
@@ -40,10 +40,10 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(authRequest.getLogin(), authRequest.getPassword())
             );
 
-            var customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-            var user = customUserDetails.user();
+            var userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            var user = userPrincipal.user();
 
-            final String jwt = jwtTokenProvider.generateToken(user);
+            final String jwt = jwtTokenUtil.generateToken(user);
 
             return ResponseEntity
                     .status(HttpStatus.OK.value())

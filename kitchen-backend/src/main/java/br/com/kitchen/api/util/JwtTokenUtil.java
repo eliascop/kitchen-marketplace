@@ -1,23 +1,26 @@
 package br.com.kitchen.api.util;
 
 import br.com.kitchen.api.model.User;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.stream.Collectors;
 
 @Component
-public class JwtTokenProvider {
+public class JwtTokenUtil {
 
     @Value("${jwt.secret}")
     private String secret;
 
-    private Key secretKey;
+    private SecretKey secretKey;
 
     @PostConstruct
     public void init() {
@@ -25,10 +28,12 @@ public class JwtTokenProvider {
     }
 
     public String generateToken(User user) {
-        return Jwts.builder()
-                .setSubject(user.getLogin())
+        return Jwts.builder().subject(user.getLogin())
                 .claim("id", user.getId())
-                .claim("role", user.getRoles().stream()
+                .claim("name", user.getName())
+                .claim("email", user.getEmail())
+                .claim("phone", user.getPhone())
+                .claim("roles", user.getRoles().stream()
                         .map(Enum::name)
                         .collect(Collectors.toList()))
                 .setIssuedAt(new Date())
@@ -37,28 +42,16 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
-    }
-
     public String getUsernameFromToken(String token) {
         return getAllClaimsFromToken(token).getSubject();
     }
 
-    public Long getUserIdFromToken(String token) {
-        return getAllClaimsFromToken(token).get("id", Long.class);
-    }
-
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+        return Jwts.parser()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
+
 }

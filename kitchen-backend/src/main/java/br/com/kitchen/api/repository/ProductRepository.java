@@ -1,11 +1,17 @@
 package br.com.kitchen.api.repository;
 
 import br.com.kitchen.api.model.Product;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends GenericRepository<Product, Long> {
-    List<Product> findByCatalog_Seller_UserId(Long id);
+    List<Product> findBySellerId(Long sellerId);
+
+    @Query("SELECT p FROM Product p JOIN p.skus s WHERE s.sku = :sku AND p.seller.id = :sellerId")
+    Optional<Product> findBySkuAndSellerId(@Param("sku") String sku, @Param("sellerId") Long sellerId);
 }

@@ -1,70 +1,28 @@
-<div class="cart-form-container">
-  <h1 class="title">Menu de opções</h1>
-  <form [formGroup]="cartForm">
-    <div class="form-product-type">
-      <label for="product-type">
-        Selecione o que deseja:
-      </label>
-      <select formControlName="productType" (change)="onTypeChange()">
-        <option *ngFor="let type of productTypes" [value]="type.key">{{ type.label }}</option>
-      </select>
-    </div>
-    <div class="form-product-name">
-      <label for="product-name">
-        Selecione o tipo:
-      </label>
-      <div>
-        <select formControlName="productId" class="product-name">
-          <option value="0" disabled>Selecione um produto</option>
-          <option *ngFor="let product of products" [value]="product.id">{{ product.name }}</option>
-        </select>
-        <select formControlName="quantity" class="product-quantity">
-          <option [value]="1">1</option>
-          <option [value]="2">2</option>
-          <option [value]="3">3</option>
-          <option [value]="4">4</option>
-          <option [value]="5">5</option>
-        </select>
-      </div>
-    </div>
-    <div>
-      <button type="button" (click)="addProductToCart()" class="submit-button" [disabled]="cartForm.invalid || cartForm.get('productId')?.value === 0"> Adicionar </button>
-    </div>
-  </form>
+<div class="cart-container">
+  <h2>Seu Carrinho de Compras</h2>
 
-  <hr>
-
-  <div *ngIf="order.items.length === 0" style="text-align: center;">
-    <p>Seu carrinho está vazio.</p>
+  <div *ngIf="cartItems.length === 0" class="empty-cart">
+    <p>O seu carrinho está vazio.</p>
   </div>
 
-  <div>
-    <div *ngIf="order.items.length > 0" class="cart-container">
-      <ul class="cart-list">
-        <li *ngFor="let item of order.items; let i = index" class="cart-row">
-          <div class="cart-detail">
-            <div class="cart-info">
-              <span>{{i+1}}. </span>
-              <span class="item-quantity">{{ item.quantity }}x {{ item.product.name }}</span>
-              <span class="item-total">-  Preço R$ {{ item.product.price | number: '1.2-2' }}</span>
-            </div>
-            <span class="item-description">{{item.product.description}} </span>
-          </div>
-          <div class="cart-action">
-            <span class="item-total">Sub-total R$ {{ item.product.price*item.quantity | number: '1.2-2' }}</span>
-            <button type="button" (click)="removeItem(i)" class="fa-solid fa-trash" style="margin-left: 10px;"></button>
-          </div>
-        </li>
-      </ul>
+  <div *ngIf="cartItems.length > 0">
+    <div class="cart-item-list">
+      <div *ngFor="let item of cartItems" class="cart-item">
+        <div class="item-details">
+          <span class="item-name">{{ item.product.name }}</span>
+          <span class="item-quantity">x {{ item.quantity }}</span>
+          <span class="item-price">R$ {{ item.value | currencyFormatter}}</span>
+          <span class="item-subTotal">R$ {{ (item.value * item.quantity) | currencyFormatter}}</span>
+        </div>
+        <button class="remove-btn" (click)="onRemoveItem(item.id!)">Remover</button>
+      </div>
     </div>
 
-    <div *ngIf="order.items.length > 0">
-      <p style="text-align: right;margin-right: 10px;">
-        <strong>Total: </strong>R$ {{ order.total | number: '1.2-2' }}
-      </p>
-      <div style="text-align: right;">
-        <button type="button" (click)="submitCart()" class="btn-add-order">Pagar</button>
-      </div>
+    <hr>
+
+    <div class="cart-summary">
+      <h3>Total: R$ {{ cartTotal | currencyFormatter }}</h3>
+      <button class="clear-btn" (click)="onClearCart()">Limpar Carrinho</button>
     </div>
   </div>
 </div>

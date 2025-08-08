@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public class OrderTestBuilder {
 
-    public static Order buildValidOrder(User user) {
+    public static Order buildValidOrder(User user, Seller seller) {
         Product product = ProductTestBuilder.buildDefaultProduct();
 
         Order order = new Order();
@@ -17,7 +17,7 @@ public class OrderTestBuilder {
         order.setStatus(OrderStatus.PENDING_PROCESSING);
         order.setTotal(BigDecimal.valueOf(100));
 
-        OrderItems item = new OrderItems(null, order, product, 1, order.getTotal());
+        OrderItems item = new OrderItems(order, product, 2, seller);
         order.getOrderItems().add(item);
 
         return order;

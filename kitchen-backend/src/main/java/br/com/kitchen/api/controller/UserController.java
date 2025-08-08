@@ -2,7 +2,7 @@ package br.com.kitchen.api.controller;
 
 import br.com.kitchen.api.dto.UserDTO;
 import br.com.kitchen.api.model.User;
-import br.com.kitchen.api.record.CustomUserDetails;
+import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,7 +56,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('SELLER')")
     @PostMapping("/seller/update")
-    public ResponseEntity<?> updateSellerStore(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> updateSellerStore(@AuthenticationPrincipal UserPrincipal userDetails,
                                                @RequestParam String storeName, boolean storeStatus) {
         try {
 

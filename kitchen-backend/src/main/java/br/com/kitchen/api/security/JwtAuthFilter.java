@@ -1,8 +1,7 @@
 package br.com.kitchen.api.security;
 
 import br.com.kitchen.api.service.CustomUserDetailsService;
-import br.com.kitchen.api.util.JwtRequestUtil;
-import br.com.kitchen.api.util.JwtTokenProvider;
+import br.com.kitchen.api.util.JwtTokenUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,16 +15,13 @@ import java.io.IOException;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenUtil jwtTokenUtil;
     private final CustomUserDetailsService customUserDetailsService;
-    private final JwtRequestUtil jwtRequestUtil;
 
-    public JwtAuthFilter(JwtTokenProvider jwtTokenProvider,
-                                   CustomUserDetailsService customUserDetailsService,
-                                   JwtRequestUtil jwtRequestUtil) {
-        this.jwtTokenProvider = jwtTokenProvider;
+    public JwtAuthFilter(JwtTokenUtil jwtTokenUtil,
+                         CustomUserDetailsService customUserDetailsService) {
+        this.jwtTokenUtil = jwtTokenUtil;
         this.customUserDetailsService = customUserDetailsService;
-        this.jwtRequestUtil = jwtRequestUtil;
     }
 
     @Override
@@ -33,17 +29,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String path = request.getRequestURI();
-
-        if (path.startsWith("/auth/")) {
+        if (request.getRequestURI().startsWith("/auth/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = jwtRequestUtil.getTokenFromRequest(request);
+        final String requestTokenFromHeader =  request.getHeader("Authorization");
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            String username = jwtTokenProvider.getUsernameFromToken(token);
+        if (requestTokenFromHeader != null && requestTokenFromHeader.startsWith("Bearer ")) {
+
+            String jwtToken = requestTokenFromHeader.substring(7);
+
+            String username = jwtTokenUtil.getUsernameFromToken(jwtToken);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 var userDetails = customUserDetailsService.loadUserByUsername(username);

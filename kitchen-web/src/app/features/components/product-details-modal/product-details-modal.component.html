@@ -8,7 +8,7 @@
           <p>{{ product.description }}</p>
           <p>Categoria: {{ product.category }}</p>
           <p>Catálogo: {{ product.catalog }}</p>
-          <p>Preço base: R$ {{ product.price | number:'1.2-2' }}</p>
+          <p>Preço base: R$ {{ product.price | currencyFormatter }}</p>
           <p>Status: {{ product.active ? 'Ativo' : 'Inativo' }}</p>
         </span>
         <span>
@@ -31,7 +31,7 @@
           <tr *ngFor="let sku of product.skus">
             <td>{{ sku.id }}</td>
             <td>{{ sku.sku }}</td>
-            <td>R$ {{ sku.price | number:'1.2-2' }}</td>
+            <td>R$ {{ sku.price | currencyFormatter }}</td>
             <td>
               <ul>
                 <li *ngFor="let attr of sku.attributes">

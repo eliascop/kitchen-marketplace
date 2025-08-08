@@ -5,7 +5,7 @@
       <img [src]="product.imageUrl" alt="{{ product.name }}" class="product-image">
       <div class="product-name">{{ product.name }}</div>
       <div>{{ product.description }} </div>
-      <div class="product-price">R$ {{ product.price | number: '1.2-2' }}</div> 
+      <div class="product-price">R$ {{ product.price | currencyFormatter }}</div> 
       <button class="add-to-cart-button">Ver produto</button>
     </div>
     <p *ngIf="products.length === 0" class="no-products-message">Nenhum produto disponível nesta categoria.</p>

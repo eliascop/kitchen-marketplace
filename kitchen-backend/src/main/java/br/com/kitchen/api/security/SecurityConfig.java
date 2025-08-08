@@ -1,8 +1,7 @@
 package br.com.kitchen.api.security;
 
 import br.com.kitchen.api.service.CustomUserDetailsService;
-import br.com.kitchen.api.util.JwtRequestUtil;
-import br.com.kitchen.api.util.JwtTokenProvider;
+import br.com.kitchen.api.util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,23 +25,20 @@ import java.util.List;
 public class SecurityConfig {
 
     @Value("${frontend.base.url}")
-    private String frontendBaseUrl;
+    private String appBaseUrl;
 
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenUtil jwtTokenUtil;
     private final CustomUserDetailsService customUserDetailsService;
-    private final JwtRequestUtil jwtRequestUtil;
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider,
-                          CustomUserDetailsService customUserDetailsService,
-                          JwtRequestUtil jwtRequestUtil) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.jwtRequestUtil = jwtRequestUtil;
+    public SecurityConfig(JwtTokenUtil jwtTokenUtil,
+                          CustomUserDetailsService customUserDetailsService) {
+        this.jwtTokenUtil = jwtTokenUtil;
         this.customUserDetailsService = customUserDetailsService;
     }
 
     @Bean
     public JwtAuthFilter jwtAuthenticationFilter() {
-        return new JwtAuthFilter(jwtTokenProvider, customUserDetailsService,jwtRequestUtil);
+        return new JwtAuthFilter(jwtTokenUtil, customUserDetailsService);
     }
 
     @Bean
@@ -50,7 +46,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
-                    config.setAllowedOrigins(List.of(frontendBaseUrl));
+                    config.setAllowedOrigins(List.of(appBaseUrl));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);

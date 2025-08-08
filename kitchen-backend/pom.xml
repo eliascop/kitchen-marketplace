@@ -20,7 +20,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<lombok.version>1.18.38</lombok.version>
-		<jsonwebtoken.version>0.11.5</jsonwebtoken.version>
+		<jjwt.version>0.12.3</jjwt.version>
 		<paypal.version>1.0.2</paypal.version>
 		<mockito-core.version>5.10.0</mockito-core.version>
 		<junit-jupiter.version>5.10.0</junit-jupiter.version>
@@ -64,18 +64,18 @@
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
-			<version>${jsonwebtoken.version}</version>
+			<version>${jjwt.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
-			<version>${jsonwebtoken.version}</version>
+			<version>${jjwt.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
-			<version>${jsonwebtoken.version}</version>
+			<version>${jjwt.version}</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>

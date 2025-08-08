@@ -5,7 +5,7 @@
     <div class="item-details">
       <p class="item-id">Pedido #{{ order.id }}</p>
       <p class="item-date">Data: {{ order.creation | formatDateTime }}</p>
-      <p class="item-total">Total: <span class="highlight">R$ {{ order.total | number: '1.2-2' }}</span></p>
+      <p class="item-total">Total: <span class="highlight">R$ {{ order.total | currencyFormatter }}</span></p>
       <p class="item-status">Status: <span class="status">{{ order.status }}</span></p>
       <p>Cliente: <b>{{order.user.name}}</b></p>
       <button class="view-button" (click)="openModal(order)">Ver detalhes</button>
@@ -31,11 +31,11 @@
       <p><strong>Itens:</strong></p>
       <ul>
         <li *ngFor="let item of selectedOrder.items">
-          {{ item.quantity }}x {{ item.product.name }} - V.Unit: R$ {{ item.product.price | number: '1.2-2' }} - Sub-Total: R$ {{ item.product.price*item.quantity | number: '1.2-2' }}
+          {{ item.quantity }}x {{ item.product.name }} - V.Unit: R$ {{ item.product.price | currencyFormatter }} - Sub-Total: R$ {{ item.product.price*item.quantity | currencyFormatter }}
         </li>
       </ul>
     </div>
     <hr>
-    <p style="text-align: right;"><strong>Total:</strong> R$ {{ selectedOrder.total | number: '1.2-2' }}</p>
+    <p style="text-align: right;"><strong>Total:</strong> R$ {{ selectedOrder.total | currencyFormatter }}</p>
   </div>
 </div>

@@ -38,24 +38,4 @@ export class Order {
       }
     }
   }
-
-  calculateTotal(): void {
-    this.total = this.items.reduce((acc, item) => acc + item.value, 0);
-  }
-
-  addItem(product: Product, quantity: number): void {
-    const existing = this.items.find(i => i.product.id === product.id);
-    if (existing) {
-      existing.quantity += Number(quantity);
-      existing.value = existing.product.price * existing.quantity;
-    } else {
-      this.items.push(new OrderItem({ product, quantity, value: product.price * quantity }));
-    }
-    this.calculateTotal();
-  }
-
-  removeItem(index: number): void {
-    this.items.splice(index, 1);
-    this.calculateTotal();
-  }
 }

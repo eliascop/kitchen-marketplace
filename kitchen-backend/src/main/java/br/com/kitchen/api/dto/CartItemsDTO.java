@@ -6,14 +6,15 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class CartItemsDTO {
 
         private Long id;
-        private ProductDTO product;
+        @JsonProperty("product")
+        private ProductDTO productDTO;
         private int quantity;
         @JsonProperty("value")
         private BigDecimal itemValue;
-
 }
+

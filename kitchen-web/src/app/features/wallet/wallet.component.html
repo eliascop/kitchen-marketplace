@@ -2,7 +2,7 @@
 
   <div class="wallet-header">
     <h2>Minha Carteira</h2>
-    <span *ngIf="wallet">Meu saldo atual: R$ {{ wallet.balance | number:'1.2-2' }}</span>
+    <span *ngIf="wallet">Meu saldo atual: R$ {{ wallet.balance | currencyFormatter }}</span>
   </div>
 
   <h3 (click)="toggleSection('balance')" class="toggle-header">
@@ -34,7 +34,7 @@
         {{ tx.createdAt | formatDateTime }} -
         <strong>{{ tx.type }}</strong> -
         <strong>{{ tx.status }}</strong>: R$
-        {{ tx.amount | number: '1.2-2' }} ({{ tx.description }})
+        {{ tx.amount | currencyFormatter }} ({{ tx.description }})
       </li>
     </ul>
   </div>

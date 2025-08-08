@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Product } from '../../../core/model/product.model';
+import { CurrencyFormatterPipe } from "../../../core/pipes/currency-input.pipe";
 
 @Component({
   selector: 'app-product-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CurrencyFormatterPipe],
   templateUrl: './product-table.component.html',
   styleUrls: ['./product-table.component.scss']
 })

@@ -10,7 +10,7 @@
           {{ item.quantity }}x {{ item.product.name }}
         </li>
       </ul>
-      <p>Total: <strong> {{order.total | number: '1.2-2' }} </strong></p>
+      <p>Total: <strong> {{order.total | currencyFormatter }} </strong></p>
     </div>
       <ng-template #loading>
         <p class="loading-tracking"><i class="fa-solid fa-hourglass-start"></i>Carregando informações do pedido...</p>

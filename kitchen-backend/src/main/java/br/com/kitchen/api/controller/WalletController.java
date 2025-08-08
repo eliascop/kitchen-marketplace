@@ -3,7 +3,7 @@ package br.com.kitchen.api.controller;
 import br.com.kitchen.api.model.Wallet;
 import br.com.kitchen.api.model.WalletTransaction;
 import br.com.kitchen.api.record.DebitRequest;
-import br.com.kitchen.api.record.CustomUserDetails;
+import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.WalletService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,26 +27,26 @@ public class WalletController {
     }
 
     @GetMapping
-    public Wallet getWallet(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public Wallet getWallet(@AuthenticationPrincipal UserPrincipal userDetails) {
         return walletService.getOrCreateWallet(userDetails.user().getId());
     }
 
     @PostMapping("/debit")
     public ResponseEntity<?> debit(@RequestBody DebitRequest debitRequest,
-                                   @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                   @AuthenticationPrincipal UserPrincipal userDetails) {
         walletService.debit(userDetails.user().getId(), debitRequest.amount(), debitRequest.description());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<List<WalletTransaction>> getTransactions(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<List<WalletTransaction>> getTransactions(@AuthenticationPrincipal UserPrincipal userDetails) {
         return walletService.getTransactions(userDetails.user().getId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());
     }
 
     @GetMapping("/balance")
-    public ResponseEntity<BigDecimal> getBalance(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<BigDecimal> getBalance(@AuthenticationPrincipal UserPrincipal userDetails) {
         BigDecimal balance = walletService.getBalanceForUser(userDetails.user().getId());
         return ResponseEntity.ok(balance);
     }

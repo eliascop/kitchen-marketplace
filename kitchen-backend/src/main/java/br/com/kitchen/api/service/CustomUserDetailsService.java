@@ -1,8 +1,8 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.model.User;
+import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.repository.UserRepository;
-import br.com.kitchen.api.record.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,6 +20,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + login));
 
-        return new CustomUserDetails(user);
+        return new UserPrincipal(user);
     }
 }

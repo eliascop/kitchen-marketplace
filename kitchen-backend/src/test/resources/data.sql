@@ -5,11 +5,11 @@ VALUES
 ('john_doe', '123456', 'John Doe', '11999999999', 'john@example.com', 'user', NULL);
 
 -- Inserir produtos
-INSERT INTO kitchen.product (name, description, type, price)
+INSERT INTO kitchen.product (name, description, type, price, seller_id)
 VALUES
-  ('Arroz Doce', 'Arroz doce tradicional', 'MEAL', 15.50),
-  ('Feijão Tropeiro', 'Feijão tropeiro mineiro', 'MEAL', 20.00),
-  ('Suco de Laranja', 'Suco natural', 'DRINK', 7.00);
+  ('Arroz Doce', 'Arroz doce tradicional', 'MEAL', 15.50,2),
+  ('Feijão Tropeiro', 'Feijão tropeiro mineiro', 'MEAL', 20.00,2),
+  ('Suco de Laranja', 'Suco natural', 'DRINK', 7.00,2);
 
 -- Inserir pedido
 INSERT INTO kitchen.orders (creation, status, total, user_id, payment_id)

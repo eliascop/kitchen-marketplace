@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS kitchen.product (
   description VARCHAR(255),
   type VARCHAR(50),
   price DECIMAL(10,2),
-  active BIT(1) DEFAULT 0
+  active BIT(1) DEFAULT 0,
+  seller_id BIGINT NOT NULL
 );
 
 -- WALLETS

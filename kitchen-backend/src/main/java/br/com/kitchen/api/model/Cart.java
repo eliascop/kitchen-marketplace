@@ -39,6 +39,9 @@ public class Cart implements Serializable {
     @OneToOne(mappedBy = "cart")
     private Payment payment;
 
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Shipping> shipping = new ArrayList<>();
+
     public BigDecimal getCartTotal(){
         return cartTotal != null ? cartTotal : BigDecimal.ZERO;
     }

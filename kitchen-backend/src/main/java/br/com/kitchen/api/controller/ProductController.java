@@ -3,8 +3,8 @@ package br.com.kitchen.api.controller;
 import br.com.kitchen.api.dto.response.ProductResponseDTO;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.Product;
-import br.com.kitchen.api.record.CustomUserDetails;
 import br.com.kitchen.api.record.ProductRequestDTO;
+import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.ProductService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/products/v1")
@@ -32,128 +31,59 @@ public class ProductController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> showAllProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<Product> products = service.findAll();
-
-        List<ProductResponseDTO> response = products.stream()
+    public ResponseEntity<List<ProductResponseDTO>> showAllProducts() {
+        List<ProductResponseDTO> response = service.findAll()
+                .stream()
                 .map(ProductMapper::toResponseDTO)
                 .toList();
-
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/seller")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<?> showMyProducts(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        List<Product> products = service.findByUserId(userDetails.user().getId());
-
-        List<ProductResponseDTO> response = products.stream()
+    public ResponseEntity<List<ProductResponseDTO>> showMyProducts(@AuthenticationPrincipal UserPrincipal userDetails) {
+        List<ProductResponseDTO> response = service.findProductsBySellerId(userDetails.user().getId())
+                .stream()
                 .map(ProductMapper::toResponseDTO)
                 .toList();
-
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
-        try {
-            Optional<Product> productOpt = service.findProductById(id);
-
-            if (productOpt.isEmpty()) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(Map.of(
-                                "errorCode", 404,
-                                "message", "Product not found"
-                        ));
-            }
-
-            return ResponseEntity
-                    .ok(ProductMapper.toResponseDTO(productOpt.get()));
-
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "errorCode", 500,
-                            "message", "Erro ao buscar produto",
-                            "details", e.getMessage()
-                    ));
-        }
-    }
-
-
-    @GetMapping("/search")
-    public List<Product> findByType(@RequestParam String type) {
-        return service.findByField("type", type);
+        Product p = service.findProductById(id);
+        return ResponseEntity.ok().body(ProductMapper.toResponseDTO(p));
     }
 
     @PostMapping("/batch")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<?> createProductBatch(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                            @RequestBody List<ProductRequestDTO> dtos) {
-        try {
-            List<Product> productsSaved = service.createProducts(userDetails.user(), dtos);
-            List<ProductResponseDTO> response = productsSaved.stream()
-                    .map(ProductMapper::toResponseDTO)
-                    .toList();
+    public ResponseEntity<List<ProductResponseDTO>> createProductBatch(
+            @AuthenticationPrincipal UserPrincipal userDetails,
+            @RequestBody List<ProductRequestDTO> dtos) {
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", "Erro ao salvar produtos",
-                            "details", e.getMessage()
-                    ));
-        }
+        List<ProductResponseDTO> response = service.createProducts(userDetails.user(), dtos)
+                .stream()
+                .map(ProductMapper::toResponseDTO)
+                .toList();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<?> createProduct(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                           @RequestBody ProductRequestDTO dto) {
-        try {
-            Product productSaved = service.createProduct(userDetails.user(), dto);
+    public ResponseEntity<ProductResponseDTO> createProduct(
+            @AuthenticationPrincipal UserPrincipal userDetails,
+            @RequestBody ProductRequestDTO dto) {
 
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(ProductMapper.toResponseDTO(productSaved));
-
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "errorCode", 500,
-                            "message", "An error occurred when saving product",
-                            "details", e.getMessage()
-                    ));
-        }
+        Product productSaved = service.createProduct(userDetails.user(), dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ProductMapper.toResponseDTO(productSaved));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
-        try{
-            Optional<Product> product = service.findById(id);
-            product.ifPresent(p ->{
-                service.deleteProduct(id);
-            });
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(Map.of(
-                            "message", "Product deleted successfully",
-                            "code", HttpStatus.OK
-                    ));
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "errorCode", 500,
-                            "message", "An error occurred when delete product",
-                            "details", e.getMessage()
-                    ));
-        }
-
+        service.deleteProduct(id);
+        return ResponseEntity.ok(Map.of(
+                "message", "Product deleted successfully",
+                "code", HttpStatus.OK.value()
+        ));
     }
-
 }

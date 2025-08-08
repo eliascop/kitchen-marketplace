@@ -1,7 +1,7 @@
 package br.com.kitchen.api.controller;
 
 import br.com.kitchen.api.model.Order;
-import br.com.kitchen.api.record.CustomUserDetails;
+import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.OrderService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id,
-                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+                                              @AuthenticationPrincipal UserPrincipal userDetails) {
         return orderService.findOrderByIdAndUserId(id, userDetails.user().getId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -49,7 +49,7 @@ public class OrderController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkoutFromCart(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> checkoutFromCart(@AuthenticationPrincipal UserPrincipal userDetails,
                                               @RequestParam Long shippingAddressId,
                                               @RequestParam Long billingAddressId) {
         try {

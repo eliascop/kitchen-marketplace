@@ -28,7 +28,7 @@
       <td>{{ product.description }}</td>
       <td>{{ product.catalog }}</td>
       <td>{{ product.category }}</td>
-      <td>R$ {{ product.price | number: '1.2-2' }}</td>
+      <td>R$ {{ product.price | currencyFormatter }}</td>
       <td>{{ product.active ? 'Ativo' : 'Inativo' }}</td>
       <td>
         <button title="Detalhar Produto"

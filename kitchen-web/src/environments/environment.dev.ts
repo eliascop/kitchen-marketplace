@@ -2,7 +2,7 @@ export const environment = {
     
     AUTH_REST_SERVICE: '/api/auth',
 
-    CART_REST_SERVICE: '/api/carts/v1',
+    CART_REST_SERVICE: '/api/cart/v1',
 
     ORDER_REST_SERVICE: '/api/orders/v1',
 

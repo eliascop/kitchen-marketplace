@@ -5,13 +5,15 @@ import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.producer.KafkaProducer;
 import br.com.kitchen.api.record.ProductAttributeDTO;
 import br.com.kitchen.api.record.ProductRequestDTO;
-import br.com.kitchen.api.record.ProductSkuDTO;
 import br.com.kitchen.api.repository.*;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -26,30 +28,32 @@ public class ProductService extends GenericService<Product, Long> {
     private final CatalogRepository catalogRepository;
     private final CategoryRepository categoryRepository;
     private final SellerRepository sellerRepository;
-
     private final KafkaProducer<ProductDTO> productProducer;
 
     @Autowired
-    public ProductService(@Qualifier("productKafkaProducer") KafkaProducer<ProductDTO> productProducer,
-                          ProductRepository productRepository,
-                          ProductSkuRepository productSkuRepository,
-                          SellerRepository sellerRepository,
-                          CatalogRepository catalogRepository,
-                          CategoryRepository categoryRepository) {
+    public ProductService(
+            @Qualifier("productKafkaProducer") KafkaProducer<ProductDTO> productProducer,
+            ProductRepository productRepository,
+            ProductSkuRepository productSkuRepository,
+            SellerRepository sellerRepository,
+            CatalogRepository catalogRepository,
+            CategoryRepository categoryRepository) {
         super(productRepository, Product.class);
-        this.sellerRepository = sellerRepository;
         this.productProducer = productProducer;
         this.productRepository = productRepository;
         this.productSkuRepository = productSkuRepository;
+        this.sellerRepository = sellerRepository;
         this.catalogRepository = catalogRepository;
         this.categoryRepository = categoryRepository;
     }
 
     @Transactional
     public Product createProduct(User user, ProductRequestDTO dto) {
-
         Seller seller = sellerRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Seller not found."));
+        if(seller.isBlocked()){
+            throw new RuntimeException("Seller is not active");
+        }
 
         Catalog catalog = catalogRepository.findByNameAndSellerId(dto.catalog(), seller.getId())
                 .orElseGet(() -> catalogRepository.save(new Catalog(seller, dto.catalog())));
@@ -63,17 +67,18 @@ public class ProductService extends GenericService<Product, Long> {
         product.setPrice(dto.basePrice());
         product.setCatalog(catalog);
         product.setCategory(category);
-        product = productRepository.save(product);
+        product.setSeller(seller);
 
-        List<ProductSku> skuList = new ArrayList<>();
+        Product productSaved = productRepository.save(product);
 
-        for (ProductSkuDTO skuDTO : dto.skus()) {
+        List<ProductSku> skuList = dto.skus().stream().map(skuDTO -> {
+            String generatedSku = generateSku(productSaved.getId(), skuDTO.attributes());
+            ProductSku sku = productSkuRepository.findBySkuAndProductId(generatedSku, productSaved.getId())
+                    .orElse(new ProductSku());
 
-            String generatedSku = generateSku(product.getId(), skuDTO.attributes());
-            ProductSku sku = productSkuRepository.findBySku(generatedSku).orElseGet(ProductSku::new);
             sku.setSku(generatedSku);
             sku.setPrice(skuDTO.price());
-            sku.setProduct(product);
+            sku.setProduct(productSaved);
 
             List<ProductAttribute> attributes = skuDTO.attributes().stream().map(attrDTO -> {
                 ProductAttribute attr = new ProductAttribute();
@@ -85,41 +90,36 @@ public class ProductService extends GenericService<Product, Long> {
             sku.setAttributes(attributes);
 
             Stock stock = sku.getStock();
-            if (stock != null) {
-                stock.setTotalQuantity(stock.getTotalQuantity() + skuDTO.stock());
-            } else {
+            if (stock == null) {
                 stock = new Stock();
                 stock.setSku(sku);
                 stock.setSeller(seller);
-                stock.setTotalQuantity(skuDTO.stock());
                 stock.setReservedQuantity(0);
                 stock.setSoldQuantity(0);
             }
+            stock.setTotalQuantity(skuDTO.stock());
             sku.setStock(stock);
 
-            skuList.add(sku);
-        }
+            return sku;
+        }).toList();
 
         product.setSkus(skuList);
         product = productRepository.save(product);
 
-        productProducer.sendNotification(new ProductDTO(product.getId()));
+        productProducer.sendNotification(ProductDTO.builder().id(product.getId()).build());
 
         return product;
     }
 
     @Transactional
     public List<Product> createProducts(User user, List<ProductRequestDTO> dtos) {
-        List<Product> savedProducts = new ArrayList<>();
-        for (ProductRequestDTO dto : dtos) {
-            Product product = createProduct(user, dto);
-            savedProducts.add(product);
-        }
-        return savedProducts;
+        return dtos.stream()
+                .map(dto -> createProduct(user, dto))
+                .toList();
     }
 
-    public void deleteProduct(Long id){
-        this.productRepository.deleteById(id);
+    public void deleteProduct(Long id) {
+        productRepository.deleteById(id);
     }
 
     private String generateSku(Long productId, List<ProductAttributeDTO> attributesDTO) {
@@ -133,15 +133,22 @@ public class ProductService extends GenericService<Product, Long> {
         String normalized = input == null ? "" : input
                 .toUpperCase()
                 .replaceAll("[^A-Z0-9]", "");
-
         return normalized.substring(0, Math.min(5, normalized.length()));
     }
 
-    public List<Product> findByUserId(Long sellerId){
-        return productRepository.findByCatalog_Seller_UserId(sellerId);
+    public List<Product> findProductsBySellerId(Long sellerId) {
+        return productRepository.findBySellerId(sellerId);
     }
 
-    public Optional<Product> findProductById(Long id) {
-        return productRepository.findById(id);
+    public Product findProductById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Product not found"));
+    }
+
+    public Product findProductBySkuAndSeller(String sku, Long sellerId) {
+        return productRepository.findBySkuAndSellerId(sku, sellerId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Product [" + sku + "] not found for this seller"));
     }
 }

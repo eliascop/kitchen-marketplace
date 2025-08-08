@@ -14,11 +14,15 @@ import java.util.List;
 public class CartDTO {
 
     private Long id;
-    private Long userId;
+
     @JsonProperty("items")
     private List<CartItemsDTO> cartItems = new ArrayList<>();
+
     private LocalDateTime creation;
-    private Boolean active;
+
     private BigDecimal cartTotal;
+
+    @JsonProperty("shipping")
+    private List<ShippingDTO> shippings = new ArrayList<>();
 
 }

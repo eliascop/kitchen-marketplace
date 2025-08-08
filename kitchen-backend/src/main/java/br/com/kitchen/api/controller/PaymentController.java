@@ -1,7 +1,7 @@
 package br.com.kitchen.api.controller;
 
 import br.com.kitchen.api.model.Cart;
-import br.com.kitchen.api.record.CustomUserDetails;
+import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.CartService;
 import br.com.kitchen.api.service.payment.PaymentProvider;
 import br.com.kitchen.api.service.payment.PaymentProviderFactory;
@@ -39,7 +39,7 @@ public class PaymentController {
     private String urlCheckout;
 
     @PostMapping("/{provider}")
-    public ResponseEntity<?> initiatePayment(@AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<?> initiatePayment(@AuthenticationPrincipal UserPrincipal userDetails,
                                                @PathVariable String provider) {
         try {
 

@@ -2,9 +2,7 @@ package br.com.kitchen.api.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -12,8 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "productSku", schema = "kitchen")
-@Data
+@Table(
+        name = "productSku",
+        schema = "kitchen",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"sku", "product_id"})
+)
+@Getter @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductSku implements Serializable {
@@ -23,7 +25,7 @@ public class ProductSku implements Serializable {
     private Long id;
 
     @NotBlank
-    @Column(unique = true)
+    @Column(nullable = false)
     private String sku;
 
     private BigDecimal price;
@@ -37,5 +39,6 @@ public class ProductSku implements Serializable {
 
     @OneToMany(mappedBy = "sku", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductAttribute> attributes = new ArrayList<>();
+
 }
 

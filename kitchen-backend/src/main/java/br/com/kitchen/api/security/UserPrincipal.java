@@ -1,4 +1,4 @@
-package br.com.kitchen.api.record;
+package br.com.kitchen.api.security;
 
 import br.com.kitchen.api.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-public record CustomUserDetails(User user) implements UserDetails {
+public record UserPrincipal(User user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

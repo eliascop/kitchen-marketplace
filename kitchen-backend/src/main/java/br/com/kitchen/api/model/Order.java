@@ -40,6 +40,9 @@ public class Order implements Serializable {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItems> orderItems = new ArrayList<>();
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SellerOrder> sellerOrders = new ArrayList<>();
+
     @Column(precision = 10, scale = 2)
     private BigDecimal total = BigDecimal.ZERO;
 

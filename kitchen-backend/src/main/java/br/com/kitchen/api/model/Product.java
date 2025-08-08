@@ -3,6 +3,7 @@ package br.com.kitchen.api.model;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -37,6 +38,10 @@ public class Product implements Serializable {
 
     private String imageUrl;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "seller_id", nullable = false)
+    private Seller seller;
+
     @ManyToOne
     @JoinColumn(name = "catalog_id")
     private Catalog catalog;
@@ -46,7 +51,7 @@ public class Product implements Serializable {
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductSku> skus;
+    private List<ProductSku> skus = new ArrayList<>();
 
     private boolean active;
     

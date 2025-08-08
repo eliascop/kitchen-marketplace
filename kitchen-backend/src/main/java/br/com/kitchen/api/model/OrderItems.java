@@ -30,6 +30,11 @@ public class OrderItems implements Serializable {
     private Order order;
 
     @ManyToOne
+    @JoinColumn(name = "seller_order_id")
+    @JsonBackReference
+    private SellerOrder sellerOrder;
+
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
@@ -39,11 +44,22 @@ public class OrderItems implements Serializable {
     @Column(precision = 10, scale = 2)
     private BigDecimal itemValue;
 
+    @ManyToOne
+    private Seller seller;
+
     public void calculateItemValue() {
         BigDecimal totalValue = BigDecimal.ZERO;
         totalValue = totalValue.add(product.getPrice().multiply(new BigDecimal(quantity)));
 
         this.itemValue = totalValue;
+    }
+
+    public OrderItems(Order order, Product product, int quantity, Seller seller) {
+        this.order = order;
+        this.product = product;
+        this.quantity = quantity;
+        this.seller = seller;
+        calculateItemValue();
     }
 
 }

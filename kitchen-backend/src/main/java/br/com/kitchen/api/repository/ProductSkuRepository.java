@@ -7,5 +7,5 @@ import java.util.Optional;
 
 @Repository
 public interface ProductSkuRepository extends GenericRepository<ProductSku, Long> {
-    Optional<ProductSku> findBySku(String sku);
+    Optional<ProductSku> findBySkuAndProductId(String sku, Long productId);
 }
