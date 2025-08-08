@@ -9,6 +9,7 @@ import { WalletService } from '../../core/service/wallet.service';
 import { ToastService } from '../../core/service/toast.service';
 import { FormatDateTimePipe } from '../../core/pipes/format-date-time.pipe';
 import { CurrencyInputComponent } from '../../shared/components/currency-input/currency-input.component';
+import { CurrencyFormatterPipe } from "../../core/pipes/currency-input.pipe";
 
 @Component({
   selector: 'app-wallet',
@@ -18,8 +19,9 @@ import { CurrencyInputComponent } from '../../shared/components/currency-input/c
     FormsModule,
     ReactiveFormsModule,
     FormatDateTimePipe,
-    CurrencyInputComponent
-  ],
+    CurrencyInputComponent,
+    CurrencyFormatterPipe
+],
   templateUrl: './wallet.component.html',
   styleUrls: ['./wallet.component.css'],
   animations: [

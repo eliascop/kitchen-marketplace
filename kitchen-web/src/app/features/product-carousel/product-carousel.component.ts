@@ -2,11 +2,12 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { Product } from '../../core/model/product.model';
 import { Router } from '@angular/router';
+import { CurrencyFormatterPipe } from "../../core/pipes/currency-input.pipe";
 
 @Component({
   selector: 'app-product-carousel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CurrencyFormatterPipe],
   templateUrl: './product-carousel.component.html',
   styleUrl: './product-carousel.component.css'
 })

@@ -4,6 +4,7 @@ import { Order } from '../../core/model/order.model';
 import { CommonModule } from '@angular/common';
 import { OrderSocketService } from '../../core/service/order.socket.service';
 import { OrderService } from '../../core/service/order.service';
+import { CurrencyFormatterPipe } from "../../core/pipes/currency-input.pipe";
 
 const statusMap: Record<string, string> = {
   PREPARING: 'Seu pedido está sendo preparado',
@@ -16,7 +17,7 @@ const statusMap: Record<string, string> = {
   templateUrl: './tracking.component.html',
   standalone: true,
   styleUrls: ['./tracking.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, CurrencyFormatterPipe]
 })
 export class TrackingComponent implements OnInit, OnDestroy {
   orderId!: number;
