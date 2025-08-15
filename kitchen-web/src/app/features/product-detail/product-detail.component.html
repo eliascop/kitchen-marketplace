@@ -50,7 +50,7 @@
               </div>
 
               <div class="sku-price">
-                {{ sku.price | currency:'BRL':'symbol':'1.2-2' }}
+                R$ {{ sku.price | currencyFormatter }}
               </div>
             </article>
           </div>

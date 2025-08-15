@@ -18,6 +18,7 @@ public class CartMapper {
                 cart.getCartItems().stream()
                         .map(CartMapper::itemToResponseDTO)
                         .collect(Collectors.toList()),
+                cart.getCartItems().size(),
                 cart.getCreation(),
                 cart.getCartTotal(),
                 ShippingMapper.toDTOList(cart.getShipping())

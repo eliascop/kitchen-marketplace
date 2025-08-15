@@ -4,6 +4,8 @@ export const environment = {
 
     CART_REST_SERVICE: '/api/cart/v1',
 
+    CATALOG_REST_SERVICE: '/api/catalog/v1',
+
     ORDER_REST_SERVICE: '/api/orders/v1',
 
     ORDER_SOCKET_SERVICE: '/monitoring/orders/v1',

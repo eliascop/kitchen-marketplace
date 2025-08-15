@@ -18,6 +18,9 @@ public class CartDTO {
     @JsonProperty("items")
     private List<CartItemsDTO> cartItems = new ArrayList<>();
 
+    @JsonProperty("totalItems")
+    private int cartTotalItems;
+
     private LocalDateTime creation;
 
     private BigDecimal cartTotal;

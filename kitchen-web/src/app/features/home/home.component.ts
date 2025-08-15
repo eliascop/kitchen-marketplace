@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from '../../core/service/auth.service';
 import { CommonModule } from '@angular/common';
-
 import { ProductCarouselComponent } from '../product-carousel/product-carousel.component';
 import { Product } from '../../core/model/product.model';
 import { ProductService } from '../../core/service/product.service';
+import { CatalogService } from '../../core/service/catalog.service';
+import { SearchService } from '../../core/service/search.service';
 
 @Component({
   selector: 'app-home',
@@ -15,24 +14,63 @@ import { ProductService } from '../../core/service/product.service';
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
-  userProfile: number | undefined;
-  latestAutumnProducts: Product[] = [];
-  summerProducts: Product[] = [];
-  promotionProducts: Product[] = [];
-  bargainProducts: Product[] = [];
+  catalogs: any[] = [];
+  catalogedProducts: Product[] = [];
+  allProducts: Product[] = [];
+  selectedCatalogSlug: string = '';
 
-  constructor(private authService: AuthService, 
-              private productService: ProductService) {
-    this.userProfile = authService.currentUserId!;
-  }
+  constructor(
+    private catalogService: CatalogService,
+    private searchService: SearchService,
+    private productService: ProductService
+  ) {}
 
   ngOnInit(): void {
-    this.loadProducts();
+    this.loadAllProducts();
+    this.loadCatalogs();
+
+    this.searchService.searchTerm$.subscribe(term => {
+      if (term) {
+        this.filterProducts(term);
+      } else {
+        if (this.selectedCatalogSlug) {
+          this.selectCatalogBySlug(this.selectedCatalogSlug);
+        }
+      }
+    });
   }
 
-  loadProducts(): void {
-    this.productService.getProducts().subscribe(data => {
-      this.summerProducts = data.data!;
+  loadCatalogs() {
+    this.catalogService.getCatalogs().subscribe(resp => {
+      this.catalogs = resp.data ?? [];
+      if (this.catalogs.length > 0) {
+        this.selectCatalog(this.catalogs[0]);
+      }
     });
+  }
+
+  loadAllProducts() {
+    this.productService.getProducts().subscribe(resp => {
+      this.allProducts = resp.data ?? [];
+    });
+  }
+
+  selectCatalog(catalog: { name: string; slug: string }) {
+    this.selectedCatalogSlug = catalog.slug;
+    this.catalogService.getProductsByCatalog(catalog.slug).subscribe(resp => {
+      this.catalogedProducts = resp.data ?? [];
+    });
+  }
+
+  selectCatalogBySlug(slug: string) {
+    this.catalogService.getProductsByCatalog(slug).subscribe(resp => {
+      this.catalogedProducts = resp.data ?? [];
+    });
+  }
+
+  filterProducts(term: string) {
+    this.catalogedProducts = this.allProducts.filter(p =>
+      p.name.toLowerCase().includes(term.toLowerCase())
+    );
   }
 }

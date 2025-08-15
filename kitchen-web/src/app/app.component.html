@@ -1,17 +1,21 @@
 <div class="page">
   <div class="header">
-    <div>
+    <div style="height: 50px; width: 25rem;">
       <h1 class="title">Seja bem vindo a Kitchen</h1>
-      <a href="#" (click)="userList($event)" class="logout">Lista de usuários</a><br>
       <a *ngIf="!isHomePage()" href="#" (click)="goHome($event)" class="go-home">Ir para a home</a>
     </div>
-    <div *ngIf="user">
-      <span class="title-hello">Olá, <a href="#" (click)="userDetails($event)" class="logout">{{ user.name }}</a></span><br>
-      <span class="text-sm">
-        <a href="#" (click)="myOrders($event)" class="logout">Meus pedidos</a><br>
-        <a href="#" (click)="myProducts($event)" class="logout">Meus produtos</a>
-      </span><br>
-      <a href="#" (click)="logout($event)" class="logout">Sair</a>
+    <div class="search-field" *ngIf="user">
+      <input type="text" id="search" formControlName="searchFor" placeholder="Buscar produtos ..." (input)="onSearchChange($event)"  />
+    </div>
+    <div *ngIf="user" class="my-space">
+        <span><a href="#" (click)="userList($event)" class="logout" *ngIf="isSeller()">Lista de usuários</a></span>
+        <span><a href="#" (click)="myProducts($event)" class="logout" *ngIf="user.isSeller"> Meus produtos </a></span>  
+        <span><a href="#" (click)="userDetails($event)" class="logout"><i class="fas fa-user-circle"></i> {{ user.name }} </a></span>
+        <span><a href="#" (click)="myOrders($event)" class="logout"><i class="fas fa-shopping-bag"></i> Minhas Compras </a></span>
+        <span><a href="#" (click)="myCart($event)" class="logout"><i class="fas fa-shopping-cart"></i>Meu carrinho
+          <span *ngIf="totalItems > 0" style="font-size: 12px;color: lightsalmon;">({{ totalItems }})</span></a>
+        </span>
+        <span><a href="#" (click)="logout($event)" class="logout"><i class="fas fa-sign-out-alt"></i> Sair </a></span>
     </div>
   </div>
 

@@ -10,11 +10,13 @@ import { Cart } from '../../core/model/cart.model';
 import { ProductService } from '../../core/service/product.service';
 import { CartService } from '../../core/service/cart.service';
 import { FormsModule } from '@angular/forms';
+import { CurrencyFormatterPipe } from "../../core/pipes/currency-input.pipe";
+import { ToastService } from '../../core/service/toast.service';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CurrencyFormatterPipe],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.css'
 })
@@ -31,7 +33,8 @@ export class ProductDetailComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly location: Location,
     private readonly productService: ProductService,
-    private readonly cartService: CartService
+    private readonly cartService: CartService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -86,7 +89,7 @@ export class ProductDetailComponent implements OnInit {
       .subscribe({
         next: data => {
           this.cart = data.data!;
-          console.log('Produto adicionado ao carrinho:', this.selectedSku);
+          this.toast.show("O produto foi adicionado ao carrinho");
         },
         error: err => {
           console.error('Erro ao adicionar produto ao carrinho:', err);

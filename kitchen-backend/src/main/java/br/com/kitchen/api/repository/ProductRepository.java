@@ -14,4 +14,6 @@ public interface ProductRepository extends GenericRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p JOIN p.skus s WHERE s.sku = :sku AND p.seller.id = :sellerId")
     Optional<Product> findBySkuAndSellerId(@Param("sku") String sku, @Param("sellerId") Long sellerId);
+
+    List<Product> findByCatalogIdIn(List<Long> catalogIds);
 }

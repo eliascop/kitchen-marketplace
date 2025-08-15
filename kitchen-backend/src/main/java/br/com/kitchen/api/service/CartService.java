@@ -103,7 +103,7 @@ public class CartService extends GenericService<Cart, Long> {
     }
 
     @Transactional
-    public void removeItem(User user, Long productId) {
+    public void removeItem(User user, Long itemId) {
         Cart cart = cartRepository.findActiveCartByUserId(user.getId())
                 .orElseThrow(() -> new IllegalStateException("Cart not found for user"));
 
@@ -112,7 +112,7 @@ public class CartService extends GenericService<Cart, Long> {
 
         while (iterator.hasNext()) {
             CartItems item = iterator.next();
-            if (item.getProduct().getId().equals(productId)) {
+            if (item.getId().equals(itemId)) {
                 iterator.remove();
                 cartItemRepository.delete(item);
                 removed = true;
@@ -121,12 +121,11 @@ public class CartService extends GenericService<Cart, Long> {
         }
 
         if (!removed) {
-            throw new IllegalArgumentException("Product not found in cart");
+            throw new IllegalArgumentException("Item not found in cart");
         }
 
         if (cart.getCartItems().isEmpty()) {
-            cartItemRepository.deleteByCartId(cart.getId());
-            cartRepository.delete(cart);
+            cartItemRepository.deleteByCartId(itemId);
         } else {
             cart.updateCartTotal();
             cartRepository.save(cart);

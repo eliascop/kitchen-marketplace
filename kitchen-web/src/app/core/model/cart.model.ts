@@ -1,57 +1,97 @@
+// cart.model.ts
 import { Product } from "./product.model";
 
 export class CartItem {
-    public id: number | null = null;
-    public product: Product = new Product();
-    public quantity: number = 0;
-    public value: number = 0;
-  
-    constructor(init?: Partial<CartItem>) {
-      if (init) {
-        Object.assign(this, init);
-        if (init.product && !(init.product instanceof Product)) {
-          this.product = new Product(init.product);
-        }
+  public id: number | null = null;
+  public product: Product = new Product();
+  public quantity: number = 0;
+
+  constructor(init?: Partial<CartItem>) {
+    if (init) {
+      Object.assign(this, init);
+      if (init.product && !(init.product instanceof Product)) {
+        this.product = new Product(init.product);
       }
     }
+  }
+
+  // Sempre consistente: subtotal = price * quantity
+  get value(): number {
+    const price = Number(this.product?.price ?? 0);
+    const qty = Number(this.quantity ?? 0);
+    return price * qty;
+  }
 }
 
 export class Cart {
-    id: number = 0;
-    userId: number = 0;
-    items: CartItem[] = [];
-    creation: Date = new Date();
-    cartTotal: number = 0;
-  
-    constructor(init?: Partial<Cart>) {
-        if (init) {
-          Object.assign(this, init);
-          if (init.items) {
-            this.items = init.items.map(item => item instanceof CartItem ? item : new CartItem(item));
-          }
-        }
+  id: number = 0;
+  userId: number = 0;
+  items: CartItem[] = [];
+  totalItems: number = 0;    // soma de quantities
+  creation: Date = new Date();
+  cartTotal: number = 0;     // soma de subtotais (value)
+
+  constructor(init?: Partial<Cart>) {
+    if (init) {
+      Object.assign(this, init);
+
+      if (init.items) {
+        this.items = init.items.map(i => i instanceof CartItem ? i : new CartItem(i));
       }
 
+      // Se vier string do backend, normaliza para Date
+      if (init.creation && !(init.creation instanceof Date)) {
+        this.creation = new Date(init.creation as any);
+      }
+    }
 
-  calculateTotal(): void {
+    this.recalculateTotals();
+  }
+
+  recalculateTotals(): void {
     this.cartTotal = this.items.reduce((acc, item) => acc + item.value, 0);
+    this.totalItems = this.items.reduce((acc, item) => acc + Number(item.quantity ?? 0), 0);
   }
 
   addItem(product: Product, quantity: number): void {
-    const existing = this.items.find(i => i.product.id === product.id);
+    const qty = Number(quantity) || 0;
+    if (!product || qty <= 0) return;
+
+    const existing = this.items.find(i => i.product?.id === product.id);
     if (existing) {
-      existing.quantity += Number(quantity);
-      existing.value = existing.product.price * existing.quantity;
+      existing.quantity += qty;
     } else {
-      this.items.push(new CartItem({ product, quantity, value: product.price * quantity }));
+      this.items.push(new CartItem({ product, quantity: qty }));
     }
-    this.calculateTotal();
+    this.recalculateTotals();
+  }
+
+  setItemQuantity(productId: number, quantity: number): void {
+    const item = this.items.find(i => i.product?.id === productId);
+    if (!item) return;
+
+    const qty = Math.max(0, Number(quantity) || 0);
+    item.quantity = qty;
+
+    if (item.quantity === 0) {
+      this.items = this.items.filter(i => i !== item);
+    }
+    this.recalculateTotals();
   }
 
   removeItem(index: number): void {
+    if (index < 0 || index >= this.items.length) return;
     this.items.splice(index, 1);
-    this.calculateTotal();
+    this.recalculateTotals();
+  }
+
+  removeItemByProductId(productId: number): void {
+    this.items = this.items.filter(i => i.product?.id !== productId);
+    this.recalculateTotals();
+  }
+
+  clear(): void {
+    this.items = [];
+    this.recalculateTotals();
   }
 }
-
-

@@ -19,14 +19,6 @@ export class ProductService {
     });
   }
 
-  getProductsByType(type: string): ServiceResponse<Product[]> {
-    return this.dataService.get<Product[]>({
-      url: `${PRODUCT_REST_SERVICE}/search`,
-      params: { type }
-    });
-  }
-
-
   getProductById(id: number) {
     return this.dataService.get<Product>({url: `${PRODUCT_REST_SERVICE}/${id}`});
   }

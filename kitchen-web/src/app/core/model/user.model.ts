@@ -5,9 +5,9 @@ export class User{
     public login: string = '';
     public name: string = '';
     public phone: string = '';
-    public profile: number | null = null;
     public email: string = '';
-    addresses: Address[] = [];
+    public roles: string[] = [];
+    public addresses: Address[] = [];
 
     constructor(init?: Partial<User>) {
         Object.assign(this, init);
@@ -19,5 +19,9 @@ export class User{
   
     get billingAddress(): Address | undefined {
       return this.addresses.find(addr => addr.type === 'BILLING');
+    }
+
+    get isSeller(): boolean {
+      return this.roles.includes('ROLE_SELLER');
     }
 }

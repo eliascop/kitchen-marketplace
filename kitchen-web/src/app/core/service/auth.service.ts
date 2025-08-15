@@ -6,22 +6,31 @@ import { BehaviorSubject } from 'rxjs';
 export interface AuthUser {
   id: number
   user: string
-  profile: number
+  seller: boolean
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
   private userSubject = new BehaviorSubject<AuthUser | null>(this.getUserFromToken());
+  private loggedIn = new BehaviorSubject<boolean>(false);
+  loggedIn$ = this.loggedIn.asObservable();
+
+  constructor(){
+    const isLogged = this.isLoggedIn();
+    this.loggedIn.next(isLogged);
+    if (isLogged) {
+      this.userSubject.next(this.getUserFromToken());
+    }
+  }
   
   get currentUserId(): number | null {
     return this.userSubject.value?.id ?? null;
   }
 
-  get currentUserProfile(): number | null {
-    return this.userSubject.value?.profile ?? null;
+  get currentUserSeller(): boolean | null {
+    return this.userSubject.value?.seller ?? null;
   }
   
   private getUserFromToken(): AuthUser | null {
@@ -33,7 +42,7 @@ export class AuthService {
       return {
         id: payload['id'],
         user: payload['sub'],
-        profile: payload['profile']
+        seller: payload['seller']
       };
     } catch (e) {
       return null;
@@ -41,7 +50,9 @@ export class AuthService {
   }
 
   notifyLogin() {
-    this.userSubject.next(this.getUserFromToken());
+    const user = this.getUserFromToken();
+    this.userSubject.next(user);
+    this.loggedIn.next(!!user);
   }
 
   get user$() {
@@ -73,6 +84,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     this.userSubject.next(null);
+    this.loggedIn.next(false);
   }
 
 }

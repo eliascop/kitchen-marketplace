@@ -1,11 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
 import { User } from './core/model/user.model';
 import { AuthService } from './core/service/auth.service';
+import { CartService } from './core/service/cart.service';
 import { UserService } from './core/service/user.service';
-import { WalletService } from './core/service/wallet.service';
 import { ToastComponent } from './shared/components/toast/toast.component';
+import { SearchService } from './core/service/search.service';
 
 @Component({
   selector: 'app-root',
@@ -16,15 +17,15 @@ import { ToastComponent } from './shared/components/toast/toast.component';
 })
 export class AppComponent {
   title = 'kitchen-web';
-
-  balance: number | null = null;
+  totalItems = 0;
   userId!: number | null;
   user!: User;
 
   constructor(private authService: AuthService, 
+    private cartService: CartService,
     private router: Router, 
-    private userService: UserService,
-    private walletService: WalletService) {}
+    private searchService: SearchService,
+    private userService: UserService) {}
 
   ngOnInit() {
     this.authService.user$.subscribe(user => {
@@ -32,18 +33,19 @@ export class AppComponent {
         this.userId = user.id;
         this.userService.getUserById(this.userId!).subscribe(response => {
           this.user = response.data!;
-          this.loadBalance();
         });
       } else {
-        this.balance = 0;
         this.userId = null;
         this.user = undefined!;
       }
     });
 
-    this.walletService.balance$.subscribe(balance => {
-      this.balance = balance;
+    this.cartService.getCartTotalItems().subscribe();
+
+    this.cartService.cartItemsCount$.subscribe(count => {
+      this.totalItems = count;
     });
+
   }
   goHome(event?: Event) {
     if (event) {
@@ -66,6 +68,13 @@ export class AppComponent {
     this.router.navigate(['/products']);
   }
 
+  myCart(event: Event){
+    if (event){
+      event.preventDefault();
+    }
+    this.router.navigate(['/cart']);
+  }
+
   myOrders(event: Event) {
     if (event){
       event.preventDefault();
@@ -80,15 +89,11 @@ export class AppComponent {
     this.router.navigate(['/user-details']);
   }
 
-  loadBalance(): void {
-    this.walletService.getBalance().subscribe({
-      next: (balance) => {
-        this.balance = balance;
-      },
-      error: (err) => {
-        console.error('Erro ao carregar saldo', err);
-      },
-    });
+  isSeller(): boolean{
+    if(!this.user)
+      return false;
+
+    return this.user.isSeller;
   }
 
   logout(event?: Event) {
@@ -101,5 +106,10 @@ export class AppComponent {
 
   isHomePage(): boolean {
     return this.router.url === '/' || this.router.url === '/login' ;
+  }
+
+  onSearchChange(event: Event) {
+    const term = (event.target as HTMLInputElement).value;
+    this.searchService.setSearchTerm(term);
   }
 }

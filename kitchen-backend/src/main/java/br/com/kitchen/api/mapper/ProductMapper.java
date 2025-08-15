@@ -1,7 +1,11 @@
 package br.com.kitchen.api.mapper;
 
+import br.com.kitchen.api.dto.CatalogResponseDTO;
 import br.com.kitchen.api.dto.response.*;
 import br.com.kitchen.api.model.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProductMapper {
 
@@ -20,6 +24,12 @@ public class ProductMapper {
                         .map(ProductMapper::toSkuResponseDTO)
                         .toList())
                 .build();
+    }
+
+    public static List<ProductResponseDTO> toDTOList(List<Product> product) {
+        return product.stream()
+                .map(ProductMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     private static ProductSkuResponseDTO toSkuResponseDTO(ProductSku sku) {

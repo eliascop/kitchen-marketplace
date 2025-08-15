@@ -27,6 +27,8 @@ public class Catalog implements Serializable{
     @Size(min = 4, message = "Catalog name must be at least 4 characters long")
     private String name;
 
+    private String slug;
+
     @OneToMany(mappedBy = "catalog")
     private List<Product> products;
 
@@ -38,5 +40,26 @@ public class Catalog implements Serializable{
     public Catalog(Seller seller, String name){
         this.seller = seller;
         this.name = name;
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void generateSlug() {
+        if (this.name != null) {
+            this.slug = slugify(this.name);
+        }
+    }
+
+    private String slugify(String input) {
+        return input
+                .toLowerCase()
+                .replaceAll("[áàâãä]", "a")
+                .replaceAll("[éèêë]", "e")
+                .replaceAll("[íìîï]", "i")
+                .replaceAll("[óòôõö]", "o")
+                .replaceAll("[úùûü]", "u")
+                .replaceAll("[ç]", "c")
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
     }
 }

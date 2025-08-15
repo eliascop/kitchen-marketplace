@@ -1,6 +1,6 @@
+<button class="btn-back" (click)="goBack()">&#8592; Voltar</button>
 <div class="cart-container">
-  <h2>Seu Carrinho de Compras</h2>
-
+  <h2>Meu Carrinho de Compras</h2>
   <div *ngIf="cartItems.length === 0" class="empty-cart">
     <p>O seu carrinho está vazio.</p>
   </div>
@@ -17,8 +17,6 @@
         <button class="remove-btn" (click)="onRemoveItem(item.id!)">Remover</button>
       </div>
     </div>
-
-    <hr>
 
     <div class="cart-summary">
       <h3>Total: R$ {{ cartTotal | currencyFormatter }}</h3>

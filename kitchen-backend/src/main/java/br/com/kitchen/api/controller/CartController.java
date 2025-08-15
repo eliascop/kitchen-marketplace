@@ -67,7 +67,7 @@ public class CartController {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(Map.of(
-                                "errorCode", 400,
+                                "errorCode", HttpStatus.BAD_REQUEST.value(),
                                 "message", "Product cannot be empty"
                         ));
             }
@@ -76,7 +76,7 @@ public class CartController {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(Map.of(
-                                "errorCode", 400,
+                                "errorCode", HttpStatus.BAD_REQUEST.value(),
                                 "message", "ProductId cannot be empty"
                         ));
             }
@@ -86,7 +86,7 @@ public class CartController {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(Map.of(
-                                "errorCode", 400,
+                                "errorCode", HttpStatus.BAD_REQUEST.value(),
                                 "message", "Quantity cannot be zero"
                         ));
             }
@@ -98,23 +98,44 @@ public class CartController {
                     .body(CartMapper.toResponseDTO(cartSaved));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "code", HttpStatus.BAD_REQUEST.value(),
+                    "errorCode", HttpStatus.BAD_REQUEST.value(),
                     "message", "Item not included into the cart",
                     "details", e.getMessage()
             ));
         }
     }
 
-    @DeleteMapping("/remove")
+    @DeleteMapping("/remove/{itemId}")
     public ResponseEntity<?> removeItemFromCart(@AuthenticationPrincipal UserPrincipal userDetails,
-                                                @RequestParam Long productId) {
-        cartService.removeItem(userDetails.user(), productId);
-        return ResponseEntity.ok("Item removed from cart");
+                                                @PathVariable Long itemId) {
+        try{
+            cartService.removeItem(userDetails.user(), itemId);
+            Cart cartUpdated = cartService.getOrCreateCart(userDetails.user());
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(CartMapper.toResponseDTO(cartUpdated));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "errorCode", HttpStatus.BAD_REQUEST.value(),
+                    "message", "Item was not removed from cart",
+                    "details", e.getMessage()
+            ));
+        }
     }
 
     @DeleteMapping("/clear")
     public ResponseEntity<?> clearCart(@AuthenticationPrincipal UserPrincipal userDetails) {
-        cartService.clearCart(userDetails.user());
-        return ResponseEntity.ok("Cart cleared");
+        try {
+            cartService.clearCart(userDetails.user());
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                    "code",HttpStatus.OK.value(),
+                    "message", "Cart cleared."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "errorCode", HttpStatus.BAD_REQUEST.value(),
+                    "message", "Cart has not changed",
+                    "details", e.getMessage()
+            ));
+        }
     }
 }

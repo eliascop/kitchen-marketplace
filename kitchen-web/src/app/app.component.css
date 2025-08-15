@@ -8,6 +8,14 @@ html, body {
   margin: 0;
 }
 
+.search-field{
+  width: 30rem;
+}
+
+#search{
+  height: 18px;
+}
+
 .page-wrapper {
   display: flex;
   flex-direction: column;
@@ -15,7 +23,7 @@ html, body {
 }
 
 .app-content {
-  min-height: 80vh;
+  min-height: 88vh;
   width: auto;
 
   flex: 1;
@@ -35,7 +43,7 @@ html, body {
   z-index: 10;
   background: #004080;
   color: white;
-  padding: 0.75rem 1rem;
+  padding: 0rem 1rem;
   font-size: 10px;
   display: flex;
   flex-direction: row;
@@ -63,8 +71,7 @@ html, body {
 
 
 .logout{
-  font-weight: bold; 
-  font-size: 12px; 
+  font-size: 14px; 
   color: white; 
   text-decoration: none;
 }
@@ -75,4 +82,12 @@ html, body {
 
 .title-hello{
   font-size: 14px;
+}
+
+.my-space{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-evenly;
+  width: 28rem;
+  height: 45px;
 }
