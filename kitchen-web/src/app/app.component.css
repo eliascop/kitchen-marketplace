@@ -1,93 +1,71 @@
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
-.search-field{
-  width: 30rem;
-}
-
-#search{
-  height: 18px;
-}
-
-.page-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-.app-content {
-  min-height: 88vh;
-  width: auto;
-
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-:host {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 100vh;
-}
 .header {
   position: sticky;
   top: 0;
   z-index: 10;
   background: #004080;
   color: white;
-  padding: 0rem 1rem;
-  font-size: 10px;
+  padding: 0.5rem 1rem;
+}
+
+.title{
+  font-size: 2rem;
+}
+.header-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+}
+
+.header-row {
+  display: flex;
   align-items: center;
+}
+
+.row-1 {
   justify-content: space-between;
 }
 
-.footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  background: #f8f8f8;
-  text-align: center;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  border-top: 1px solid #ddd;
+.row-2 {
+  justify-content: flex-end;
 }
 
-.go-home{
-  font-weight: bold; 
-  font-size: 12px; 
-  color: white !important; 
+.logo {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-field {
+  width: 30rem;
+}
+
+#search {
+  height: 35px;
+  padding: 0 0.5rem;
+  width: 100%;
+}
+
+.my-space {
+  display: flex;
+  gap: 1rem;
+}
+
+.cart-count {
+  font-size: 12px;
+  color: lightsalmon;
+}
+
+.go-home {
+  font-weight: bold;
+  font-size: 12px;
+  color: white !important;
   text-decoration: none;
 }
 
-
-.logout{
-  font-size: 14px; 
-  color: white; 
+.logout {
+  font-size: 14px;
+  color: white;
   text-decoration: none;
 }
 
 .logout:hover {
   color: red;
-}
-
-.title-hello{
-  font-size: 14px;
-}
-
-.my-space{
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-evenly;
-  width: 28rem;
-  height: 45px;
 }
