@@ -4,7 +4,7 @@ import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.User;
 import br.com.kitchen.api.model.WalletTransaction;
-import br.com.kitchen.api.producer.KafkaProducer;
+import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.repository.OrderRepository;
 import br.com.kitchen.api.repository.UserRepository;
 import br.com.kitchen.api.repository.WalletRepository;
@@ -48,13 +48,13 @@ class OrderServiceTest {
 
     @MockBean
     @SuppressWarnings("removal")
-    @Qualifier("walletKafkaProducer")
-    private KafkaProducer<WalletTransaction> walletKafkaProducer;
+    @Qualifier("walletSqsProducer")
+    private SqsProducer<WalletTransaction> walletKafkaProducer;
 
     @MockBean
     @SuppressWarnings("removal")
-    @Qualifier("orderKafkaProducer")
-    private KafkaProducer<OrderDTO> orderKafkaProducer;
+    @Qualifier("orderSqsProducer")
+    private SqsProducer<OrderDTO> orderKafkaProducer;
 
     private User mockUser;
 

@@ -3,7 +3,7 @@ package br.com.kitchen.api.controller;
 import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.model.User;
 import br.com.kitchen.api.model.WalletTransaction;
-import br.com.kitchen.api.producer.KafkaProducer;
+import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,13 +43,13 @@ class OrderControllerTest {
 
     @MockBean
     @SuppressWarnings("removal")
-    @Qualifier("orderKafkaProducer")
-    private KafkaProducer<OrderDTO> orderKafkaProducer;
+    @Qualifier("orderSqsProducer")
+    private SqsProducer<OrderDTO> orderKafkaProducer;
 
     @MockBean
     @SuppressWarnings("removal")
-    @Qualifier("walletKafkaProducer")
-    private KafkaProducer<WalletTransaction> walletKafkaProducer;
+    @Qualifier("walletSqsProducer")
+    private SqsProducer<WalletTransaction> walletKafkaProducer;
 
     private User mockUser;
 

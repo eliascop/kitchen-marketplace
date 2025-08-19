@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -58,7 +59,8 @@ public class OrderController {
                     .status(HttpStatus.CREATED)
                     .body(Map.of(
                     "orderId", createdOrder.getId(),
-                    "orderStatus", createdOrder.getStatus()
+                    "orderStatus", createdOrder.getStatus(),
+                    "lastUpdate", createdOrder.getCreation()
                     ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(

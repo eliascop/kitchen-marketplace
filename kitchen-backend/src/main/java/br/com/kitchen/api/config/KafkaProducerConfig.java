@@ -35,24 +35,9 @@ public class KafkaProducerConfig {
         return new KafkaTemplate<>(factory);
     }
 
-    private <T> KafkaProducer<T> createProducer(Class<T> clazz, String topic) {
-        return new KafkaProducer<>(createTemplate(clazz), topic);
-    }
-
     @Bean
     public KafkaProducer<ProductDTO> productKafkaProducer() {
-        return createProducer(ProductDTO.class, "new-product");
+        return new KafkaProducer<>(createTemplate(ProductDTO.class), "new-product");
     }
 
-    @Bean
-    @Qualifier("orderKafkaProducer")
-    public KafkaProducer<OrderDTO> orderKafkaProducer() {
-        return createProducer(OrderDTO.class, "new-order");
-    }
-
-    @Bean
-    @Qualifier("walletKafkaProducer")
-    public KafkaProducer<WalletTransaction> walletKafkaProducer() {
-        return createProducer(WalletTransaction.class, "new-transaction");
-    }
 }

@@ -34,18 +34,15 @@ export class AppComponent {
         this.userService.getUserById(this.userId!).subscribe(response => {
           this.user = response.data!;
         });
+        this.cartService.getCartTotalItems().subscribe();
+        this.cartService.cartItemsCount$.subscribe(count => {
+        this.totalItems = count;
+    });
       } else {
         this.userId = null;
         this.user = undefined!;
       }
     });
-
-    this.cartService.getCartTotalItems().subscribe();
-
-    this.cartService.cartItemsCount$.subscribe(count => {
-      this.totalItems = count;
-    });
-
   }
   goHome(event?: Event) {
     if (event) {

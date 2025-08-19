@@ -27,6 +27,8 @@
 		<mockito-junit-jupiter.version>5.10.0</mockito-junit-jupiter.version>
 		<jakarta.validation.version>3.0.2</jakarta.validation.version>
 		<jakarta.persistence.version>3.1.0</jakarta.persistence.version>
+		<awspring.version>3.0.2</awspring.version>
+		<awssdk.version>2.25.28</awssdk.version>
 	</properties>
 
 	<dependencies>
@@ -50,6 +52,16 @@
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.awspring.cloud</groupId>
+			<artifactId>spring-cloud-aws-starter-sqs</artifactId>
+			<version>${awspring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<version>${awssdk.version}</version>
+			<artifactId>sqs</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.validation</groupId>

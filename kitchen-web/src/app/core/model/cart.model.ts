@@ -1,4 +1,3 @@
-// cart.model.ts
 import { Product } from "./product.model";
 
 export class CartItem {
@@ -15,7 +14,6 @@ export class CartItem {
     }
   }
 
-  // Sempre consistente: subtotal = price * quantity
   get value(): number {
     const price = Number(this.product?.price ?? 0);
     const qty = Number(this.quantity ?? 0);
@@ -27,9 +25,11 @@ export class Cart {
   id: number = 0;
   userId: number = 0;
   items: CartItem[] = [];
-  totalItems: number = 0;    // soma de quantities
+  totalItems: number = 0; 
   creation: Date = new Date();
-  cartTotal: number = 0;     // soma de subtotais (value)
+  cartTotal: number = 0;
+  shippingAddressId: number = 0;
+  billingAddressId: number = 0;
 
   constructor(init?: Partial<Cart>) {
     if (init) {
@@ -39,7 +39,6 @@ export class Cart {
         this.items = init.items.map(i => i instanceof CartItem ? i : new CartItem(i));
       }
 
-      // Se vier string do backend, normaliza para Date
       if (init.creation && !(init.creation instanceof Date)) {
         this.creation = new Date(init.creation as any);
       }

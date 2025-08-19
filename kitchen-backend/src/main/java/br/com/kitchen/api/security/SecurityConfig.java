@@ -24,7 +24,7 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${frontend.base.url}")
+    @Value("${app.base.url}")
     private String appBaseUrl;
 
     private final JwtTokenUtil jwtTokenUtil;

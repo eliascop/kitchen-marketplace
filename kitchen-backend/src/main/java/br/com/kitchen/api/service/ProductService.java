@@ -2,22 +2,18 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.model.*;
-import br.com.kitchen.api.producer.KafkaProducer;
+import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.record.ProductAttributeDTO;
 import br.com.kitchen.api.record.ProductRequestDTO;
 import br.com.kitchen.api.repository.*;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,11 +24,11 @@ public class ProductService extends GenericService<Product, Long> {
     private final CatalogRepository catalogRepository;
     private final CategoryRepository categoryRepository;
     private final SellerRepository sellerRepository;
-    private final KafkaProducer<ProductDTO> productProducer;
+    private final SqsProducer<ProductDTO> productProducer;
 
     @Autowired
     public ProductService(
-            @Qualifier("productKafkaProducer") KafkaProducer<ProductDTO> productProducer,
+            SqsProducer<ProductDTO> productProducer,
             ProductRepository productRepository,
             ProductSkuRepository productSkuRepository,
             SellerRepository sellerRepository,

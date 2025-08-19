@@ -2,8 +2,9 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.enumerations.TransactionStatus;
 import br.com.kitchen.api.enumerations.TransactionType;
-import br.com.kitchen.api.model.*;
-import br.com.kitchen.api.producer.KafkaProducer;
+import br.com.kitchen.api.model.Wallet;
+import br.com.kitchen.api.model.WalletTransaction;
+import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.repository.WalletTransactionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +13,16 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class WalletTransactionService extends GenericService<WalletTransaction, Long> {
 
     private final WalletTransactionRepository walletTransactionRepository;
-    private final KafkaProducer<WalletTransaction> walletTxProducer;
+    private final SqsProducer<WalletTransaction> walletTxProducer;
 
     @Autowired
     public WalletTransactionService(WalletTransactionRepository walletTransactionRepository,
-                                    KafkaProducer<WalletTransaction> walletTxProducer) {
+                                    SqsProducer<WalletTransaction> walletTxProducer) {
         super(walletTransactionRepository, WalletTransaction.class);
         this.walletTransactionRepository = walletTransactionRepository;
         this.walletTxProducer = walletTxProducer;

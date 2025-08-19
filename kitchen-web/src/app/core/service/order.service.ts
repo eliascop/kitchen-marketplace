@@ -4,6 +4,8 @@ import { environment } from '../../../environments/environment.dev';
 import { Order } from '../model/order.model';
 import { AuthService } from './auth.service';
 import { ServiceResponse } from './model/http-options-request.model';
+import { OrderTracking } from '../model/order-tracking.model';
+import { HttpParams } from '@angular/common/http';
 
 export const ORDER_SERVICE_REST = environment.ORDER_REST_SERVICE;
 
@@ -29,11 +31,14 @@ export class OrderService {
     });
   }
 
-  
-  createOrder(order: Order) {
-    return this.dataService.post<{orderId: Number, message: string}>({
-      url: `${ORDER_SERVICE_REST}/create`,
-      body: order
+  checkout(order: Order){
+    const params = new HttpParams()
+    .set('shippingAddressId', order.shippingAddressId)
+    .set('billingAddressId', order.billingAddressId);
+
+    return this.dataService.post<OrderTracking>({
+      url: `${ORDER_SERVICE_REST}/checkout`,
+      params
     }); 
   }
   

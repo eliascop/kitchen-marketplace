@@ -25,7 +25,11 @@ export class Order {
   public total: number = 0;
   public status: string = 'PENDING';
   public creation: Date = new Date();
-  public paymentId?: string;
+  public paymentId: number = 0;
+  public shippingId: number = 0;
+  
+  public shippingAddressId: number = 0;
+  public billingAddressId: number = 0;
 
   constructor(init?: Partial<Order>) {
     if (init) {

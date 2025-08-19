@@ -3,11 +3,10 @@ package br.com.kitchen.api.service;
 import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.enumerations.OrderStatus;
 import br.com.kitchen.api.model.*;
-import br.com.kitchen.api.producer.KafkaProducer;
+import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.repository.AddressRepository;
 import br.com.kitchen.api.repository.OrderRepository;
 import br.com.kitchen.api.repository.PaymentRepository;
-import br.com.kitchen.api.service.payment.PaymentProvider;
 import br.com.kitchen.api.service.payment.PaymentProviderFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -21,14 +20,13 @@ import java.util.Optional;
 public class OrderService extends GenericService<Order, Long>{
 
     private final AddressRepository addressRepository;
-    private final KafkaProducer<OrderDTO> orderProducer;
+    private final SqsProducer<OrderDTO> orderProducer;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
-    private final PaymentProviderFactory paymentProviderFactory;
     private final CartService cartService;
 
     public OrderService(
-            @Qualifier("orderKafkaProducer") KafkaProducer<OrderDTO> orderProducer,
+            @Qualifier("orderSqsProducer") SqsProducer<OrderDTO> orderProducer,
             AddressRepository addressRepository,
             OrderRepository orderRepository,
             PaymentRepository paymentRepository,
@@ -37,7 +35,6 @@ public class OrderService extends GenericService<Order, Long>{
         super(orderRepository, Order.class);
         this.addressRepository = addressRepository;
         this.orderProducer = orderProducer;
-        this.paymentProviderFactory = paymentProviderFactory;
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
         this.cartService = cartService;
@@ -64,6 +61,9 @@ public class OrderService extends GenericService<Order, Long>{
         Cart cart = getValidatedCart(userId);
         Address shipping = getAddressOrThrow(shippingAddressId, "Shipping address not found");
         Address billing = getAddressOrThrow(billingAddressId, "Billing address not found");
+        if(cart.getPayment() == null){
+            throw new RuntimeException("No payment selected");
+        }
 
         Order order = createOrderFromCart(cart, shipping, billing, cart.getPayment());
         Order orderSaved = orderRepository.save(order);
@@ -71,7 +71,7 @@ public class OrderService extends GenericService<Order, Long>{
         cart.setActive(false);
         cartService.save(cart);
 
-       // orderProducer.sendNotification(new OrderDTO(orderSaved.getId(), orderSaved.getStatus().toString()));
+        orderProducer.sendNotification(new OrderDTO(orderSaved.getId(), orderSaved.getStatus().toString()));
 
         return orderSaved;
     }
@@ -105,20 +105,15 @@ public class OrderService extends GenericService<Order, Long>{
         order.setBillingAddress(billing);
         order.setPayment(payment);
 
-        BigDecimal total = BigDecimal.ZERO;
-
         for (CartItems item : cart.getCartItems()) {
             OrderItems orderItem = new OrderItems();
             orderItem.setOrder(order);
             orderItem.setProduct(item.getProduct());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setItemValue(item.getItemValue());
-
-            total = total.add(item.getItemValue().multiply(BigDecimal.valueOf(item.getQuantity())));
             order.getOrderItems().add(orderItem);
         }
-
-        order.setTotal(total);
+        order.updateOrderTotal();
         return order;
     }
 

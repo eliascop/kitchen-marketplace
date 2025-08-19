@@ -16,11 +16,14 @@
         </div>
         <button class="remove-btn" (click)="onRemoveItem(item.id!)">Remover</button>
       </div>
+      <div class="clear-cart">
+        <button class="clear-btn" (click)="onClearCart()">Limpar Carrinho</button>
+      </div>
     </div>
 
     <div class="cart-summary">
       <h3>Total: R$ {{ cartTotal | currencyFormatter }}</h3>
-      <button class="clear-btn" (click)="onClearCart()">Limpar Carrinho</button>
+      <button class="checkout-btn" (click)="onCheckout()">Checkout</button>
     </div>
   </div>
 </div>

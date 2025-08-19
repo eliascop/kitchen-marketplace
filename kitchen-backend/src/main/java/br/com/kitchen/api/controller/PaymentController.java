@@ -35,7 +35,7 @@ public class PaymentController {
         this.paymentProviderFactory = paymentProviderFactory;
     }
 
-    @Value("${frontend.base.url}")
+    @Value("${app.base.url}")
     private String urlCheckout;
 
     @PostMapping("/{provider}")

@@ -70,11 +70,17 @@ services:
         condition: service_healthy
       kafka:
         condition: service_started
+      localstack:
+        condition: service_started
     ports:
       - "8082:8082"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kitchen?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       APP_BASE_URL: http://localhost
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+      SQS_ENDPOINT: http://localstack:4566
     networks:
       - kitchen-network
 
@@ -111,16 +117,21 @@ services:
     networks:
       - kitchen-network
 
-#  schema-registry:
-#    image: confluentinc/cp-schema-registry:7.5.0
-#    container_name: schema-registry
-#    depends_on:
-#      - kafka
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-#      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs
+      - DEBUG=1
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - "./.localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - ./localstack/init-sqs.sh:/etc/localstack/init/ready.d/init-sqs.sh
+    networks:
+      - kitchen-network
 
   kitchen-web:
     build:
