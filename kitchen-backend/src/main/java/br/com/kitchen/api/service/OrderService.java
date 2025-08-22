@@ -2,11 +2,13 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.enumerations.OrderStatus;
+import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.repository.AddressRepository;
 import br.com.kitchen.api.repository.OrderRepository;
 import br.com.kitchen.api.repository.PaymentRepository;
+import br.com.kitchen.api.service.payment.PaymentProvider;
 import br.com.kitchen.api.service.payment.PaymentProviderFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ import java.util.Optional;
 @Service
 public class OrderService extends GenericService<Order, Long>{
 
+    private final PaymentProviderFactory paymentProviderFactory;
     private final AddressRepository addressRepository;
     private final SqsProducer<OrderDTO> orderProducer;
     private final OrderRepository orderRepository;
@@ -36,6 +39,7 @@ public class OrderService extends GenericService<Order, Long>{
         this.addressRepository = addressRepository;
         this.orderProducer = orderProducer;
         this.paymentRepository = paymentRepository;
+        this.paymentProviderFactory = paymentProviderFactory;
         this.orderRepository = orderRepository;
         this.cartService = cartService;
     }
@@ -65,16 +69,24 @@ public class OrderService extends GenericService<Order, Long>{
         Cart cart = getValidatedCart(userId);
         Address shipping = getAddressOrThrow(shippingAddressId, "Shipping address not found");
         Address billing = getAddressOrThrow(billingAddressId, "Billing address not found");
-        if(cart.getPayment() == null){
+        Payment payment = getPaymentOrThrow(cart.getPayment().getId());
+        if(payment == null){
             throw new RuntimeException("No payment selected");
         }
 
-        Order order = createOrderFromCart(cart, shipping, billing, cart.getPayment());
+        Order order = createOrderFromCart(cart, shipping, billing, payment);
         Order orderSaved = orderRepository.save(order);
+
+        PaymentProvider paymentProvider = paymentProviderFactory.getProvider(payment.getMethod().name());
+        String paymentStatus = paymentProvider.confirmPayment(payment.getProviderOrderId());
+        System.out.println("PAYMENT STATUS: " +paymentStatus );
+        if("COMPLETED".equals(paymentStatus) || "CREATED".equals(paymentStatus) || "APPROVED".equals(paymentStatus))
+            payment.setStatus(PaymentStatus.SUCCESS);
 
         cart.setActive(false);
         cartService.save(cart);
 
+        // ABATER ESTOQUE
         orderProducer.sendNotification(new OrderDTO(orderSaved.getId(), orderSaved.getStatus().toString()));
 
         return orderSaved;

@@ -8,6 +8,8 @@ import br.com.kitchen.api.service.payment.PaymentProvider;
 import br.com.kitchen.api.service.payment.PaymentProviderFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class PaymentService extends GenericService<Payment, Long> {
 
@@ -30,16 +32,16 @@ public class PaymentService extends GenericService<Payment, Long> {
         Cart cart = cartService.getActiveCartByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
 
-        paymentProvider.createPayment(cart);
+        Payment p = paymentProvider.createPayment(cart);
 
-        return paymentProvider.initiatePayment(cart);
+        return p.getPaymentApprovalUrl();
     }
 
     public PaymentStatus processSuccess(String provider, String token, String secureToken, Long cartId) {
         PaymentProvider paymentProvider = paymentProviderFactory.getProvider(provider);
 
         if (!paymentProvider.isValidSecureToken(secureToken)) {
-            return PaymentStatus.INVALID_TOKEN;
+            return PaymentStatus.FAILED;
         }
 
         return cartService.findById(cartId)

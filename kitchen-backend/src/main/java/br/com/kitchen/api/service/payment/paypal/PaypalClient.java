@@ -13,6 +13,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
+
 @Service
 public class PaypalClient extends GenericService<Payment, Long> {
 
@@ -31,7 +33,7 @@ public class PaypalClient extends GenericService<Payment, Long> {
         super(paymentRepository, Payment.class);
     }
 
-    public String doPayment(Cart cart) {
+    public Map<String, String> doPayment(Cart cart) {
         String accessToken = obtainAccessToken();
 
         HttpHeaders headers = new HttpHeaders();
@@ -50,20 +52,32 @@ public class PaypalClient extends GenericService<Payment, Long> {
         );
 
         JsonNode body = response.getBody();
-        if (body == null || !body.has("links")) {
+        if (body == null || !body.has("id")) {
             throw new IllegalStateException("PayPal order response is invalid.");
         }
 
+        String orderId = body.get("id").asText();
+        String approvalLink = null;
+
         for (JsonNode link : body.get("links")) {
             if ("approve".equals(link.get("rel").asText())) {
-                return link.get("href").asText();
+                approvalLink = link.get("href").asText();
+                break;
             }
         }
 
-        throw new IllegalStateException("Approval link not found in PayPal response.");
+        if (approvalLink == null) {
+            throw new IllegalStateException("Approval link not found in PayPal response.");
+        }
+
+        return Map.of(
+                "paypalOrderId", orderId,
+                "approvalLink", approvalLink
+        );
     }
 
-    public String confirmPayment(String orderId) {
+
+    public String confirmPayment(String providerOrderId) {
         String accessToken = obtainAccessToken();
 
         HttpHeaders headers = new HttpHeaders();
@@ -73,7 +87,7 @@ public class PaypalClient extends GenericService<Payment, Long> {
         HttpEntity<String> captureRequest = new HttpEntity<>(null, headers);
 
         ResponseEntity<JsonNode> response = restTemplate.exchange(
-                baseUrl + "/v2/checkout/orders/" + orderId + "/capture",
+                baseUrl + "/v2/checkout/orders/" + providerOrderId + "/capture",
                 HttpMethod.POST,
                 captureRequest,
                 JsonNode.class

@@ -40,6 +40,8 @@ public class Payment {
     @Column(nullable = false, unique = true, length = 32)
     private String secureToken;
 
+    private String providerOrderId;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

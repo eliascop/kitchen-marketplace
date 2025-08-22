@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -21,13 +22,8 @@ public class PaypalPaymentProvider implements PaymentProvider {
     private final PaymentRepository paymentRepository;
 
     @Override
-    public String initiatePayment(Cart cart) {
-        return paypalClient.doPayment(cart);
-    }
-
-    @Override
-    public String confirmPayment(String token) {
-        return paypalClient.confirmPayment(token);
+    public String confirmPayment(String providerOrderId) {
+        return paypalClient.confirmPayment(providerOrderId);
     }
 
     @Override
@@ -42,7 +38,7 @@ public class PaypalPaymentProvider implements PaymentProvider {
 
     @Override
     @Transactional
-    public void createPayment(Cart cart){
+    public Payment createPayment(Cart cart){
         Payment payment = paymentRepository.findPaymentByCartId(cart.getId())
                 .map(existing -> {
                     existing.setMethod(PaymentMethod.PAYPAL);
@@ -62,7 +58,10 @@ public class PaypalPaymentProvider implements PaymentProvider {
                         .createdAt(LocalDateTime.now())
                         .build());
         cart.setPayment(payment);
-        paymentRepository.save(payment);
+        Map<String, String> providerResponse = paypalClient.doPayment(cart);
+        payment.setProviderOrderId(providerResponse.get("paypalOrderId"));
+        payment.setPaymentApprovalUrl(providerResponse.get("approvalLink"));
+        return paymentRepository.save(payment);
     }
 
     @Override
