@@ -81,6 +81,7 @@ services:
       AWS_SECRET_ACCESS_KEY: test
       AWS_REGION: us-east-1
       SQS_ENDPOINT: http://localstack:4566
+      SNS_ENDPOINT: http://localstack:4566
     networks:
       - kitchen-network
 

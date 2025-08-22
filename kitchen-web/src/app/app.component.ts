@@ -33,6 +33,7 @@ export class AppComponent {
         this.userId = user.id;
         this.userService.getUserById(this.userId!).subscribe(response => {
           this.user = response.data!;
+          localStorage.setItem('userData', JSON.stringify(this.user)); 
         });
         this.cartService.getCartTotalItems().subscribe();
         this.cartService.cartItemsCount$.subscribe(count => {

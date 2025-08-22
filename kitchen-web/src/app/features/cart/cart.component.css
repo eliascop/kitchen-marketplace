@@ -82,6 +82,7 @@
   cursor: pointer;
   font-size: 0.85em;
   transition: background-color 0.2s;
+  margin-left: 1rem;
 }
 
 .remove-btn:hover {
@@ -132,28 +133,46 @@
   background-color: #5a6268;
 }
 
-.btn-back {
+.btn-step {
   background: none;
   border: none;
   color: #007bff;
   font-size: 1rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
+}
+
+.btn-step:disabled{
+  color: gray;
+  font-size: 1rem;
+}
+
+.btn-confirm{
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 1rem;
+  font-weight: bolder;
+}
+
+.actions{
+  margin-top: 3.5rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .steps {
   display: flex;
-  gap: .5rem;
-  margin: 1rem 0;
+  justify-content: space-around;
+  margin-bottom: 1rem;
 }
+
 .steps span {
-  padding: .5rem .75rem;
-  border-radius: 8px;
-  background: #eee;
-  cursor: pointer;
+  padding: 0.5rem 1rem;
+  color: gray;
 }
+
 .steps .active {
-  background: #0d6efd;
-  color: #fff;
-  font-weight: 600;
+  font-weight: bold;
+  color: black;
 }
+

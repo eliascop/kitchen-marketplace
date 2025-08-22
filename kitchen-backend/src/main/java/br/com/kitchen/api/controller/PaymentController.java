@@ -1,22 +1,18 @@
 package br.com.kitchen.api.controller;
 
-import br.com.kitchen.api.model.Cart;
+import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.security.UserPrincipal;
-import br.com.kitchen.api.service.CartService;
-import br.com.kitchen.api.service.payment.PaymentProvider;
-import br.com.kitchen.api.service.payment.PaymentProviderFactory;
+import br.com.kitchen.api.service.PaymentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Slf4j
@@ -25,14 +21,10 @@ import java.util.Map;
 @SecurityRequirement(name = "bearer-key")
 public class PaymentController {
 
-    private final CartService cartService;
-    private final PaymentProviderFactory paymentProviderFactory;
+    private final PaymentService paymentService;
 
-    @Autowired
-    public PaymentController(CartService cartService,
-                             PaymentProviderFactory paymentProviderFactory){
-        this.cartService = cartService;
-        this.paymentProviderFactory = paymentProviderFactory;
+    public PaymentController(PaymentService paymentService){
+        this.paymentService = paymentService;
     }
 
     @Value("${app.base.url}")
@@ -42,17 +34,9 @@ public class PaymentController {
     public ResponseEntity<?> initiatePayment(@AuthenticationPrincipal UserPrincipal userDetails,
                                                @PathVariable String provider) {
         try {
-
-            PaymentProvider paymentProvider = paymentProviderFactory.getProvider(provider);
-            Cart cart = cartService.getActiveCartByUserId(userDetails.user().getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
-            paymentProvider.createPayment(cart);
-            String linkForApproval = paymentProvider.initiatePayment(cart);
-
+            String redirectUrl = paymentService.initiatePayment(provider, userDetails.user().getId());
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of(
-                    "redirectUrl", linkForApproval
-            ));
+                    .body(Map.of("redirectUrl", redirectUrl));
         } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "code", HttpStatus.BAD_REQUEST.value(),
@@ -62,29 +46,28 @@ public class PaymentController {
     }
 
     @GetMapping("/{provider}/success")
-    public void onSuccess(@PathVariable String provider,
-                          @RequestParam("token") String token,
-                          @RequestParam("cartId") Long cartId,
+    public ResponseEntity<?> onSuccess(@PathVariable String provider,
+                          @RequestParam("token") String providerToken,
                           @RequestParam("secureToken") String secureToken,
-                          HttpServletResponse response) {
+                          @RequestParam("cartId") Long cartId) {
         try {
-            PaymentProvider paymentProvider = paymentProviderFactory.getProvider(provider);
-            if(!paymentProvider.isValidSecureToken(secureToken)){
-                redirect(response, "error", "invalid-token", "Invalid or expired Token.");
-                return;
-            }
-            Cart cart = cartService.findById(cartId)
-                    .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+            PaymentStatus paymentResult = paymentService.processSuccess(provider, providerToken, secureToken, cartId);
 
-            cart.getPayment().setGatewayTransactionId(token);
-            cartService.save(cart);
-
-            redirect(response, "succeeded");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of(
+                            "code", HttpStatus.OK.value(),
+                            "message", paymentResult.toString()
+                    ));
         } catch (Exception e) {
-            redirect(response, "error", "errortocancel", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                    .body(Map.of(
+                            "code", HttpStatus.NOT_ACCEPTABLE.value(),
+                            "message", "Payment was not validated."
+                    ));
         }
     }
 
+    /*
     @GetMapping("/{provider}/cancelled")
     public void onCancelled(@PathVariable String provider,
                             @RequestParam("token") String token,
@@ -104,9 +87,10 @@ public class PaymentController {
     private void redirect(HttpServletResponse response, String status, String message, String errorDetail) {
         try {
             StringBuilder url = new StringBuilder(urlCheckout)
-                    .append("/payments?paymentStatus=")
+                    .append("/cart?paymentStatus=")
                     .append(encode(status));
 
+            System.out.println("URL RETORNO>>>>>>"+url);
             if (message != null) {
                 url.append("&message=").append(encode(message));
             }
@@ -124,4 +108,5 @@ public class PaymentController {
     private String encode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
+    */
 }

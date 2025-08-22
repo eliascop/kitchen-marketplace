@@ -1,8 +1,6 @@
 package br.com.kitchen.api.service.payment.paypal;
 
 import br.com.kitchen.api.builder.PaypalOrderBuilder;
-import br.com.kitchen.api.enumerations.PaymentMethod;
-import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.model.Cart;
 import br.com.kitchen.api.model.Payment;
 import br.com.kitchen.api.repository.PaymentRepository;
@@ -11,13 +9,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 public class PaypalClient extends GenericService<Payment, Long> {
@@ -32,11 +26,9 @@ public class PaypalClient extends GenericService<Payment, Long> {
     private String baseUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final PaymentRepository paymentRepository;
 
     public PaypalClient(PaymentRepository paymentRepository) {
         super(paymentRepository, Payment.class);
-        this.paymentRepository = paymentRepository;
     }
 
     public String doPayment(Cart cart) {
@@ -122,20 +114,6 @@ public class PaypalClient extends GenericService<Payment, Long> {
 
     public boolean isValidSecureToken(String token) {
         return !this.findByField("secureToken", token).isEmpty();
-    }
-
-    @Transactional
-    public void createPayment(Cart cart) {
-        Payment payment = Payment.builder()
-                .method(PaymentMethod.PAYPAL)
-                .status(PaymentStatus.PENDING)
-                .amount(cart.getCartTotal())
-                .secureToken(UUID.randomUUID().toString().replace("-", "").substring(0, 16))
-                .cart(cart)
-                .createdAt(LocalDateTime.now())
-                .build();
-        cart.setPayment(payment);
-        paymentRepository.save(payment);
     }
 
 }

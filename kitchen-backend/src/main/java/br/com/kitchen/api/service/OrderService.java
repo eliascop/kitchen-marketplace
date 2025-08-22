@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,20 +40,24 @@ public class OrderService extends GenericService<Order, Long>{
         this.cartService = cartService;
     }
 
-    public Optional<List<Order>> findOrdersByUserId(Long userId) {
+    public List<Order> findOrdersByUserId(Long userId) {
+        Optional<List<Order>> orderList;
         if(userId == 1){
-            return Optional.of(orderRepository.findAll());
+            orderList = Optional.of(orderRepository.findAll());
         }else {
-            return orderRepository.findOrdersByUserId(userId);
+            orderList = orderRepository.findOrdersByUserId(userId);
         }
+        return orderList.orElseThrow(() -> new RuntimeException("No orders found"));
     }
 
-    public Optional<Order> findOrderByIdAndUserId(Long id, Long userId) {
+    public Order findOrderByIdAndUserId(Long id, Long userId) {
+        Optional<Order> order;
         if(userId == 1){
-            return orderRepository.findById(id);
+            order = orderRepository.findById(id);
         }else {
-            return orderRepository.findOrderByIdAndUserId(id, userId);
+            order = orderRepository.findOrderByIdAndUserId(id, userId);
         }
+        return order.orElseThrow(() -> new RuntimeException("Order not found!"));
     }
 
     @Transactional

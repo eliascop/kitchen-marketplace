@@ -10,7 +10,7 @@ export const environment = {
 
     ORDER_SOCKET_SERVICE: '/monitoring/orders/v1',
 
-    PAYMENT_REST_SERVICE: '/api/payment/paypal',
+    PAYMENT_REST_SERVICE: '/api/payment',
     
     PRODUCT_REST_SERVICE: '/api/products/v1',
     

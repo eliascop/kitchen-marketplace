@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -14,15 +14,20 @@ import { PasswordInputComponent } from '../../shared/components/password-input/p
   styleUrl: './login.component.css'
 })
 
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit{
   loginForm: FormGroup;
   errorMessage: string | null = null; 
+  @ViewChild('loginInput') loginInput!: ElementRef;
 
   constructor(private fb: FormBuilder, private router: Router, private userService: UserService, private authService: AuthService) {
     this.loginForm = this.fb.group({
       login: ['', Validators.required],
       password: ['', Validators.required]
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.loginInput.nativeElement.focus();
   }
 
   onSubmit() {

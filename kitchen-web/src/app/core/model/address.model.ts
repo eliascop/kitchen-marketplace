@@ -1,4 +1,5 @@
 export class Address {
+  id: number = 0;
   type?: 'SHIPPING' | 'BILLING';
   zipCode: string = '';
   street: string = '';

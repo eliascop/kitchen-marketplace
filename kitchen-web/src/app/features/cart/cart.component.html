@@ -1,29 +1,74 @@
-<button class="btn-back" (click)="goBack()">&#8592; Voltar</button>
+<span *ngIf="currentStep === 1"><button class="btn-step" (click)="goBack()">&#8592; Escolher mais itens</button></span>
+
 <div class="cart-container">
-  <h2>Meu Carrinho de Compras</h2>
-  <div *ngIf="cartItems.length === 0" class="empty-cart">
-    <p>O seu carrinho está vazio.</p>
+  <h2>Meu carrinho de compra</h2>
+
+  <div class="steps">
+    <span [class.active]="currentStep === 1">1. Carrinho</span>
+    <span [class.active]="currentStep === 2">2. Pagamento</span>
+    <span [class.active]="currentStep === 3">3. Frete & Conclusão</span>
   </div>
 
-  <div *ngIf="cartItems.length > 0">
-    <div class="cart-item-list">
-      <div *ngFor="let item of cartItems" class="cart-item">
-        <div class="item-details">
-          <span class="item-name">{{ item.product.name }}</span>
-          <span class="item-quantity">x {{ item.quantity }}</span>
-          <span class="item-price">R$ {{ item.value | currencyFormatter}}</span>
-          <span class="item-subTotal">R$ {{ (item.value * item.quantity) | currencyFormatter}}</span>
-        </div>
-        <button class="remove-btn" (click)="onRemoveItem(item.id!)">Remover</button>
-      </div>
-      <div class="clear-cart">
-        <button class="clear-btn" (click)="onClearCart()">Limpar Carrinho</button>
-      </div>
+  <div *ngIf="currentStep === 1">
+    <div *ngIf="cartItems.length === 0" class="empty-cart">
+      <p>O seu carrinho está vazio.</p>
     </div>
 
-    <div class="cart-summary">
-      <h3>Total: R$ {{ cartTotal | currencyFormatter }}</h3>
-      <button class="checkout-btn" (click)="onCheckout()">Checkout</button>
+    <div *ngIf="cartItems.length > 0">
+      <div class="cart-item-list">
+        <div *ngFor="let item of cartItems" class="cart-item">
+          <div class="item-details">
+            <span class="item-name">{{ item.product.name }}</span>
+            <span class="item-quantity">x {{ item.quantity }}</span>
+            <span class="item-price">R$ {{ item.value | currencyFormatter}}</span>
+            <span class="item-subTotal">R$ {{ (item.value * item.quantity) | currencyFormatter}}</span>
+          </div>
+          <button class="remove-btn" (click)="onRemoveItem(item.id!)"> <i class="fa fa-trash"></i> </button>
+        </div>
+        <div class="clear-cart" *ngIf="cartItems.length > 1">
+          <button class="clear-btn" (click)="onClearCart()">Limpar Carrinho</button>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <h3>Total: R$ {{ cartTotal | currencyFormatter }}</h3>
+        <button class="btn-step" (click)="nextStep()">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="currentStep === 2" class="payment-step">
+    <h3>Escolha a forma de pagamento</h3>
+    <div class="payment-options">
+      <label><input type="radio" name="payment" value="pix" [(ngModel)]="paymentMethod"> PIX </label>
+      <label><input type="radio" name="payment" value="card" [(ngModel)]="paymentMethod"> Cartão de Crédito </label>
+      <label><input type="radio" name="payment" value="paypal" [(ngModel)]="paymentMethod"> Paypal </label>
+    </div>
+
+    <div class="actions">
+      <button class="btn-step" (click)="prevStep()">Voltar</button>
+      <button class="btn-step" (click)="onPaymentSelected()" [disabled]="!paymentMethod">Continuar</button>
+    </div>
+  </div>
+
+  <div *ngIf="currentStep === 3" class="shipping-step">
+    <h3>Meus locais de entrega e cobrança:</h3>
+    <div class="shipping-options">
+      <label *ngFor="let addr of user?.addresses">
+        - {{addr.type}}: {{addr.zipCode}} - {{ addr.street }}, {{ addr.number }} - {{ addr.city }}/{{ addr.state }}
+      </label>
+    </div>
+
+    <h3>Escolha a forma de entrega</h3>
+    <div class="shipping-options">
+      <label><input type="radio" name="shipping" value="sedex" [(ngModel)]="shippingMethod"> SEDEX </label>
+      <label><input type="radio" name="shipping" value="pac" [(ngModel)]="shippingMethod"> PAC </label>
+      <label><input type="radio" name="shipping" value="retirada" [(ngModel)]="shippingMethod"> Retirada na loja </label>
+    </div>
+
+    <div class="actions">
+      <button class="btn-step" (click)="prevStep()">Voltar</button>
+      <button class="btn-confirm" (click)="onCheckout()" [disabled]="!shippingMethod">Finalizar Pedido</button>
     </div>
   </div>
 </div>

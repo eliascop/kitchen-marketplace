@@ -4,8 +4,10 @@ import { DataService } from "./data.service";
 import { AuthService } from "./auth.service";
 import { Cart } from "../model/cart.model";
 import { BehaviorSubject, map, Observable } from "rxjs";
+import { HttpParams } from "@angular/common/http";
 
 export const CART_SERVICE_REST = environment.CART_REST_SERVICE;
+export const PAYMENT_SERVICE_URL = environment.PAYMENT_REST_SERVICE;
 
 @Injectable({
   providedIn: 'root',
@@ -82,5 +84,23 @@ export class CartService {
         return response;
       })
     );
+  }
+
+  choosePaymentMethod(paymentType: string){
+    return this.dataService.post<{redirectUrl: string}>({
+      url: `${PAYMENT_SERVICE_URL}/${paymentType}`
+    });
+  }
+
+  validadePaymentMethod(paymentType: string, paymentToken: string, secureToken: string, cartId: string){
+    const params = new HttpParams()
+      .set('token', paymentToken)
+      .set('secureToken', secureToken)
+      .set('cartId', cartId);
+
+    return this.dataService.get<{message:string}>({
+      url: `${PAYMENT_SERVICE_URL}/${paymentType}/success`,
+      params: params
+    });
   }
 }

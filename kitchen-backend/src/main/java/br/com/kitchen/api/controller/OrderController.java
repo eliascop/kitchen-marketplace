@@ -1,5 +1,7 @@
 package br.com.kitchen.api.controller;
 
+import br.com.kitchen.api.dto.response.OrderResponseDTO;
+import br.com.kitchen.api.mapper.OrderMapper;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.OrderService;
@@ -28,25 +30,25 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id,
-                                              @AuthenticationPrincipal UserPrincipal userDetails) {
-        return orderService.findOrderByIdAndUserId(id, userDetails.user().getId())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable Long id,
+                                                         @AuthenticationPrincipal UserPrincipal userDetails) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(OrderMapper.toDTO(orderService.findOrderByIdAndUserId(id, userDetails.user().getId())));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Order>> findOrdersByUserId(@RequestParam Long userId) {
+    public ResponseEntity<List<OrderResponseDTO>> findOrdersByUserId(@RequestParam Long userId) {
         if (userId == null || userId == 0) {
             return ResponseEntity.badRequest().build();
         }
-        Optional<List<Order>> ordersList = orderService.findOrdersByUserId(userId);
+        List<Order> ordersList = orderService.findOrdersByUserId(userId);
 
-        if (ordersList.isEmpty() || ordersList.get().isEmpty()) {
+        if (ordersList.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(ordersList.get());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(OrderMapper.toDTOList(ordersList));
     }
 
     @PostMapping("/checkout")

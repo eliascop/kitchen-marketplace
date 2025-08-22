@@ -8,33 +8,94 @@ import { ToastService } from '../../core/service/toast.service';
 import { Location } from '@angular/common';
 import { OrderService } from '../../core/service/order.service';
 import { Order } from '../../core/model/order.model';
-import { AuthService } from '../../core/service/auth.service';
 import { User } from '../../core/model/user.model';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Address } from '../../core/model/address.model';
 
 @Component({
   selector: 'app-cart',
-  imports: [CommonModule, CurrencyFormatterPipe],
+  imports: [CommonModule, CurrencyFormatterPipe, FormsModule],
   standalone: true,
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css'],
 })
 export class CartComponent implements OnInit {
-  cart: Cart | undefined;
+  cart!: Cart;
   order: Order = new Order;
-  user!: User;
+  user: User = new User({ addresses: [] });
   cartItems: CartItem[] = [];
   cartTotal: number = 0;
   isLoading = false;
 
+  currentStep = 1;
+
+  paymentMethod: string = '';
+  shippingMethod: string = '';
+  selectedAddress: Address | null = null;
+
   constructor(private cartService: CartService, 
     private productService: ProductService,
-    private authService: AuthService,
     private readonly location: Location,
     private orderService: OrderService,
+    private route: ActivatedRoute,
+    private router: Router,
     private toast: ToastService) {}
 
   ngOnInit(): void {
+    this.loadUserData();
+    this.loadOrderAddress();
     this.getCartDetails();
+    this.checkPaymentStatus();
+  }
+
+  loadUserData(){
+    const userDataString = localStorage.getItem('userData');
+    if(userDataString)
+      this.user = userDataString ? JSON.parse(userDataString) : null;
+  }
+
+  checkPaymentStatus() {
+    const params = this.route.snapshot.queryParamMap;
+    const cartId = params.get('cartId');
+    const status = params.get('status');
+    const paymentToken = params.get('token');
+    const secureToken = params.get('secureToken');
+  
+    if (status) {
+      sessionStorage.setItem('checkoutStatus', JSON.stringify({ status: status, paymentToken: paymentToken, secureToken: secureToken, cartId: cartId}));
+    }
+
+    const saved = sessionStorage.getItem('checkoutStatus');
+    if (saved) {
+      const { status, paymentToken, secureToken } = JSON.parse(saved);
+      if (status === 'success' && cartId) {
+          this.validatePayment(paymentToken, secureToken, cartId);
+      } else if (status === 'cancelled') {
+        this.currentStep = 2;
+        console.log('Pagamento cancelado');
+      }
+    }
+  }
+
+  validatePayment(paymentToken: string, secureToken: string, cartId: string): void {
+    this.cartService.validadePaymentMethod('paypal', paymentToken, secureToken, cartId).subscribe({
+      next: (data) => {
+        const paymentStatusStored = data.data?.message;
+        if (paymentStatusStored === 'SUCCESS') {
+          this.toast.show('Pagamento aprovado com sucesso!');
+          this.currentStep = 3;
+        } else {
+          this.toast.show('Pagamento não aprovado.');
+          this.currentStep = 2;
+        }
+      },
+      error: (error) => {
+        console.error("Erro ao validar pagamento:", error);
+        this.toast.show("Erro ao validar pagamento.");
+        this.currentStep = 2;
+      }
+    });
   }
 
   getCartDetails(): void {
@@ -94,13 +155,25 @@ export class CartComponent implements OnInit {
     });
   }
 
-  onCheckout(): void{
-    this.order.shippingAddressId = 1;
-    this.order.billingAddressId = 2;
+  loadOrderAddress(){
+    if(this.user && this.user.addresses){
+      this.user.addresses.forEach(addr=>{
+        if(addr.type=='SHIPPING'){
+          this.order.shippingAddressId = addr.id;
+        }
+        if(addr.type=='BILLING'){
+          this.order.billingAddressId = addr.id;
+        }
+      });
+    }
+  }
 
+  onCheckout(): void{
     this.orderService.checkout(this.order).subscribe({
       next: (data) => {
-        console.log(data.data);
+        const orderId = data.data!.orderId;
+        this.router.navigate([`/tracking/${orderId}`]);
+        this.toast.show(`Compra realizada com sucesso!`);
       },
       error: (error) => {
         this.toast.show("Ocorreu um erro: "+error)
@@ -108,7 +181,34 @@ export class CartComponent implements OnInit {
     })
   }
 
+  onPaymentSelected():void{
+    let paymentMethodSelected = this.paymentMethod;
+    if(paymentMethodSelected){
+      this.cartService.choosePaymentMethod(paymentMethodSelected).subscribe({
+        next: response => {
+          window.location.href = response.data!.redirectUrl;
+        },
+        error: err => {
+          this.toast.show('Ocorreu um erro ao selecionar pagamento.');
+          console.error(err);
+        }
+      });
+    }
+  }
+
   goBack(): void {
     this.location.back();
+  }
+
+  nextStep() {
+    if (this.currentStep < 3) {
+      this.currentStep++;
+    }
+  }
+
+  prevStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
   }
 }

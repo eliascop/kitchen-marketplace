@@ -15,7 +15,7 @@ public class PaypalOrderBuilder {
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String baseUrl = System.getenv("paypal.base.url");
-    private static final String serviceRote = "/api/payment/paypal";
+    private static final String serviceRote = "http://localhost/cart?status=";
 
     static {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -52,8 +52,8 @@ public class PaypalOrderBuilder {
         )));
 
         paypalOrderDTO.setApplication_context(new PaypalOrderDTO.ApplicationContext(
-                "http://192.168.15.176:8082/payment/paypal/success?cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken(),
-                "http://192.168.15.176:8082/payment/paypal/cancelled?cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken()
+                serviceRote + "success&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken(),
+                serviceRote + "cancelled&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken()
         ));
 
         try {

@@ -32,6 +32,7 @@ public class AddressMapper {
 
     public static AddressDTO toDTO(Address address) {
         AddressDTO dto = new AddressDTO();
+        dto.setId(address.getId());
         dto.setType(address.getType());
         dto.setZipCode(address.getZipCode());
         dto.setStreet(address.getStreet());

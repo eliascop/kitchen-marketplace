@@ -8,7 +8,7 @@ import { CurrencyFormatterPipe } from "../../core/pipes/currency-input.pipe";
 
 const statusMap: Record<string, string> = {
   PREPARING: 'Seu pedido está sendo preparado',
-  PEDING: 'Seu pedido está aguardando ser preparado',
+  PENDING: 'Seu pedido está aguardando ser preparado',
   PREPARED: 'Oba! Seu pedido está pronto!',
 };
 
@@ -23,6 +23,7 @@ export class TrackingComponent implements OnInit, OnDestroy {
   orderId!: number;
   order!: Order;
   statusMessage: string | undefined;
+  isLoading = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -37,11 +38,25 @@ export class TrackingComponent implements OnInit, OnDestroy {
       this.statusMessage = 'Pedido inválido.';
       return;
     }
-    this.orderService.getOrderById(this.orderId).subscribe(
-      data => {
+    this.loadOrder();
+  }
+
+  ngOnDestroy(): void {
+    this.orderSocketService.disconnect();
+  }
+  
+  loadOrder(){
+    this.orderService.getOrderById(this.orderId).subscribe({
+      next: (data) => {
         this.order = data.data!;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar pedido!', err);
+        this.isLoading = false;
+      },
     });
-    
+        
     this.orderSocketService.connectToOrder(this.orderId, (newOrderStatus) => {
       this.order.status = newOrderStatus.status;
 
@@ -51,9 +66,4 @@ export class TrackingComponent implements OnInit, OnDestroy {
       }
     });
   }
-
-  ngOnDestroy(): void {
-    this.orderSocketService.disconnect();
-  }
-  
 }
