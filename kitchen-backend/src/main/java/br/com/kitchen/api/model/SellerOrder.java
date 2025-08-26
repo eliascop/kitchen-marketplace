@@ -1,6 +1,8 @@
 package br.com.kitchen.api.model;
 
 import br.com.kitchen.api.enumerations.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,6 +31,7 @@ public class SellerOrder implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonBackReference("order-sellerOrders")
     private Order order;
 
     @ManyToOne
@@ -36,6 +39,7 @@ public class SellerOrder implements Serializable {
     private Seller seller;
 
     @OneToMany(mappedBy = "sellerOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("sellerOrder-items")
     private List<OrderItems> items = new ArrayList<>();
 
     @Column(precision = 10, scale = 2)

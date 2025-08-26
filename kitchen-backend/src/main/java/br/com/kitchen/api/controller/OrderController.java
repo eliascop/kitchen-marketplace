@@ -13,9 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/orders/v1")
@@ -52,11 +50,9 @@ public class OrderController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<?> checkoutFromCart(@AuthenticationPrincipal UserPrincipal userDetails,
-                                              @RequestParam Long shippingAddressId,
-                                              @RequestParam Long billingAddressId) {
+    public ResponseEntity<?> checkoutFromCart(@AuthenticationPrincipal UserPrincipal userDetails) {
         try {
-            Order createdOrder = orderService.checkoutFromCart(userDetails.user().getId(), shippingAddressId, billingAddressId);
+            Order createdOrder = orderService.checkoutFromCart(userDetails.user().getId());
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(Map.of(

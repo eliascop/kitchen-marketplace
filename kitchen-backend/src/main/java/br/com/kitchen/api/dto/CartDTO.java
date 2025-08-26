@@ -2,21 +2,24 @@ package br.com.kitchen.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
+@Builder
 public class CartDTO {
 
     private Long id;
 
     @JsonProperty("items")
-    private List<CartItemsDTO> cartItems = new ArrayList<>();
+    private List<CartItemsDTO> cartItems;
 
     @JsonProperty("totalItems")
     private int cartTotalItems;
@@ -25,7 +28,14 @@ public class CartDTO {
 
     private BigDecimal cartTotal;
 
-    @JsonProperty("shipping")
-    private List<ShippingDTO> shippings = new ArrayList<>();
+    private Long shippingAddressId;
+
+    private Long billingAddressId;
+
+    private Set<ShippingDTO> shippingMethod;
 
 }
+
+
+
+

@@ -4,44 +4,47 @@ import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.enumerations.OrderStatus;
 import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.model.*;
-import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.repository.AddressRepository;
 import br.com.kitchen.api.repository.OrderRepository;
+import br.com.kitchen.api.repository.OutboxRepository;
 import br.com.kitchen.api.repository.PaymentRepository;
 import br.com.kitchen.api.service.payment.PaymentProvider;
 import br.com.kitchen.api.service.payment.PaymentProviderFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
+import br.com.kitchen.api.util.JsonUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class OrderService extends GenericService<Order, Long>{
 
     private final PaymentProviderFactory paymentProviderFactory;
     private final AddressRepository addressRepository;
-    private final SqsProducer<OrderDTO> orderProducer;
+    private final StockService stockService;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
+    private final OutboxRepository outboxRepository;
     private final CartService cartService;
 
     public OrderService(
-            @Qualifier("orderSqsProducer") SqsProducer<OrderDTO> orderProducer,
             AddressRepository addressRepository,
             OrderRepository orderRepository,
             PaymentRepository paymentRepository,
             PaymentProviderFactory paymentProviderFactory,
+            StockService stockService,
+            OutboxRepository outboxRepository,
+            ObjectMapper objectMapper,
             CartService cartService) {
         super(orderRepository, Order.class);
         this.addressRepository = addressRepository;
-        this.orderProducer = orderProducer;
         this.paymentRepository = paymentRepository;
         this.paymentProviderFactory = paymentProviderFactory;
         this.orderRepository = orderRepository;
         this.cartService = cartService;
+        this.stockService = stockService;
+        this.outboxRepository = outboxRepository;
     }
 
     public List<Order> findOrdersByUserId(Long userId) {
@@ -65,72 +68,152 @@ public class OrderService extends GenericService<Order, Long>{
     }
 
     @Transactional
-    public Order checkoutFromCart(Long userId, Long shippingAddressId, Long billingAddressId) throws Exception{
+    public Order checkoutFromCart(Long userId) throws Exception{
         Cart cart = getValidatedCart(userId);
-        Address shipping = getAddressOrThrow(shippingAddressId, "Shipping address not found");
-        Address billing = getAddressOrThrow(billingAddressId, "Billing address not found");
-        Payment payment = getPaymentOrThrow(cart.getPayment().getId());
-        if(payment == null){
-            throw new RuntimeException("No payment selected");
-        }
-
-        Order order = createOrderFromCart(cart, shipping, billing, payment);
+        Order order = createOrderFromCart(cart);
         Order orderSaved = orderRepository.save(order);
 
-        PaymentProvider paymentProvider = paymentProviderFactory.getProvider(payment.getMethod().name());
-        String paymentStatus = paymentProvider.confirmPayment(payment.getProviderOrderId());
-        System.out.println("PAYMENT STATUS: " +paymentStatus );
-        if("COMPLETED".equals(paymentStatus) || "CREATED".equals(paymentStatus) || "APPROVED".equals(paymentStatus))
-            payment.setStatus(PaymentStatus.SUCCESS);
+        reserveStockForCart(cart);
 
-        cart.setActive(false);
-        cartService.save(cart);
+        PaymentProvider paymentProvider = paymentProviderFactory.getProvider(cart.getPayment().getMethod().name());
+        String paymentStatus = paymentProvider.confirmPayment(cart.getPayment().getProviderOrderId());
 
-        // ABATER ESTOQUE
-        orderProducer.sendNotification(new OrderDTO(orderSaved.getId(), orderSaved.getStatus().toString()));
+        if("COMPLETED".equals(paymentStatus) || "CREATED".equals(paymentStatus) || "APPROVED".equals(paymentStatus)) {
+            cart.getPayment().setStatus(PaymentStatus.SUCCESS);
+            confirmStockReservation(cart);
 
+            cart.setActive(false);
+            cartService.save(cart);
+
+            OutboxEvent event = OutboxEvent.builder()
+                    .aggregateType("ORDER")
+                    .aggregateId(orderSaved.getId())
+                    .eventType("ORDER_CONFIRMED")
+                    .payload(JsonUtils.toJson(
+                            new OrderDTO(orderSaved.getId(), orderSaved.getStatus().toString())
+                    ))
+                    .build();
+            outboxRepository.save(event);
+
+            order.setStatus(OrderStatus.CONFIRMED);
+        } else {
+            releaseStockReservation(cart);
+
+            cart.getPayment().setStatus(PaymentStatus.FAILED);
+            order.setStatus(OrderStatus.CANCELLED);
+        }
         return orderSaved;
     }
 
     private Cart getValidatedCart(Long userId) {
-        Cart cart = cartService.getActiveCartByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+        Cart cart = cartService.getActiveCartByUserId(userId);
 
         if (cart.getCartItems().isEmpty()) {
             throw new IllegalStateException("Cart is empty");
         }
 
+        validateAddress(cart.getBillingAddress(), "Billing");
+
+        validateAddress(cart.getShippingAddress(), "Shipping");
+
+        validatePayment(cart.getPayment());
+
+        validateStockAvailability(cart);
+
         return cart;
     }
 
-    private Address getAddressOrThrow(Long addressId, String message) {
-        return addressRepository.findById(addressId)
-                .orElseThrow(() -> new IllegalArgumentException(message));
+    private void validateStockAvailability(Cart cart){
+        cart.getCartItems().forEach(item -> {
+            if(item.getProduct().getSkus().isEmpty()){
+                throw new IllegalArgumentException("Product sku not found in the cart");
+            }
+            item.getProduct().getSkus().forEach(sku ->{
+                stockService.validateSkuAvailability(sku, item.getQuantity());
+            });
+        });
     }
 
-    private Payment getPaymentOrThrow(Long paymentId) {
-        return paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new IllegalArgumentException("Payment method not set"));
+    private void validateAddress(Address address, String type) {
+        if (address == null || address.getId() == null) {
+            throw new IllegalArgumentException(type + " address is not set");
+        }
+
+        if (!addressRepository.existsById(address.getId())) {
+            throw new IllegalArgumentException(type + " address not found");
+        }
     }
 
-    private Order createOrderFromCart(Cart cart, Address shipping, Address billing, Payment payment) {
+    private void validatePayment(Payment payment) {
+        if (payment == null || payment.getId() == null) {
+            throw new IllegalArgumentException("Payment method is not set");
+        }
+
+        if (!paymentRepository.existsById(payment.getId())) {
+            throw new IllegalArgumentException("Payment method not found");
+        }
+    }
+
+    private Order createOrderFromCart(Cart cart) {
         Order order = new Order();
         order.setUser(cart.getUser());
         order.setStatus(OrderStatus.PENDING_PROCESSING);
-        order.setShippingAddress(shipping);
-        order.setBillingAddress(billing);
-        order.setPayment(payment);
+        order.setShippingAddress(cart.getShippingAddress());
+        order.setBillingAddress(cart.getBillingAddress());
+        order.setPayment(cart.getPayment());
+
+        Map<Seller, SellerOrder> sellerOrderMap = new HashMap<>();
 
         for (CartItems item : cart.getCartItems()) {
+            Seller seller = item.getProduct().getSeller();
+            SellerOrder sellerOrder = sellerOrderMap.computeIfAbsent(seller, s -> {
+                SellerOrder so = new SellerOrder();
+                so.setOrder(order);
+                so.setSeller(seller);
+                so.setStatus(OrderStatus.PREPARING);
+                return so;
+            });
+
             OrderItems orderItem = new OrderItems();
             orderItem.setOrder(order);
             orderItem.setProduct(item.getProduct());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setItemValue(item.getItemValue());
+            orderItem.calculateItemValue();
+
+            orderItem.setSeller(seller);
+            orderItem.setSellerOrder(sellerOrder);
+
             order.getOrderItems().add(orderItem);
+            sellerOrder.getItems().add(orderItem);
         }
         order.updateOrderTotal();
+        order.setSellerOrders(new ArrayList<>(sellerOrderMap.values()));
         return order;
+    }
+
+    private void reserveStockForCart(Cart cart) {
+        for (CartItems item : cart.getCartItems()) {
+            for (ProductSku sku : item.getProduct().getSkus()) {
+                stockService.reserveStock(sku, item.getQuantity());
+            }
+        }
+    }
+
+    private void confirmStockReservation(Cart cart) {
+        for (CartItems item : cart.getCartItems()) {
+            for (ProductSku sku : item.getProduct().getSkus()) {
+                stockService.confirmReservation(sku, item.getQuantity());
+            }
+        }
+    }
+
+    private void releaseStockReservation(Cart cart) {
+        for (CartItems item : cart.getCartItems()) {
+            for (ProductSku sku : item.getProduct().getSkus()) {
+                stockService.releaseReservation(sku, item.getQuantity());
+            }
+        }
     }
 
 }

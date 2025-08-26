@@ -2,12 +2,13 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.enumerations.TransactionStatus;
 import br.com.kitchen.api.enumerations.TransactionType;
+import br.com.kitchen.api.model.OutboxEvent;
 import br.com.kitchen.api.model.Wallet;
 import br.com.kitchen.api.model.WalletTransaction;
-import br.com.kitchen.api.producer.SqsProducer;
+import br.com.kitchen.api.repository.OutboxRepository;
 import br.com.kitchen.api.repository.WalletTransactionRepository;
+import br.com.kitchen.api.util.JsonUtils;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,14 +19,13 @@ import java.util.Optional;
 public class WalletTransactionService extends GenericService<WalletTransaction, Long> {
 
     private final WalletTransactionRepository walletTransactionRepository;
-    private final SqsProducer<WalletTransaction> walletTxProducer;
+    private final OutboxRepository outboxRepository;
 
-    @Autowired
     public WalletTransactionService(WalletTransactionRepository walletTransactionRepository,
-                                    SqsProducer<WalletTransaction> walletTxProducer) {
+                                    OutboxRepository outboxRepository) {
         super(walletTransactionRepository, WalletTransaction.class);
         this.walletTransactionRepository = walletTransactionRepository;
-        this.walletTxProducer = walletTxProducer;
+        this.outboxRepository = outboxRepository;
     }
 
     @Transactional
@@ -49,7 +49,13 @@ public class WalletTransactionService extends GenericService<WalletTransaction, 
         tx.setDescription(description);
         tx.setStatus(TransactionStatus.AUTHORIZED);
         walletTransactionRepository.save(tx);
-        walletTxProducer.sendNotification(tx);
+        OutboxEvent event = OutboxEvent.builder()
+                .aggregateType("WALLET-TRANSACTION")
+                .aggregateId(tx.getId())
+                .eventType("WALLET-TRANSACTION-DEBIT_CONFIRMED")
+                .payload(JsonUtils.toJson(tx))
+                .build();
+        outboxRepository.save(event);
     }
 
     public Optional<List<WalletTransaction>> getTransactions(Wallet wallet) {
@@ -65,7 +71,13 @@ public class WalletTransactionService extends GenericService<WalletTransaction, 
 
         tx.setStatus(TransactionStatus.AUTHORIZED);
         walletTransactionRepository.save(tx);
-        walletTxProducer.sendNotification(tx);
+        OutboxEvent event = OutboxEvent.builder()
+                .aggregateType("WALLET-TRANSACTION")
+                .aggregateId(tx.getId())
+                .eventType("WALLET-TRANSACTION-VALIDATE_CONFIRMED")
+                .payload(JsonUtils.toJson(tx))
+                .build();
+        outboxRepository.save(event);
     }
 
     @Transactional
@@ -74,7 +86,13 @@ public class WalletTransactionService extends GenericService<WalletTransaction, 
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
         tx.setStatus(TransactionStatus.CANCELED);
         walletTransactionRepository.save(tx);
-        walletTxProducer.sendNotification(tx);
+        OutboxEvent event = OutboxEvent.builder()
+                .aggregateType("WALLET-TRANSACTION")
+                .aggregateId(tx.getId())
+                .eventType("WALLET-TRANSACTION-CANCELLED_CONFIRMED")
+                .payload(JsonUtils.toJson(tx))
+                .build();
+        outboxRepository.save(event);
     }
 
     public BigDecimal getBalanceForUser(Long userId) {

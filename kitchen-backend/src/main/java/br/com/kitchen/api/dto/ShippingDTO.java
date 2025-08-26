@@ -1,12 +1,14 @@
 package br.com.kitchen.api.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
+@Builder
 public class ShippingDTO {
 
     private Long id;
@@ -17,6 +19,6 @@ public class ShippingDTO {
 
     private Long estimatedDays;
 
-    private Long sellerId;
+    private SellerDTO seller;
 
 }

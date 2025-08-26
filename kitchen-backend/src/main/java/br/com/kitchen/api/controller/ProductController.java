@@ -57,25 +57,47 @@ public class ProductController {
 
     @PostMapping("/batch")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<List<ProductResponseDTO>> createProductBatch(
+    public ResponseEntity<?> createProductBatch(
             @AuthenticationPrincipal UserPrincipal userDetails,
             @RequestBody List<ProductRequestDTO> dtos) {
 
-        List<ProductResponseDTO> response = service.createProducts(userDetails.user(), dtos)
-                .stream()
-                .map(ProductMapper::toResponseDTO)
-                .toList();
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            List<ProductResponseDTO> response = service.createProducts(userDetails.user(), dtos)
+                    .stream()
+                    .map(ProductMapper::toResponseDTO)
+                    .toList();
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(response);
+        }catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message", "An error has occurred on create product",
+                            "details", e.getMessage()
+                    ));
+        }
     }
 
     @PostMapping
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<ProductResponseDTO> createProduct(
+    public ResponseEntity<?> createProduct(
             @AuthenticationPrincipal UserPrincipal userDetails,
             @RequestBody ProductRequestDTO dto) {
 
-        Product productSaved = service.createProduct(userDetails.user(), dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ProductMapper.toResponseDTO(productSaved));
+        try {
+            Product productSaved = service.createProduct(userDetails.user(), dto);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(ProductMapper.toResponseDTO(productSaved));
+        } catch (Exception e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                "message", "An error has occurred on create product",
+                "details", e.getMessage()
+        ));
+    }
     }
 
     @DeleteMapping("/{id}")

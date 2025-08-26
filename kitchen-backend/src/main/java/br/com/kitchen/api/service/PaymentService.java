@@ -29,8 +29,7 @@ public class PaymentService extends GenericService<Payment, Long> {
     public String initiatePayment(String provider, Long userId) throws Exception {
         PaymentProvider paymentProvider = paymentProviderFactory.getProvider(provider);
 
-        Cart cart = cartService.getActiveCartByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+        Cart cart = cartService.getActiveCartByUserId(userId);
 
         Payment p = paymentProvider.createPayment(cart);
 

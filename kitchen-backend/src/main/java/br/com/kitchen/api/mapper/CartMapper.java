@@ -1,28 +1,42 @@
 package br.com.kitchen.api.mapper;
 
-import br.com.kitchen.api.dto.CartDTO;
-import br.com.kitchen.api.dto.CartItemsDTO;
-import br.com.kitchen.api.dto.ProductDTO;
+import br.com.kitchen.api.dto.*;
 import br.com.kitchen.api.model.Cart;
 import br.com.kitchen.api.model.CartItems;
 import br.com.kitchen.api.model.Product;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CartMapper {
 
     public static CartDTO toResponseDTO(Cart cart) {
-        return new CartDTO(
-                cart.getId(),
-                cart.getCartItems().stream()
+        Set<ShippingDTO> shippingSet = cart.getCartItems().stream()
+                .map(item -> item.getProduct().getSeller())
+                .filter(Objects::nonNull)
+                .map(seller -> ShippingDTO.builder()
+                        .seller(SellerDTO.builder()
+                                .id(seller.getId())
+                                .storeName(seller.getStoreName())
+                                .build())
+                        .build())
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return CartDTO.builder()
+                .id(cart.getId())
+                .cartItems(cart.getCartItems().stream()
                         .map(CartMapper::itemToResponseDTO)
-                        .collect(Collectors.toList()),
-                cart.getCartItems().size(),
-                cart.getCreation(),
-                cart.getCartTotal(),
-                ShippingMapper.toDTOList(cart.getShipping())
-        );
+                        .collect(Collectors.toList()))
+                .cartTotalItems(cart.getCartItems().size())
+                .creation(cart.getCreation())
+                .cartTotal(cart.getCartTotal())
+                .shippingAddressId(cart.getShippingAddress() == null ? null : cart.getShippingAddress().getId())
+                .billingAddressId(cart.getBillingAddress() == null ? null : cart.getBillingAddress().getId())
+                .shippingMethod(shippingSet)
+                .build();
     }
 
     private static CartItemsDTO itemToResponseDTO(CartItems cartItems) {
@@ -31,7 +45,9 @@ public class CartMapper {
                 ProductDTO.builder()
                         .id(cartItems.getId())
                         .name(cartItems.getProduct().getName())
-                        .sku(cartItems.getProduct().getSkus().get(0).getSku()).build(),
+                        .sku(cartItems.getProduct().getSkus().get(0).getSku())
+                        .seller(SellerMapper.toDTO(cartItems.getProduct().getSeller()))
+                        .build(),
                 cartItems.getQuantity(),
                 cartItems.getItemValue()
         );

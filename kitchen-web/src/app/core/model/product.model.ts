@@ -1,3 +1,5 @@
+import { Seller } from "./user.model";
+
 export class Product {
   public id: number | null = null;
   public name: string = '';
@@ -8,6 +10,7 @@ export class Product {
   public category: string = '';
   public active: boolean = false;
   public skus: Sku[] = [];
+  public seller: Seller = new Seller;
 
   constructor(init?: Partial<Product>) {
     if (init) {
@@ -34,4 +37,10 @@ export interface Sku {
   price: number;
   stock: Stock;
   attributes: Attribute[];
+}
+
+export interface SellerStore {
+  id: number;
+  storeName: string;
+  shippingId: number;
 }

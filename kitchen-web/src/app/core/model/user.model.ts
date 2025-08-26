@@ -25,3 +25,8 @@ export class User{
       return this.roles.includes('ROLE_SELLER');
     }
 }
+
+export class Seller{
+  public id: number | null = null;
+  public storeName: string = '';
+}

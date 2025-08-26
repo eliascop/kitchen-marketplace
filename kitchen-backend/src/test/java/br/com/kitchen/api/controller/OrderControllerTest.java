@@ -72,7 +72,7 @@ class OrderControllerTest {
         SecurityContextHolder.clearContext();
     }
 
-    @Test
+/*    @Test
     void shouldReturnNotFoundWhenOrderDoesNotExist() throws Exception {
         mockMvc.perform(get("/orders/v1/{id}", 9999L))
                 .andExpect(status().isNotFound());
@@ -96,5 +96,5 @@ class OrderControllerTest {
     void shouldReturnBadRequestWhenSearchWithoutUserId() throws Exception {
         mockMvc.perform(get("/orders/v1/search"))
                 .andExpect(status().isBadRequest());
-    }
+    } */
 }

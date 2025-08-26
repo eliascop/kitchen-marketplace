@@ -12,6 +12,13 @@ import { User } from '../../core/model/user.model';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Address } from '../../core/model/address.model';
+import { Shipping } from '../../core/model/shipping.model';
+
+export const shippingOptions = [
+  { id: 1, method: 'SEDEX', cost: 10.5, estimatedDays: 2 },
+  { id: 2, method: 'PAC', cost: 12.5, estimatedDays: 5 },
+  { id: 3, method: 'Jadlog', cost: 15.5, estimatedDays: 7 }
+];
 
 @Component({
   selector: 'app-cart',
@@ -21,17 +28,14 @@ import { Address } from '../../core/model/address.model';
   styleUrls: ['./cart.component.css'],
 })
 export class CartComponent implements OnInit {
-  cart!: Cart;
+  cart: Cart = new Cart();
   order: Order = new Order;
   user: User = new User({ addresses: [] });
-  cartItems: CartItem[] = [];
-  cartTotal: number = 0;
   isLoading = false;
+  shippingOptions = shippingOptions;
 
   currentStep = 1;
-
   paymentMethod: string = '';
-  shippingMethod: string = '';
   selectedAddress: Address | null = null;
 
   constructor(private cartService: CartService, 
@@ -44,8 +48,8 @@ export class CartComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserData();
-    this.loadOrderAddress();
     this.getCartDetails();
+    this.loadOrderAddress();
     this.checkPaymentStatus();
   }
 
@@ -84,10 +88,10 @@ export class CartComponent implements OnInit {
         const paymentStatusStored = data.data?.message;
         if (paymentStatusStored === 'SUCCESS') {
           this.toast.show('Pagamento aprovado com sucesso!');
-          this.currentStep = 3;
+          this.currentStep = 4;
         } else {
           this.toast.show('Pagamento não aprovado.');
-          this.currentStep = 2;
+          this.currentStep = 3;
         }
       },
       error: (error) => {
@@ -112,10 +116,15 @@ export class CartComponent implements OnInit {
     });
   }
 
-  updateCartFromResponse(data: any){
+  updateCartFromResponse(data: Cart){
     this.cart = data;
-    this.cartItems = data.items || []; 
-    this.cartTotal = data.cartTotal;
+    this.cart.items = data.items || []; 
+    /*this.cart.items = this.cart.items.map(item => ({
+      id: item.id ?? null,
+      product: item.product ?? new Product(),
+      quantity: item.quantity ?? 0,
+      value: item.value ??
+    })); */
   }
 
   loadProductDetails(productId: number){
@@ -145,8 +154,7 @@ export class CartComponent implements OnInit {
   onClearCart(): void {
     this.cartService.clearCart().subscribe({
       next: () => {
-        this.cartItems = [];
-        this.calculateTotal(this.cartItems);
+        this.cart.items = [];
         this.toast.show("Todos os items foram removidos com sucesso.");
       },
       error: (error) => {
@@ -159,10 +167,10 @@ export class CartComponent implements OnInit {
     if(this.user && this.user.addresses){
       this.user.addresses.forEach(addr=>{
         if(addr.type=='SHIPPING'){
-          this.order.shippingAddressId = addr.id;
+          this.cart.shippingAddressId = addr.id;
         }
         if(addr.type=='BILLING'){
-          this.order.billingAddressId = addr.id;
+          this.cart.billingAddressId = addr.id;
         }
       });
     }
@@ -196,12 +204,26 @@ export class CartComponent implements OnInit {
     }
   }
 
+  updateShipping():void{
+    this.loadOrderAddress();
+    this.cartService.updateCartAddresses(this.cart).subscribe({
+      next: response => {
+        console.log(response.data)
+        this.nextStep();
+      },
+      error: err=>{
+        this.toast.show('Ocorreu um erro ao selecionar o endereços')
+        console.error(err);
+      }
+    });
+  }
+
   goBack(): void {
     this.location.back();
   }
 
   nextStep() {
-    if (this.currentStep < 3) {
+    if (this.currentStep < 4) {
       this.currentStep++;
     }
   }
@@ -210,5 +232,22 @@ export class CartComponent implements OnInit {
     if (this.currentStep > 1) {
       this.currentStep--;
     }
+  }
+
+  selectShipping(ship: Shipping, option: any) {
+    ship.id = option.id; 
+    ship.cost = option.cost;
+    ship.method = option.method;
+    ship.estimatedDays = option.estimatedDays;
+  }
+
+  allShippingsSelected(): boolean {
+    if (!this.cart || !this.cart.shippingMethod) return false;
+    return this.cart.shippingMethod.every(ship => ship.method != null);
+  }
+  
+  get shippingTotal(): number {
+    if (!this.cart || !this.cart.shippingMethod) return 0;
+    return this.cart.shippingMethod.reduce((total, ship) => total + (ship.cost || 0), 0);
   }
 }

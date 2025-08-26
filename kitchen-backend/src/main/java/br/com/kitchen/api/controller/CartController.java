@@ -1,7 +1,6 @@
 package br.com.kitchen.api.controller;
 
 import br.com.kitchen.api.dto.CartDTO;
-import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.mapper.CartMapper;
 import br.com.kitchen.api.model.Cart;
 import br.com.kitchen.api.security.UserPrincipal;
@@ -29,14 +28,42 @@ public class CartController {
     }
 
     @GetMapping
-    public ResponseEntity<CartDTO> getCart(@AuthenticationPrincipal UserPrincipal userDetails) {
-        Cart cart = cartService.getOrCreateCart(userDetails.user());
+    public ResponseEntity<?> getCart(@AuthenticationPrincipal UserPrincipal userDetails) {
+        try {
+            Cart cart = cartService.getOrCreateCart(userDetails.user());
 
-        if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
-            return ResponseEntity.noContent().build();
+            if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(CartMapper.toResponseDTO(cart));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "code", HttpStatus.BAD_REQUEST.value(),
+                    "message", "An error occurred on get cart",
+                    "details", e.getMessage()
+            ));
         }
+    }
 
-        return ResponseEntity.ok(CartMapper.toResponseDTO(cart));
+    @PutMapping
+    public ResponseEntity<?> updateCart(@AuthenticationPrincipal UserPrincipal userDetails,
+                                        @Valid @RequestBody CartDTO cartDTO) {
+        try {
+
+            Cart cartSaved = cartService.updateCartAddresses(cartDTO, userDetails.user().getId());
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(CartMapper.toResponseDTO(cartSaved));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "code", HttpStatus.BAD_REQUEST.value(),
+                    "message", "Addresses not included into the cart",
+                    "details", e.getMessage()
+            ));
+        }
     }
 
     @PostMapping("/create")
@@ -80,7 +107,6 @@ public class CartController {
                                 "message", "ProductId cannot be empty"
                         ));
             }
-            ProductDTO productDTO = new ProductDTO(productId, "",productSku);
 
             if (quantity == 0) {
                 return ResponseEntity

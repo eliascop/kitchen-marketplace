@@ -36,6 +36,7 @@ public class KafkaProducerConfig {
     }
 
     @Bean
+    @Qualifier("productProducer")
     public KafkaProducer<ProductDTO> productKafkaProducer() {
         return new KafkaProducer<>(createTemplate(ProductDTO.class), "new-product");
     }

@@ -2,10 +2,7 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.CartDTO;
 import br.com.kitchen.api.dto.ProductDTO;
-import br.com.kitchen.api.model.Cart;
-import br.com.kitchen.api.model.CartItems;
-import br.com.kitchen.api.model.Product;
-import br.com.kitchen.api.model.User;
+import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.repository.CartItemRepository;
 import br.com.kitchen.api.repository.CartRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,26 +13,30 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 
 @Service
 public class CartService extends GenericService<Cart, Long> {
 
+    private final AddressService addressService;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
 
     @Autowired
-    public CartService(CartRepository cartRepository,
+    public CartService(AddressService addressService,
+                       CartRepository cartRepository,
                        CartItemRepository cartItemRepository,
                        ProductService productService) {
         super(cartRepository, Cart.class);
+        this.addressService = addressService;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productService = productService;
     }
 
-    public Cart getOrCreateCart(User user) {
+    public Cart getOrCreateCart(User user) throws Exception{
         return cartRepository.findActiveCartByUserId(user.getId())
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
@@ -43,14 +44,14 @@ public class CartService extends GenericService<Cart, Long> {
                     newCart.setCreation(LocalDateTime.now());
                     newCart.setActive(true);
                     newCart.setCartItems(new ArrayList<>());
-                    newCart.setShipping(new ArrayList<>());
                     newCart.setCartTotal(BigDecimal.ZERO);
+                    newCart.setShippingMethods(new LinkedHashSet<>());
                     return cartRepository.save(newCart);
                 });
     }
 
     @Transactional
-    public Cart createCart(User user, CartDTO cartDTO) {
+    public Cart createCart(User user, CartDTO cartDTO) throws Exception{
         Cart cart = getOrCreateCart(user);
 
         cartDTO.getCartItems().forEach(itemDTO -> {
@@ -92,9 +93,13 @@ public class CartService extends GenericService<Cart, Long> {
     }
 
     @Transactional
-    public Cart manageItems(User user, Long productId, int quantity) {
+    public Cart manageItems(User user, Long productId, int quantity) throws Exception{
         Product p = productService.findProductById(productId);
-        ProductDTO productDTO = new ProductDTO(p.getId(), p.getName(), p.getSkus().get(0).getSku());
+        ProductDTO productDTO = ProductDTO.builder()
+                .id(p.getId())
+                .name(p.getName())
+                .sku(p.getSkus().get(0).getSku())
+                .build();
 
         Cart cart = getOrCreateCart(user);
         addOrUpdateItem(cart, productDTO, quantity);
@@ -142,8 +147,22 @@ public class CartService extends GenericService<Cart, Long> {
         cartRepository.save(cart);
     }
 
-    public Optional<Cart> getActiveCartByUserId(Long userId) {
-        return cartRepository.findActiveCartByUserId(userId);
+    public Cart getActiveCartByUserId(Long userId) {
+        return cartRepository.findActiveCartByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("No active cart found"));
+    }
+
+    @Transactional
+    public Cart updateCartAddresses(CartDTO cartDTO, Long userId){
+
+        Address shippingAddress = addressService.getById(cartDTO.getShippingAddressId());
+        Address billingAddress = addressService.getById(cartDTO.getBillingAddressId());
+
+        Cart cart = getActiveCartByUserId(userId);
+        cart.setShippingAddress(shippingAddress);
+        cart.setBillingAddress(billingAddress);
+
+        return cartRepository.save(cart);
     }
 
     public void save(Cart cart) {

@@ -1,4 +1,5 @@
 import { Product } from "./product.model";
+import { Shipping } from "./shipping.model";
 
 export class CartItem {
   public id: number | null = null;
@@ -22,14 +23,15 @@ export class CartItem {
 }
 
 export class Cart {
-  id: number = 0;
-  userId: number = 0;
-  items: CartItem[] = [];
-  totalItems: number = 0; 
-  creation: Date = new Date();
-  cartTotal: number = 0;
-  shippingAddressId: number = 0;
-  billingAddressId: number = 0;
+  public id: number = 0;
+  public userId: number = 0;
+  public items: CartItem[] = [];
+  public totalItems: number = 0; 
+  public creation: Date = new Date();
+  public cartTotal: number = 0;
+  public shippingMethod: Shipping[] = [];
+  public shippingAddressId: number | undefined = 0;
+  public billingAddressId: number | undefined = 0;
 
   constructor(init?: Partial<Cart>) {
     if (init) {

@@ -2,13 +2,11 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.model.*;
-import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.record.ProductAttributeDTO;
 import br.com.kitchen.api.record.ProductRequestDTO;
 import br.com.kitchen.api.repository.*;
+import br.com.kitchen.api.util.JsonUtils;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,18 +22,17 @@ public class ProductService extends GenericService<Product, Long> {
     private final CatalogRepository catalogRepository;
     private final CategoryRepository categoryRepository;
     private final SellerRepository sellerRepository;
-    private final SqsProducer<ProductDTO> productProducer;
+    private final OutboxRepository outboxRepository;
 
-    @Autowired
     public ProductService(
-            SqsProducer<ProductDTO> productProducer,
             ProductRepository productRepository,
             ProductSkuRepository productSkuRepository,
             SellerRepository sellerRepository,
             CatalogRepository catalogRepository,
-            CategoryRepository categoryRepository) {
+            CategoryRepository categoryRepository,
+            OutboxRepository outboxRepository) {
         super(productRepository, Product.class);
-        this.productProducer = productProducer;
+        this.outboxRepository = outboxRepository;
         this.productRepository = productRepository;
         this.productSkuRepository = productSkuRepository;
         this.sellerRepository = sellerRepository;
@@ -102,13 +99,20 @@ public class ProductService extends GenericService<Product, Long> {
         product.setSkus(skuList);
         product = productRepository.save(product);
 
-        productProducer.sendNotification(ProductDTO.builder().id(product.getId()).build());
+        OutboxEvent event = OutboxEvent.builder()
+                .aggregateType("PRODUCT")
+                .aggregateId(product.getId())
+                .eventType("PRODUCT_CREATED")
+                .payload(JsonUtils.toJson(
+                        ProductDTO.builder().id(product.getId()).build()
+                )).build();
+        outboxRepository.save(event);
 
         return product;
     }
 
     @Transactional
-    public List<Product> createProducts(User user, List<ProductRequestDTO> dtos) {
+    public List<Product> createProducts(User user, List<ProductRequestDTO> dtos) throws Exception {
         return dtos.stream()
                 .map(dto -> createProduct(user, dto))
                 .toList();

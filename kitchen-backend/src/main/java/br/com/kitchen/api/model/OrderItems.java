@@ -26,12 +26,12 @@ public class OrderItems implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    @JsonBackReference
+    @JsonBackReference("order-orderItems")
     private Order order;
 
     @ManyToOne
     @JoinColumn(name = "seller_order_id")
-    @JsonBackReference
+    @JsonBackReference("sellerOrder-items")
     private SellerOrder sellerOrder;
 
     @ManyToOne

@@ -10,7 +10,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "Cart", schema = "kitchen")
@@ -40,7 +42,15 @@ public class Cart implements Serializable {
     private Payment payment;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Shipping> shipping = new ArrayList<>();
+    private Set<Shipping> shippingMethods = new LinkedHashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "shipping_address_id")
+    private Address shippingAddress;
+
+    @ManyToOne
+    @JoinColumn(name = "billing_address_id")
+    private Address billingAddress;
 
     public BigDecimal getCartTotal(){
         return cartTotal != null ? cartTotal : BigDecimal.ZERO;

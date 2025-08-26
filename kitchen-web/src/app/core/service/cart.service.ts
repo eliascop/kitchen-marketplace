@@ -35,6 +35,16 @@ export class CartService {
     this.cartItemsCount.next(total);
   }
 
+  updateCartAddresses(cart: Cart): Observable<{ data: Cart | null; error?: any }> { 
+    const userId = this.authService.currentUserId;
+    if (!userId) throw new Error('Usuário não autenticado.');
+
+    return this.dataService.put<Cart>({
+      url: `${CART_SERVICE_REST}`,
+      body: cart
+    });
+  }
+
   getCartTotalItems(): Observable<number> {
     return this.getCart().pipe(
       map(response => {

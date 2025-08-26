@@ -36,10 +36,11 @@ public class Order implements Serializable {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @JsonManagedReference
+    @JsonManagedReference("order-orderItems")
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItems> orderItems = new ArrayList<>();
 
+    @JsonManagedReference("order-sellerOrders")
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SellerOrder> sellerOrders = new ArrayList<>();
 
