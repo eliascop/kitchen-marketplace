@@ -1,6 +1,7 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.OrderDTO;
+import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.enumerations.OrderStatus;
 import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.model.*;
@@ -92,6 +93,7 @@ public class OrderService extends GenericService<Order, Long>{
                     .payload(JsonUtils.toJson(
                             new OrderDTO(orderSaved.getId(), orderSaved.getStatus().toString())
                     ))
+                    .status(EventStatus.PENDING)
                     .build();
             outboxRepository.save(event);
 

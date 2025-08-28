@@ -52,6 +52,7 @@ public class OutboxProcessor {
                 outboxRepository.save(event);
 
             } catch (Exception e) {
+                System.out.println("Erro: "+e.getMessage());
                 event.setStatus(EventStatus.FAILED);
                 outboxRepository.save(event);
             }

@@ -1,5 +1,6 @@
 package br.com.kitchen.api.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
@@ -10,6 +11,9 @@ import software.amazon.awssdk.services.sns.SnsClient;
 @Configuration
 public class SnsProducerConfig {
 
+    @Value("${spring.cloud.aws.sns.endpoint}")
+    String snsUri;
+
     @Bean
     public SnsClient snsClient() {
         return SnsClient.builder()
@@ -17,7 +21,7 @@ public class SnsProducerConfig {
                         StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test"))
                 )
                 .region(Region.US_EAST_1)
-                .endpointOverride(java.net.URI.create("http://localhost:4566"))
+                .endpointOverride(java.net.URI.create(snsUri))
                 .build();
     }
 }
