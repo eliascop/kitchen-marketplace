@@ -85,23 +85,22 @@ services:
     networks:
       - kitchen-network
 
-  kitchen-preparing-simulator:
-    build:
-      context: ./kitchen-order-preparing-simulator
-      dockerfile: Dockerfile
-    container_name: kitchen-preparing-simulator
-    depends_on:
-      mysql:
-        condition: service_healthy
-      kafka:
-        condition: service_started
-    ports:
-      - "8083:8083"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kitchen?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-
-    networks:
-      - kitchen-network
+#  kitchen-preparing-simulator:
+#    build:
+#      context: ./kitchen-order-preparing-simulator
+#      dockerfile: Dockerfile
+#    container_name: kitchen-preparing-simulator
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_started
+#    ports:
+#      - "8083:8083"
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kitchen?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+#    networks:
+#      - kitchen-network
 
   kitchen-monitoring:
     build:
@@ -123,9 +122,11 @@ services:
     container_name: localstack
     ports:
       - "4566:4566"
+      - "4571:4571"
     environment:
-      - SERVICES=sqs
+      - SERVICES=sqs,sns
       - DEBUG=1
+      - PERSISTENCE=1
       - AWS_DEFAULT_REGION=us-east-1
     volumes:
       - "./.localstack:/var/lib/localstack"

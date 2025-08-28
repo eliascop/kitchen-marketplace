@@ -11,4 +11,11 @@ public class SellerMapper {
                 seller.getStoreName()
         );
     }
+
+    public static Seller toEntity(SellerDTO sellerDTO){
+        Seller seller = new Seller();
+        seller.setId(sellerDTO.getId());
+        seller.setStoreName(sellerDTO.getStoreName());
+        return seller;
+    }
 }

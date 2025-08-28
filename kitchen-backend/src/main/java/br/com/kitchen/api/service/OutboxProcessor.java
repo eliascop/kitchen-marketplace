@@ -5,7 +5,7 @@ import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.model.OutboxEvent;
 import br.com.kitchen.api.producer.KafkaProducer;
-import br.com.kitchen.api.producer.SqsProducer;
+import br.com.kitchen.api.producer.SnsProducer;
 import br.com.kitchen.api.repository.OutboxRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,12 +19,12 @@ import java.util.List;
 public class OutboxProcessor {
 
     private final OutboxRepository outboxRepository;
-    private final SqsProducer<OrderDTO> orderProducer;
+    private final SnsProducer orderProducer;
     private final KafkaProducer<ProductDTO> productProducer;
     private final ObjectMapper objectMapper;
 
     public OutboxProcessor(OutboxRepository outboxRepository,
-                           @Qualifier("orderSqsProducer") SqsProducer<OrderDTO> orderProducer,
+                           SnsProducer orderProducer,
                            @Qualifier("productProducer") KafkaProducer<ProductDTO> productProducer,
                            ObjectMapper objectMapper) {
         this.outboxRepository = outboxRepository;
@@ -40,7 +40,7 @@ public class OutboxProcessor {
             try {
                 if ("ORDER".equals(event.getAggregateType()) && "ORDER_CONFIRMED".equals(event.getEventType())) {
                     OrderDTO dto = objectMapper.readValue(event.getPayload(), OrderDTO.class);
-                    orderProducer.sendNotification(dto);
+                    orderProducer.sendNotification(dto.toString());
                 }
                 if ("PRODUCT".equals(event.getAggregateType())) {
                     ProductDTO dto = objectMapper.readValue(event.getPayload(), ProductDTO.class);

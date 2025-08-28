@@ -28,7 +28,8 @@
 		<jakarta.validation.version>3.0.2</jakarta.validation.version>
 		<jakarta.persistence.version>3.1.0</jakarta.persistence.version>
 		<awspring.version>3.0.2</awspring.version>
-		<awssdk.version>2.25.28</awssdk.version>
+		<sqs.version>2.25.28</sqs.version>
+		<sns.version>2.25.50</sns.version>
 	</properties>
 
 	<dependencies>
@@ -60,7 +61,12 @@
 		</dependency>
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>
-			<version>${awssdk.version}</version>
+			<artifactId>sns</artifactId>
+			<version>${sns.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<version>${sqs.version}</version>
 			<artifactId>sqs</artifactId>
 		</dependency>
 		<dependency>

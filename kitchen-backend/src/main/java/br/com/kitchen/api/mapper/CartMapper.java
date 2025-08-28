@@ -14,16 +14,21 @@ import java.util.stream.Collectors;
 public class CartMapper {
 
     public static CartDTO toResponseDTO(Cart cart) {
-        Set<ShippingDTO> shippingSet = cart.getCartItems().stream()
-                .map(item -> item.getProduct().getSeller())
-                .filter(Objects::nonNull)
-                .map(seller -> ShippingDTO.builder()
-                        .seller(SellerDTO.builder()
-                                .id(seller.getId())
-                                .storeName(seller.getStoreName())
-                                .build())
-                        .build())
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<ShippingDTO> shippingSet = new LinkedHashSet<>();
+        if(cart.getShippingMethods().isEmpty()) {
+            shippingSet = cart.getCartItems().stream()
+                    .map(item -> item.getProduct().getSeller())
+                    .filter(Objects::nonNull)
+                    .map(seller -> ShippingDTO.builder()
+                            .seller(SellerDTO.builder()
+                                    .id(seller.getId())
+                                    .storeName(seller.getStoreName())
+                                    .build())
+                            .build())
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+        }else{
+            shippingSet = ShippingMapper.toDTOList(cart.getShippingMethods());
+        }
 
         return CartDTO.builder()
                 .id(cart.getId())

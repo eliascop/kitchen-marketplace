@@ -52,7 +52,7 @@ public class CartController {
                                         @Valid @RequestBody CartDTO cartDTO) {
         try {
 
-            Cart cartSaved = cartService.updateCartAddresses(cartDTO, userDetails.user().getId());
+            Cart cartSaved = cartService.updateShippingInfo(cartDTO, userDetails.user().getId());
 
             return ResponseEntity
                     .status(HttpStatus.OK)

@@ -14,10 +14,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Address } from '../../core/model/address.model';
 import { Shipping } from '../../core/model/shipping.model';
 
+//mock de api de frete
 export const shippingOptions = [
-  { id: 1, method: 'SEDEX', cost: 10.5, estimatedDays: 2 },
-  { id: 2, method: 'PAC', cost: 12.5, estimatedDays: 5 },
-  { id: 3, method: 'Jadlog', cost: 15.5, estimatedDays: 7 }
+  { id: 1, carrier: 'Correios', method: 'SEDEX', cost: 10.5, estimatedDays: 2 },
+  { id: 2, carrier: 'Jadlog', method: 'PAC', cost: 12.5, estimatedDays: 5 },
+  { id: 3, carrier: 'Motoboy', method: 'Agendado', cost: 20.0, estimatedDays: 7 }
 ];
 
 @Component({
@@ -119,12 +120,6 @@ export class CartComponent implements OnInit {
   updateCartFromResponse(data: Cart){
     this.cart = data;
     this.cart.items = data.items || []; 
-    /*this.cart.items = this.cart.items.map(item => ({
-      id: item.id ?? null,
-      product: item.product ?? new Product(),
-      quantity: item.quantity ?? 0,
-      value: item.value ??
-    })); */
   }
 
   loadProductDetails(productId: number){
@@ -206,6 +201,7 @@ export class CartComponent implements OnInit {
 
   updateShipping():void{
     this.loadOrderAddress();
+    console.log(this.cart);
     this.cartService.updateCartAddresses(this.cart).subscribe({
       next: response => {
         console.log(response.data)
@@ -235,15 +231,15 @@ export class CartComponent implements OnInit {
   }
 
   selectShipping(ship: Shipping, option: any) {
-    ship.id = option.id; 
     ship.cost = option.cost;
+    ship.carrier = option.carrier;
     ship.method = option.method;
     ship.estimatedDays = option.estimatedDays;
   }
 
   allShippingsSelected(): boolean {
     if (!this.cart || !this.cart.shippingMethod) return false;
-    return this.cart.shippingMethod.every(ship => ship.method != null);
+    return this.cart.shippingMethod.every(ship => ship.carrier != null);
   }
   
   get shippingTotal(): number {

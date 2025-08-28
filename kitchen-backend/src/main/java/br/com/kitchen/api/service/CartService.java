@@ -2,6 +2,8 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.CartDTO;
 import br.com.kitchen.api.dto.ProductDTO;
+import br.com.kitchen.api.dto.ShippingDTO;
+import br.com.kitchen.api.mapper.ShippingMapper;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.repository.CartItemRepository;
 import br.com.kitchen.api.repository.CartRepository;
@@ -11,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CartService extends GenericService<Cart, Long> {
@@ -23,17 +22,20 @@ public class CartService extends GenericService<Cart, Long> {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductService productService;
+    private final SellerService sellerService;
 
     @Autowired
     public CartService(AddressService addressService,
                        CartRepository cartRepository,
                        CartItemRepository cartItemRepository,
+                       SellerService sellerService,
                        ProductService productService) {
         super(cartRepository, Cart.class);
         this.addressService = addressService;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productService = productService;
+        this.sellerService = sellerService;
     }
 
     public Cart getOrCreateCart(User user) throws Exception{
@@ -152,15 +154,38 @@ public class CartService extends GenericService<Cart, Long> {
                 .orElseThrow(() -> new IllegalStateException("No active cart found"));
     }
 
+    public Set<Shipping> validateShipping(Set<ShippingDTO> shippingSet, Cart cart){
+        Set<Shipping> shipingSet = ShippingMapper.toEntityList(shippingSet);
+        if(shipingSet.isEmpty()){
+            throw new RuntimeException("No shipping was selected");
+        }
+        for (Shipping ship : shipingSet) {
+            if(ship.getMethod().isEmpty() || ship.getCarrier().isEmpty())
+                throw new RuntimeException("A problem was found on shipping. Review your options");
+
+            Seller seller = sellerService.findById(ship.getSeller().getId())
+                .map(s -> {if(s.isBlocked()) throw new RuntimeException("Some seller has restriction"); return s;
+                }).orElseThrow(()-> new RuntimeException("No seller was found for this shipping item"));
+           ship.setSeller(seller);
+           ship.setCart(cart);
+        }
+        return shipingSet;
+    }
+
     @Transactional
-    public Cart updateCartAddresses(CartDTO cartDTO, Long userId){
+    public Cart updateShippingInfo(CartDTO cartDTO, Long userId){
 
         Address shippingAddress = addressService.getById(cartDTO.getShippingAddressId());
         Address billingAddress = addressService.getById(cartDTO.getBillingAddressId());
 
         Cart cart = getActiveCartByUserId(userId);
+        Set<Shipping> shippingMethods = validateShipping(cartDTO.getShippingMethod(),cart);
+
         cart.setShippingAddress(shippingAddress);
         cart.setBillingAddress(billingAddress);
+
+        cart.getShippingMethods().clear();
+        cart.getShippingMethods().addAll(shippingMethods);
 
         return cartRepository.save(cart);
     }

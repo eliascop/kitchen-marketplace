@@ -177,6 +177,23 @@
 }
 
 .shipping{
-  border:1px solid red;
-  width: 20rem;
+  display: flex;
+  flex-direction: row;
+}
+.shipping-options{
+  padding-bottom: 1rem;
+  padding-right: 5rem;
+}
+.shipping-frete{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-right: 4rem;
+}
+
+.resume-box{
+  background-color: white;
+  border:1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 1rem;
 }

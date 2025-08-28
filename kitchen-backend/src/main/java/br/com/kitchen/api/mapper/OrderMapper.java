@@ -1,14 +1,10 @@
 package br.com.kitchen.api.mapper;
 
-import br.com.kitchen.api.dto.CartDTO;
-import br.com.kitchen.api.dto.CartItemsDTO;
-import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.response.OrderItemsResponseDTO;
 import br.com.kitchen.api.dto.response.OrderResponseDTO;
-import br.com.kitchen.api.dto.response.ProductResponseDTO;
-import br.com.kitchen.api.model.*;
+import br.com.kitchen.api.model.Order;
+import br.com.kitchen.api.model.OrderItems;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 

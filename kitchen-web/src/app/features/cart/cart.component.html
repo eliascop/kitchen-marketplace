@@ -42,29 +42,30 @@
     <h3>Meus locais de entrega e cobrança:</h3>
     <div class="delivery-options">
       <label *ngFor="let addr of user?.addresses">
-        - {{addr.type}}: {{addr.zipCode}} - {{ addr.street }}, {{ addr.number }} - {{ addr.city }}/{{ addr.state }}
+        - Endereço de {{addr.type === 'SHIPPING'? 'Entrega' : 'Faturamento'}}: <br>{{addr.zipCode}} - {{ addr.street }}, {{ addr.number }} - {{ addr.city }}/{{ addr.state }}
       </label>
     </div>
   
     <h3>Escolha a forma de entrega para os produtos abaixo: </h3>
-    <div *ngFor="let ship of cart.shippingMethod; let i = index">
-      <div class="shipping-options">
-        <label>
-          <strong>{{ ship.seller.storeName }}</strong> 
-        </label>
-    
-        <div *ngFor="let option of shippingOptions">
-          <label>
-            <input type="radio" name="shipping-{{ i }}" [value]="option" [checked]="ship.id === option.id" (change)="selectShipping(ship, option)" />
-            {{ option.method }} - R$ {{ option.cost | currencyFormatter }} - {{ option.estimatedDays }} dias
-          </label>
+    <div class="shipping">
+      <div >
+        <div class="shipping-options" *ngFor="let ship of cart.shippingMethod; let i = index" >
+          <label><strong>{{ ship.seller.storeName }}</strong></label>
+      
+          <div *ngFor="let option of shippingOptions">
+            <label>
+              <input type="radio" name="shipping-{{ i }}" [value]="option" [checked]="ship.id === option.id" (change)="selectShipping(ship, option)" />
+              {{ option.method }} - R$ {{ option.cost | currencyFormatter }} - {{ option.estimatedDays }} dias
+            </label>
+          </div>
+
         </div>
       </div>
-      <br />
+      <div class="shipping-frete">
+        <div>Total frete: R$ {{shippingTotal | currencyFormatter}}</div>
+        <h3>Total do pedido: R$ {{cart.cartTotal +  shippingTotal | currencyFormatter}}</h3>
+      </div>
     </div>
-    <div>Total frete: R$ {{shippingTotal | currencyFormatter}}</div>
-    <div>Total do pedido: R$ {{cart.cartTotal +  shippingTotal | currencyFormatter}}</div>
-
     <div class="actions">
       <button class="btn-step" (click)="prevStep()">Voltar</button>
       <button class="btn-confirm" (click)="updateShipping()" [disabled]="!allShippingsSelected()">Continuar para pagamento</button>
@@ -87,16 +88,35 @@
   </div>
 
   <div *ngIf="currentStep === 4" class="payment-step">
-    <h3>resumo do pedido</h3>
-    <div class="payment-options">
-      <label><input type="radio" name="payment" value="pix" [(ngModel)]="paymentMethod"> PIX </label>
-      <label><input type="radio" name="payment" value="card" [(ngModel)]="paymentMethod"> Cartão de Crédito </label>
-      <label><input type="radio" name="payment" value="paypal" [(ngModel)]="paymentMethod"> Paypal </label>
-    </div>
+    <h3>Resumo do pedido</h3>
+      <div class="cart-item-list">
+        <div *ngFor="let item of cart.items" class="cart-item">
+          <div class="item-details">
+            <span class="item-name">{{ item.product.name }}</span>
+            <span class="item-quantity">x {{ item.quantity }}</span>
+            <span class="item-price">R$ {{ item.value | currencyFormatter}}</span>
+            <span class="item-subTotal">R$ {{ (item.value * item.quantity) | currencyFormatter}}</span>
+          </div>
+      </div>
+      <div class="resume-box">
+        <label *ngFor="let addr of user?.addresses">
+          {{addr.type === 'SHIPPING'? 'Entrega' : 'Faturamento'}}: <br>{{addr.zipCode}} - {{ addr.street }}, {{ addr.number }} - {{ addr.city }}/{{ addr.state }}
+        </label>
+      </div>
+      <div class="resume-box">
+        <label>Prazo estimado para entrega:</label>
+        <label *ngFor="let ship of cart.shippingMethod">
+          R$ {{ ship.cost | currencyFormatter }} - {{ ship.carrier }} - {{ ship.estimatedDays }} dias
+        </label>
+      </div>
+      <div class="resume-box">
+        <div>Total frete: R$ {{shippingTotal | currencyFormatter}}</div>
+        <h3>Total do pedido: R$ {{cart.cartTotal +  shippingTotal | currencyFormatter}}</h3>
+      </div>
 
     <div class="actions">
       <button class="btn-step" (click)="prevStep()">Voltar</button>
-      <button class="btn-step" (click)="onCheckout()" [disabled]="!paymentMethod">Finalizar a compra</button>
+      <button class="btn-step" (click)="onCheckout()"><Strong>Finalizar a compra</Strong></button>
     </div>
   </div>
 </div>

@@ -21,14 +21,6 @@ public class Shipping implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
-
-    @ManyToOne
-    @JoinColumn(name = "seller_id")
-    private Seller seller;
-
     private String carrier;
 
     private String method;
@@ -40,5 +32,13 @@ public class Shipping implements Serializable{
     private String trackingCode;
 
     private String status;
+
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
+
+    @ManyToOne
+    @JoinColumn(name = "seller_id")
+    private Seller seller;
 }
 
