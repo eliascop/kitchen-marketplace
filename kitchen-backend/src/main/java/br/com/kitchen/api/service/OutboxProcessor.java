@@ -40,7 +40,7 @@ public class OutboxProcessor {
             try {
                 if ("ORDER".equals(event.getAggregateType()) && "ORDER_CONFIRMED".equals(event.getEventType())) {
                     OrderDTO dto = objectMapper.readValue(event.getPayload(), OrderDTO.class);
-                    orderProducer.sendNotification(dto.toString());
+                    orderProducer.sendNotification(dto);
                 }
                 if ("PRODUCT".equals(event.getAggregateType())) {
                     ProductDTO dto = objectMapper.readValue(event.getPayload(), ProductDTO.class);

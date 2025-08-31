@@ -4,8 +4,6 @@ import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.PaymentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -67,46 +65,15 @@ public class PaymentController {
         }
     }
 
-    /*
     @GetMapping("/{provider}/cancelled")
     public void onCancelled(@PathVariable String provider,
                             @RequestParam("token") String token,
-                            @RequestParam("cartId") Long cartId,
-                            HttpServletResponse response) {
+                            @RequestParam("cartId") Long cartId) {
         try {
-            redirect(response, "cancelled");
+            System.out.println("Cancelar");
         } catch (Exception e) {
-            redirect(response, "errortocancel");
+            System.out.println("Erro:"+e.getMessage());
         }
     }
 
-    private void redirect(HttpServletResponse response, String status) {
-        redirect(response, status, null, null);
-    }
-
-    private void redirect(HttpServletResponse response, String status, String message, String errorDetail) {
-        try {
-            StringBuilder url = new StringBuilder(urlCheckout)
-                    .append("/cart?paymentStatus=")
-                    .append(encode(status));
-
-            System.out.println("URL RETORNO>>>>>>"+url);
-            if (message != null) {
-                url.append("&message=").append(encode(message));
-            }
-
-            if (errorDetail != null) {
-                url.append("&errorDetail=").append(encode(errorDetail));
-            }
-
-            response.sendRedirect(url.toString());
-        } catch (Exception ex) {
-            log.error("Failed to redirect", ex);
-        }
-    }
-
-    private String encode(String value) {
-        return URLEncoder.encode(value, StandardCharsets.UTF_8);
-    }
-    */
 }

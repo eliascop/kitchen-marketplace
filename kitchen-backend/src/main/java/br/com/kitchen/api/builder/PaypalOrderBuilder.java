@@ -14,7 +14,6 @@ import java.util.List;
 public class PaypalOrderBuilder {
 
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static final String baseUrl = System.getenv("paypal.base.url");
     private static final String serviceRote = "http://localhost/cart?status=";
 
     static {

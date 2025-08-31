@@ -122,18 +122,28 @@ services:
     container_name: localstack
     ports:
       - "4566:4566"
-      - "4571:4571"
     environment:
-      - SERVICES=sqs,sns
+      - SERVICES=sqs,sns,lambda,dynamodb
       - DEBUG=1
       - PERSISTENCE=1
       - AWS_DEFAULT_REGION=us-east-1
+      - LAMBDA_EXECUTOR=docker
     volumes:
       - "./.localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - ./localstack/init-sqs.sh:/etc/localstack/init/ready.d/init-sqs.sh
+      - ./localstack/init-resources.sh:/etc/localstack/init/ready.d/init-resources.sh
+      - ./order-lambda/target/order-lambda-1.0-SNAPSHOT.jar:/tmp/order-lambda.jar
     networks:
       - kitchen-network
+
+  order-lambda:
+    build: ./order-lambda
+    image: order-lambda:latest
+    container_name: order-lambda
+    networks:
+      - kitchen-network
+    depends_on:
+      - localstack
 
   kitchen-web:
     build:

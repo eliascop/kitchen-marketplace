@@ -1,5 +1,7 @@
 package br.com.kitchen.api.producer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,14 +18,21 @@ public class SnsProducer {
 
     private final SnsClient snsClient;
 
-    public void sendNotification(String message) {
-        PublishRequest request = PublishRequest.builder()
-                .topicArn(topicArn)
-                .message(message)
-                .build();
+    private final ObjectMapper objectMapper;
 
-        PublishResponse response = snsClient.publish(request);
-        String messageId = response.messageId();
-        System.out.println("Mensagem enviada ao SNS, ID: " + messageId);
+    public <T> void sendNotification(T data) {
+        try {
+            String jsonMessage = objectMapper.writeValueAsString(data);
+            PublishRequest request = PublishRequest.builder()
+                    .topicArn(topicArn).message(jsonMessage)
+                    .build();
+
+            PublishResponse response = snsClient.publish(request);
+            String messageId = response.messageId();
+            System.out.println("Mensagem enviada ao SNS, ID: " + messageId);
+        } catch (JsonProcessingException e) {
+            System.out.println("Erro ao enviar mensagem" + e.getMessage());
+            throw new RuntimeException("Erro ao serializar a mensagem para JSON", e);
+        }
     }
 }

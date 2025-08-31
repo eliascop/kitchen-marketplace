@@ -3,7 +3,6 @@ package br.com.kitchen.api.controller;
 import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.model.User;
 import br.com.kitchen.api.model.WalletTransaction;
-import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,16 +40,6 @@ class OrderControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @MockBean
-    @SuppressWarnings("removal")
-    @Qualifier("orderSqsProducer")
-    private SqsProducer<OrderDTO> orderKafkaProducer;
-
-    @MockBean
-    @SuppressWarnings("removal")
-    @Qualifier("walletSqsProducer")
-    private SqsProducer<WalletTransaction> walletKafkaProducer;
-
     private User mockUser;
 
     @BeforeEach
@@ -63,8 +52,8 @@ class OrderControllerTest {
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities())
         );
 
-        doNothing().when(orderKafkaProducer).sendNotification(any());
-        doNothing().when(walletKafkaProducer).sendNotification(any());
+//        doNothing().when(orderKafkaProducer).sendNotification(any());
+//        doNothing().when(walletKafkaProducer).sendNotification(any());
     }
 
     @AfterEach

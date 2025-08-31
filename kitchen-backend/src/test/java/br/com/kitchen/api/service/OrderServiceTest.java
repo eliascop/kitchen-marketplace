@@ -4,7 +4,6 @@ import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.User;
 import br.com.kitchen.api.model.WalletTransaction;
-import br.com.kitchen.api.producer.SqsProducer;
 import br.com.kitchen.api.repository.OrderRepository;
 import br.com.kitchen.api.repository.UserRepository;
 import br.com.kitchen.api.repository.WalletRepository;
@@ -46,23 +45,13 @@ class OrderServiceTest {
     @Autowired
     private WalletRepository walletRepository;
 
-    @MockBean
-    @SuppressWarnings("removal")
-    @Qualifier("walletSqsProducer")
-    private SqsProducer<WalletTransaction> walletKafkaProducer;
-
-    @MockBean
-    @SuppressWarnings("removal")
-    @Qualifier("orderSqsProducer")
-    private SqsProducer<OrderDTO> orderKafkaProducer;
-
     private User mockUser;
 
     @BeforeEach
     void setup() {
         mockUser = userRepository.save(UserTestBuilder.buildWithoutId());
-        doNothing().when(orderKafkaProducer).sendNotification(any());
-        doNothing().when(walletKafkaProducer).sendNotification(any());
+//        doNothing().when(orderKafkaProducer).sendNotification(any());
+//        doNothing().when(walletKafkaProducer).sendNotification(any());
     }
 
     /*
