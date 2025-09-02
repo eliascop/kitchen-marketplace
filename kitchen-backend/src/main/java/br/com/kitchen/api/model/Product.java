@@ -36,6 +36,7 @@ public class Product implements Serializable {
     @NotBlank(message = "Price must not be blank")
     private BigDecimal price;
 
+    @Column(name = "image_url")
     private String imageUrl;
 
     @ManyToOne(optional = false)

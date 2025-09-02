@@ -7,8 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
   phone VARCHAR(255),
-  email VARCHAR(255),
-  paypal_payer_id VARCHAR(255)
+  email VARCHAR(255)
 );
 
 -- Inserir usuário admin

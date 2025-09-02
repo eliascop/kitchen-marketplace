@@ -29,7 +29,7 @@ public class WalletService extends GenericService<Wallet, Long> {
         return walletRepository.findByUserId(userId)
                 .orElseGet(() -> {
                     Wallet wallet = new Wallet();
-                    wallet.setUser(new User(userId));
+                    wallet.setUser(User.builder().id(userId).build());
                     return walletRepository.save(wallet);
                 });
     }

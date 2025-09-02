@@ -54,7 +54,7 @@ class OrderServiceTest {
 //        doNothing().when(walletKafkaProducer).sendNotification(any());
     }
 
-    /*
+/*
     @Test
     void shouldCreateOrderWhenUserAndItemsAreValid() {
         Order orderToSave = OrderTestBuilder.buildValidOrder(mockUser);

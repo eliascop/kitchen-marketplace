@@ -36,6 +36,7 @@ public class Cart implements Serializable {
 
     private Boolean active;
 
+    @Column(name = "cart_total")
     private BigDecimal cartTotal;
 
     @OneToOne(mappedBy = "cart")

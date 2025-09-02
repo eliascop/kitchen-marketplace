@@ -28,10 +28,17 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable Long id,
+    public ResponseEntity<?> getOrderById(@PathVariable Long id,
                                                          @AuthenticationPrincipal UserPrincipal userDetails) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(OrderMapper.toDTO(orderService.findOrderByIdAndUserId(id, userDetails.user().getId())));
+        try {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(OrderMapper.toDTO(orderService.findOrderByIdAndUserId(id, userDetails.user().getId())));
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "message", "Fail on get order",
+                    "details", e.getMessage()
+            ));
+        }
     }
 
     @GetMapping("/search")
