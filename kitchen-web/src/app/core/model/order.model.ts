@@ -1,9 +1,11 @@
+import { Payment } from './payment.model';
 import { Product } from './product.model';
-import { User } from './user.model';
+import { Seller, User } from './user.model';
 
 export class OrderItem {
   public id: number | null = null;
   public product: Product = new Product();
+  public seller: Seller | null = null;
   public quantity: number = 0;
   public value: number = 0;
 
@@ -25,7 +27,7 @@ export class Order {
   public total: number = 0;
   public status: string = 'PENDING';
   public creation: Date = new Date();
-  public paymentId: number = 0;
+  public payment: Payment | null = null;
   public shippingId: number = 0;
   
   public shippingAddressId: number = 0;

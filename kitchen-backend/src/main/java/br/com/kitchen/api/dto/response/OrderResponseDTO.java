@@ -1,5 +1,6 @@
 package br.com.kitchen.api.dto.response;
 
+import br.com.kitchen.api.dto.ShippingDTO;
 import br.com.kitchen.api.enumerations.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
@@ -22,5 +23,7 @@ public class OrderResponseDTO {
     private BigDecimal total;
     @JsonProperty("items")
     private List<OrderItemsResponseDTO> orderItems = new ArrayList<>();
+    private ShippingDTO shipping;
+    private PaymentResponseDTO payment;
 
 }

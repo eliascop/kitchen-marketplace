@@ -29,7 +29,7 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderById(@PathVariable Long id,
-                                                         @AuthenticationPrincipal UserPrincipal userDetails) {
+                                          @AuthenticationPrincipal UserPrincipal userDetails) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(OrderMapper.toDTO(orderService.findOrderByIdAndUserId(id, userDetails.user().getId())));
@@ -42,11 +42,8 @@ public class OrderController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<OrderResponseDTO>> findOrdersByUserId(@RequestParam Long userId) {
-        if (userId == null || userId == 0) {
-            return ResponseEntity.badRequest().build();
-        }
-        List<Order> ordersList = orderService.findOrdersByUserId(userId);
+    public ResponseEntity<List<OrderResponseDTO>> findOrdersByUserId(@AuthenticationPrincipal UserPrincipal userDetails) {
+        List<Order> ordersList = orderService.findOrdersByUserId(userDetails.user());
 
         if (ordersList.isEmpty()) {
             return ResponseEntity.noContent().build();

@@ -100,7 +100,7 @@ class OrderControllerTest {
     @Test
     void testFindOrdersByUserId() throws Exception {
         List<Order> mockList = List.of(mockOrder);
-        when(orderService.findOrdersByUserId(mockUser.getId())).thenReturn(mockList);
+        when(orderService.findOrdersByUserId(mockUser)).thenReturn(mockList);
         mockMvc.perform(get("/orders/v1/search")
                         .param("userId", "3"))
                 .andExpect(status().isOk())

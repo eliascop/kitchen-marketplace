@@ -4,6 +4,7 @@ import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.enumerations.OrderStatus;
 import br.com.kitchen.api.enumerations.PaymentStatus;
+import br.com.kitchen.api.enumerations.Role;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.repository.AddressRepository;
 import br.com.kitchen.api.repository.OrderRepository;
@@ -12,7 +13,6 @@ import br.com.kitchen.api.repository.PaymentRepository;
 import br.com.kitchen.api.service.payment.PaymentProvider;
 import br.com.kitchen.api.service.payment.PaymentProviderFactory;
 import br.com.kitchen.api.util.JsonUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +36,6 @@ public class OrderService extends GenericService<Order, Long>{
             PaymentProviderFactory paymentProviderFactory,
             StockService stockService,
             OutboxRepository outboxRepository,
-            ObjectMapper objectMapper,
             CartService cartService) {
         super(orderRepository, Order.class);
         this.addressRepository = addressRepository;
@@ -48,12 +47,13 @@ public class OrderService extends GenericService<Order, Long>{
         this.outboxRepository = outboxRepository;
     }
 
-    public List<Order> findOrdersByUserId(Long userId) {
+    public List<Order> findOrdersByUserId(User user) {
         Optional<List<Order>> orderList;
-        if(userId == 1){
+
+        if(user.getRoles().contains(Role.ROLE_ADMIN)){
             orderList = Optional.of(orderRepository.findAll());
         }else {
-            orderList = orderRepository.findOrdersByUserId(userId);
+            orderList = orderRepository.findOrdersByUserId(user.getId());
         }
         return orderList.orElseThrow(() -> new RuntimeException("No orders found"));
     }

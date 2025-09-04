@@ -5,6 +5,7 @@ import br.com.kitchen.api.dto.response.OrderResponseDTO;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.OrderItems;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,13 @@ public class OrderMapper {
         dto.setTotal(order.getTotal());
         dto.setOrderItems(order.getOrderItems().stream()
                 .map(OrderMapper::itemToDTO)
+                .sorted(
+                        Comparator
+                                .comparing((OrderItemsResponseDTO i) -> i.getSeller().getStoreName())
+                                .thenComparing(i -> i.getProduct().getName())
+                )
                 .toList());
+        dto.setPayment(PaymentMapper.toDTO(order.getPayment()));
         return dto;
     }
 
@@ -27,6 +34,7 @@ public class OrderMapper {
         dto.setProduct(ProductMapper.toResponseDTO(orderItems.getProduct()));
         dto.setQuantity(orderItems.getQuantity());
         dto.setItemValue(orderItems.getItemValue());
+        dto.setSeller(SellerMapper.toDTO(orderItems.getSeller()));
         return dto;
     }
 

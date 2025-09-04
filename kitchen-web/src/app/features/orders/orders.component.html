@@ -3,11 +3,12 @@
 <div *ngIf="orders.length > 0" class="item-container">
   <div *ngFor="let order of orders" class="item-card">
     <div class="item-details">
-      <p class="item-id">Pedido #{{ order.id }}</p>
-      <p class="item-date">Data: {{ order.creation | formatDateTime }}</p>
-      <p class="item-total">Total: <span class="highlight">R$ {{ order.total | currencyFormatter }}</span></p>
-      <p class="item-status">Status: <span class="status">{{ order.status }}</span></p>
-      <p>Cliente: <b>{{order.user.name}}</b></p>
+      <p class="item-id">Pedido #{{ order.id }} - {{ order.creation | formatDateTime }}</p>
+      <p class="item-total">Total do pedido: <span class="highlight"><strong>R$ {{ order.total | currencyFormatter }}</strong></span></p>
+      <p class="item-status">Status do pedido: <span class="status">{{ order.status }}</span></p>
+      <p class="item-status">Forma de pagamento: {{ order.payment!.method }}</p>
+      <p class="item-status">Status do pagamento: <span class="status">{{ order.payment!.status }}</span></p>
+      <p class="item-status">Data de pagamento: {{ order.payment!.createdAt | formatDateTime }}</p>
       <button class="view-button" (click)="openModal(order)">Ver detalhes</button>
     </div>
   </div>
@@ -22,20 +23,35 @@
       <h3>Detalhes do Pedido #{{ selectedOrder.id }}</h3>
       <button class="close-button" (click)="closeModal()">×</button>
     </div>
+
     <div class="modal-content">
-      <div style="display: flex; flex-direction: row; justify-content: space-between;">
+      <div style="display:flex;justify-content:space-between;">
         <p><strong>Data:</strong> {{ selectedOrder.creation | formatDateTime }}</p>
         <p><strong>Status:</strong> {{ selectedOrder.status }}</p>
       </div>
       <hr>
-      <p><strong>Itens:</strong></p>
-      <ul>
-        <li *ngFor="let item of selectedOrder.items">
-          {{ item.quantity }}x {{ item.product.name }} - V.Unit: R$ {{ item.product.price | currencyFormatter }} - Sub-Total: R$ {{ item.product.price*item.quantity | currencyFormatter }}
-        </li>
-      </ul>
+
+      <p><strong>Itens por Loja:</strong></p>
+
+      <div *ngFor="let group of groupedItems">
+        <h4>{{ group.storeName }}</h4>
+        <ul>
+          <li *ngFor="let item of group.items" class="item-order">
+            {{ item.product.name }}<br>
+            Quantidade: {{ item.quantity }}x
+            Valor Unit: R$ {{ item.product.price | currencyFormatter }}
+            –
+            Sub-Total: R$ {{ item.product.price * item.quantity | currencyFormatter }}
+          </li>
+        </ul>
+      </div>
     </div>
+
     <hr>
-    <p style="text-align: right;"><strong>Total:</strong> R$ {{ selectedOrder.total | currencyFormatter }}</p>
+    <p style="text-align:right;">
+      <strong>Total:</strong>
+      R$ {{ selectedOrder.total | currencyFormatter }}
+    </p>
   </div>
 </div>
+

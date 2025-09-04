@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Order } from '../../core/model/order.model';
+import { Order, OrderItem } from '../../core/model/order.model';
 import { CommonModule } from '@angular/common';
 import { FormatDateTimePipe } from "../../core/pipes/format-date-time.pipe";
 import { OrderService } from '../../core/service/order.service';
@@ -20,6 +20,7 @@ export class OrdersComponent implements OnInit{
   orders: Order[] = [];
   orderStatusEnum = OrderStatus;
   orderStatusList: string[] = Object.values(OrderStatus);
+  groupedItems: { storeName: string; items: OrderItem[] }[] = [];
   
   selectedOrder: Order | null = null;
   selectedStatus: string = '';
@@ -55,6 +56,20 @@ export class OrdersComponent implements OnInit{
 
   openModal(order: any) {
     this.selectedOrder = order;
+    const groups = new Map<string, OrderItem[]>();
+
+    for (const item of this.selectedOrder!.items) {
+      const name = item.seller?.storeName ?? 'Sem Loja';
+      if (!groups.has(name)) {
+        groups.set(name, []);
+      }
+      groups.get(name)!.push(item);
+    }
+
+    this.groupedItems = Array.from(groups.entries()).map(([storeName, items]) => ({
+      storeName,
+      items
+    }));
   }
 
   closeModal() {

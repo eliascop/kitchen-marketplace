@@ -201,10 +201,8 @@ export class CartComponent implements OnInit {
 
   updateShipping():void{
     this.loadOrderAddress();
-    console.log(this.cart);
     this.cartService.updateCartAddresses(this.cart).subscribe({
       next: response => {
-        console.log(response.data)
         this.nextStep();
       },
       error: err=>{
