@@ -1,4 +1,4 @@
-package br.com.kitchen.api.dto;
+package br.com.kitchen.api.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

@@ -186,10 +186,6 @@ html, body {
     background-color: #2b6cb0;
   }
   
-  h1{
-    color: white;
-  }  
-  
   .error-message {
     color: red;
     font-size: 12px;

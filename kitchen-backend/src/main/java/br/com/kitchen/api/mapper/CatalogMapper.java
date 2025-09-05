@@ -1,6 +1,6 @@
 package br.com.kitchen.api.mapper;
 
-import br.com.kitchen.api.dto.CatalogResponseDTO;
+import br.com.kitchen.api.dto.response.CatalogResponseDTO;
 import br.com.kitchen.api.model.Catalog;
 
 import java.util.List;

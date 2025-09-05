@@ -43,8 +43,7 @@ public class StockService extends GenericService<Stock,Long> {
         Stock stock = getStockOrThrow(productSku);
 
         stock.setReservedQuantity(stock.getReservedQuantity() - quantity);
-        stock.setTotalQuantity(stock.getTotalQuantity() - quantity);
-
+        stock.setSoldQuantity(stock.getSoldQuantity() + quantity);
         stockRepository.save(stock);
     }
 

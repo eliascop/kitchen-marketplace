@@ -1,7 +1,6 @@
 package br.com.kitchen.api.controller;
 
-import br.com.kitchen.api.dto.CatalogResponseDTO;
-import br.com.kitchen.api.dto.ProductDTO;
+import br.com.kitchen.api.dto.response.CatalogResponseDTO;
 import br.com.kitchen.api.dto.response.ProductResponseDTO;
 import br.com.kitchen.api.service.CatalogService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

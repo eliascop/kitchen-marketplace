@@ -36,7 +36,7 @@ public class OutboxProcessor {
     @Scheduled(fixedDelay = 5000)
     public void processOutbox() {
         List<OutboxEvent> events = outboxRepository.findTop50ByStatusOrderByCreatedAtAsc(EventStatus.PENDING);
-        for (OutboxEvent event : events) {
+        for (OutboxEvent event: events) {
             try {
                 if ("ORDER".equals(event.getAggregateType()) && "ORDER_CONFIRMED".equals(event.getEventType())) {
                     OrderDTO dto = objectMapper.readValue(event.getPayload(), OrderDTO.class);

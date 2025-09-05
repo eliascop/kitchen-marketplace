@@ -1,7 +1,7 @@
 package br.com.kitchen.api.controller;
 
-import br.com.kitchen.api.dto.AuthRequestDTO;
-import br.com.kitchen.api.dto.AuthResponseDTO;
+import br.com.kitchen.api.dto.request.AuthRequestDTO;
+import br.com.kitchen.api.dto.response.AuthResponseDTO;
 import br.com.kitchen.api.dto.UserDTO;
 import br.com.kitchen.api.model.User;
 import br.com.kitchen.api.security.UserPrincipal;

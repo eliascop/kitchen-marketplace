@@ -2,7 +2,7 @@ package br.com.kitchen.api.controller;
 
 import br.com.kitchen.api.model.Wallet;
 import br.com.kitchen.api.model.WalletTransaction;
-import br.com.kitchen.api.record.DebitRequest;
+import br.com.kitchen.api.dto.request.DebitRequest;
 import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.WalletService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

@@ -1,5 +1,6 @@
-package br.com.kitchen.api.record;
+package br.com.kitchen.api.dto.request;
 
+import br.com.kitchen.api.dto.ProductSkuDTO;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.List;

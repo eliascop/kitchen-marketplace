@@ -1,4 +1,4 @@
-package br.com.kitchen.api.dto;
+package br.com.kitchen.api.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

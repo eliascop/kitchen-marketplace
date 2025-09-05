@@ -18,7 +18,6 @@ import { SearchService } from './core/service/search.service';
 export class AppComponent {
   title = 'kitchen-web';
   totalItems = 0;
-  userId!: number | null;
   user!: User;
 
   constructor(private authService: AuthService, 
@@ -30,9 +29,8 @@ export class AppComponent {
   ngOnInit() {
     this.authService.user$.subscribe(user => {
       if (user) {
-        this.userId = user.id;
-        this.userService.getUserById(this.userId!).subscribe(response => {
-          this.user = response.data!;
+        this.userService.getUserById(user.id).subscribe(response => {
+          this.user = new User(response.data!);
           localStorage.setItem('userData', JSON.stringify(this.user)); 
         });
         this.cartService.getCartTotalItems().subscribe();
@@ -40,11 +38,11 @@ export class AppComponent {
         this.totalItems = count;
     });
       } else {
-        this.userId = null;
         this.user = undefined!;
       }
     });
   }
+
   goHome(event?: Event) {
     if (event) {
       event.preventDefault();
@@ -90,7 +88,6 @@ export class AppComponent {
   isSeller(): boolean{
     if(!this.user)
       return false;
-
     return this.user.isSeller;
   }
 

@@ -33,6 +33,6 @@ public class Stock {
     private Seller seller;
 
     public int getAvailableQuantity() {
-        return totalQuantity - reservedQuantity;
+        return totalQuantity - reservedQuantity-soldQuantity;
     }
 }

@@ -16,7 +16,7 @@
       <div class="header-row row-2">
         <div *ngIf="user" class="my-space">
           <span><a href="#" (click)="userList($event)" class="logout" *ngIf="isSeller()">Lista de usuários</a></span>
-          <span><a href="#" (click)="myProducts($event)" class="logout" *ngIf="user.isSeller"> Meus produtos </a></span>
+          <span><a href="#" (click)="myProducts($event)" class="logout" *ngIf="isSeller()"> Meus produtos </a></span>
           <span><a href="#" (click)="userDetails($event)" class="logout"><i class="fas fa-user-circle"></i> {{ user.name }} </a></span>
           <span><a href="#" (click)="myOrders($event)" class="logout"><i class="fas fa-shopping-bag"></i> Minhas Compras </a></span>
           <span><a href="#" (click)="myCart($event)" class="logout"><i class="fas fa-shopping-cart"></i>Meu carrinho

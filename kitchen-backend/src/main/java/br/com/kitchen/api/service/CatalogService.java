@@ -1,11 +1,13 @@
 package br.com.kitchen.api.service;
 
-import br.com.kitchen.api.dto.CatalogResponseDTO;
+import br.com.kitchen.api.dto.response.CatalogResponseDTO;
 import br.com.kitchen.api.dto.response.ProductResponseDTO;
 import br.com.kitchen.api.mapper.CatalogMapper;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.Catalog;
+import br.com.kitchen.api.model.Category;
 import br.com.kitchen.api.model.Product;
+import br.com.kitchen.api.model.Seller;
 import br.com.kitchen.api.repository.CatalogRepository;
 import br.com.kitchen.api.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,11 @@ public class CatalogService extends GenericService<Catalog, Long>{
     public List<CatalogResponseDTO> findAllDistinctive(){
         List<Catalog> catalog = repository.findAllDistinctBySlug();
         return CatalogMapper.toDTOList(catalog);
+    }
+
+    public Catalog findOrCreate(String catalogName, Seller seller) {
+        return repository.findByNameAndSellerId(catalogName, seller.getId())
+                .orElseGet(() -> repository.save(new Catalog(seller, catalogName)));
     }
 
     public List<ProductResponseDTO> findProductsByCatalogSlug(String catalogSlug) {
