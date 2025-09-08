@@ -1,7 +1,7 @@
 package br.com.kitchen.lambda;
 
-import br.com.kitchen.dto.OrderDTO;
 import br.com.kitchen.dto.SnsNotificationDTO;
+import br.com.kitchen.dto.StockDTO;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
@@ -10,15 +10,17 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OrderLambdaHandler implements RequestHandler<SQSEvent, String> {
+public class StockLambdaHandler implements RequestHandler<SQSEvent, String> {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final DynamoDbClient dynamoDbClient;
 
-    public OrderLambdaHandler() {
+    public StockLambdaHandler() {
+
         String lsHost = System.getenv().getOrDefault("LOCALSTACK_HOSTNAME", "localstack");
         URI endpoint = URI.create("http://" + lsHost + ":4566");
 
@@ -31,29 +33,32 @@ public class OrderLambdaHandler implements RequestHandler<SQSEvent, String> {
     @Override
     public String handleRequest(SQSEvent event, Context context) {
         try {
-            System.out.println("Entrou no handler order");
             for (SQSEvent.SQSMessage msg: event.getRecords()) {
 
                 SnsNotificationDTO notification = mapper.readValue(msg.getBody(), SnsNotificationDTO.class);
-                OrderDTO orderDTO = mapper.readValue(notification.getMessage(), OrderDTO.class);
+                StockDTO stockDTO = mapper.readValue(notification.getMessage(), StockDTO.class);
 
-                if (orderDTO.getId() == null) {
-                    System.out.println("Mensagem ignorada: Order id é null");
+                if (stockDTO.getId() == null) {
+                    System.out.println("Message was ignored: Stock id é null");
                     continue;
                 }
 
-                System.out.println("Pedido recebido na Lambda: " + orderDTO);
+                System.out.println("Stock Update received: " + stockDTO);
 
                 Map<String, AttributeValue> item = new HashMap<>();
-                item.put("id", AttributeValue.builder().n(orderDTO.getId().toString()).build());
-                item.put("status", AttributeValue.builder().s(orderDTO.getStatus()).build());
-
-                dynamoDbClient.putItem(builder -> builder.tableName("Order").item(item));
+                item.put("id", AttributeValue.builder().n(stockDTO.getId().toString()).build());
+                item.put("sku", AttributeValue.builder().s(stockDTO.getSku()).build());
+                item.put("sellerId", AttributeValue.builder().s(String.valueOf(stockDTO.getSellerId())).build());
+                item.put("soldQuantity", AttributeValue.builder().s(String.valueOf(stockDTO.getSoldQuantity())).build());
+                item.put("reservedQuantity", AttributeValue.builder().s(String.valueOf(stockDTO.getReservedQuantity())).build());
+                item.put("totalQuantity", AttributeValue.builder().s(String.valueOf(stockDTO.getTotalQuantity())).build());
+                item.put("createdAt", AttributeValue.builder().s(LocalDateTime.now().toString()).build());
+                dynamoDbClient.putItem(builder -> builder.tableName("StockHistory").item(item));
             }
 
             return "OK";
         } catch (Exception e) {
-            System.out.println("Erro ao processar a Lambda: " + e.getMessage());
+            System.out.println("An error occurred on processing Lambda: " + e.getMessage());
             return "ERROR";
         }
     }

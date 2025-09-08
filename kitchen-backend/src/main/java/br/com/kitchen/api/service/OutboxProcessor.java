@@ -2,6 +2,7 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.dto.ProductDTO;
+import br.com.kitchen.api.dto.StockDTO;
 import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.model.OutboxEvent;
 import br.com.kitchen.api.producer.KafkaProducer;
@@ -19,28 +20,32 @@ import java.util.List;
 public class OutboxProcessor {
 
     private final OutboxRepository outboxRepository;
-    private final SnsProducer orderProducer;
+    private final SnsProducer snsProducer;
     private final KafkaProducer<ProductDTO> productProducer;
     private final ObjectMapper objectMapper;
 
     public OutboxProcessor(OutboxRepository outboxRepository,
-                           SnsProducer orderProducer,
+                           SnsProducer snsProducer,
                            @Qualifier("productProducer") KafkaProducer<ProductDTO> productProducer,
                            ObjectMapper objectMapper) {
         this.outboxRepository = outboxRepository;
-        this.orderProducer = orderProducer;
+        this.snsProducer = snsProducer;
         this.productProducer = productProducer;
         this.objectMapper = objectMapper;
     }
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 10000)
     public void processOutbox() {
         List<OutboxEvent> events = outboxRepository.findTop50ByStatusOrderByCreatedAtAsc(EventStatus.PENDING);
         for (OutboxEvent event: events) {
             try {
                 if ("ORDER".equals(event.getAggregateType()) && "ORDER_CONFIRMED".equals(event.getEventType())) {
                     OrderDTO dto = objectMapper.readValue(event.getPayload(), OrderDTO.class);
-                    orderProducer.sendNotification(dto);
+                    snsProducer.sendOrderNotification(dto);
+                }
+                if ("STOCK".equals(event.getAggregateType()) && "STOCK_CONFIRMED".equals(event.getEventType())) {
+                    StockDTO dto = objectMapper.readValue(event.getPayload(), StockDTO.class);
+                    snsProducer.sendStockNotification(dto);
                 }
                 if ("PRODUCT".equals(event.getAggregateType())) {
                     ProductDTO dto = objectMapper.readValue(event.getPayload(), ProductDTO.class);

@@ -133,8 +133,18 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - ./localstack/init-resources.sh:/etc/localstack/init/ready.d/init-resources.sh
       - ./order-lambda/target/order-lambda-1.0-SNAPSHOT.jar:/tmp/order-lambda.jar
+      - ./stock-lambda/target/stock-lambda-1.0-SNAPSHOT.jar:/tmp/stock-lambda.jar
     networks:
       - kitchen-network
+
+  stock-lambda:
+    build: ./stock-lambda
+    image: stock-lambda:latest
+    container_name: stock-lambda
+    networks:
+      - kitchen-network
+    depends_on:
+      - localstack
 
   order-lambda:
     build: ./order-lambda

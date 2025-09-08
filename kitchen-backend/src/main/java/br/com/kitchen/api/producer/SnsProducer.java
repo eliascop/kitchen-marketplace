@@ -14,24 +14,34 @@ import software.amazon.awssdk.services.sns.model.PublishResponse;
 public class SnsProducer {
 
     @Value("${order.events.topic}")
-    private String topicArn;
+    private String topicOrderArn;
+
+    @Value("${stock.events.topic}")
+    private String topicStockArn;
 
     private final SnsClient snsClient;
 
     private final ObjectMapper objectMapper;
 
-    public <T> void sendNotification(T data) {
+    public <T> void sendOrderNotification(T data) {
+        publishToTopic(topicOrderArn, data);
+    }
+
+    public <T> void sendStockNotification(T data) {
+        publishToTopic(topicStockArn, data);
+    }
+
+    private <T> void publishToTopic(String topicArn, T data) {
         try {
             String jsonMessage = objectMapper.writeValueAsString(data);
             PublishRequest request = PublishRequest.builder()
-                    .topicArn(topicArn).message(jsonMessage)
+                    .topicArn(topicArn)
+                    .message(jsonMessage)
                     .build();
 
             PublishResponse response = snsClient.publish(request);
-            String messageId = response.messageId();
-            System.out.println("Mensagem enviada ao SNS, ID: " + messageId);
+            System.out.println("Mensagem enviada ao SNS (" + topicArn + "), ID: " + response.messageId());
         } catch (JsonProcessingException e) {
-            System.out.println("Erro ao enviar mensagem" + e.getMessage());
             throw new RuntimeException("Erro ao serializar a mensagem para JSON", e);
         }
     }

@@ -10,10 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class StockService extends GenericService<Stock,Long> {
 
     private final StockRepository stockRepository;
+    private final OutboxService outboxService;
 
-    public StockService(StockRepository stockRepository) {
+    public StockService(StockRepository stockRepository,
+                        OutboxService outboxService) {
         super(stockRepository, Stock.class);
         this.stockRepository = stockRepository;
+        this.outboxService = outboxService;
     }
 
     private Stock getStockOrThrow(ProductSku productSku) {
@@ -35,7 +38,7 @@ public class StockService extends GenericService<Stock,Long> {
         }
 
         stock.setReservedQuantity(stock.getReservedQuantity() + quantity);
-        stockRepository.save(stock);
+        save(stock);
     }
 
     @Transactional
@@ -44,7 +47,7 @@ public class StockService extends GenericService<Stock,Long> {
 
         stock.setReservedQuantity(stock.getReservedQuantity() - quantity);
         stock.setSoldQuantity(stock.getSoldQuantity() + quantity);
-        stockRepository.save(stock);
+        save(stock);
     }
 
     @Transactional
@@ -52,7 +55,7 @@ public class StockService extends GenericService<Stock,Long> {
         Stock stock = getStockOrThrow(productSku);
 
         stock.setReservedQuantity(stock.getReservedQuantity() - quantity);
-        stockRepository.save(stock);
+        save(stock);
     }
 
     public void validateSkuAvailability(ProductSku sku, int quantity) {
@@ -61,5 +64,10 @@ public class StockService extends GenericService<Stock,Long> {
         if (stock.getAvailableQuantity() < quantity) {
             throw new IllegalStateException("Not enough stock for product " + sku.getSku());
         }
+    }
+
+    private void save(Stock stock){
+        Stock stockSaved = stockRepository.save(stock);
+        outboxService.createStockEvent(stockSaved);
     }
 }

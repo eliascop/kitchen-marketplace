@@ -1,18 +1,14 @@
 package br.com.kitchen.api.service;
 
-import br.com.kitchen.api.dto.OrderDTO;
-import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.enumerations.OrderStatus;
 import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.enumerations.Role;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.repository.AddressRepository;
 import br.com.kitchen.api.repository.OrderRepository;
-import br.com.kitchen.api.repository.OutboxRepository;
 import br.com.kitchen.api.repository.PaymentRepository;
 import br.com.kitchen.api.service.payment.PaymentProvider;
 import br.com.kitchen.api.service.payment.PaymentProviderFactory;
-import br.com.kitchen.api.util.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +22,7 @@ public class OrderService extends GenericService<Order, Long>{
     private final StockService stockService;
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
-    private final OutboxRepository outboxRepository;
+    private final OutboxService outboxService;
     private final CartService cartService;
 
     public OrderService(
@@ -35,7 +31,7 @@ public class OrderService extends GenericService<Order, Long>{
             PaymentRepository paymentRepository,
             PaymentProviderFactory paymentProviderFactory,
             StockService stockService,
-            OutboxRepository outboxRepository,
+            OutboxService outboxService,
             CartService cartService) {
         super(orderRepository, Order.class);
         this.addressRepository = addressRepository;
@@ -44,7 +40,7 @@ public class OrderService extends GenericService<Order, Long>{
         this.orderRepository = orderRepository;
         this.cartService = cartService;
         this.stockService = stockService;
-        this.outboxRepository = outboxRepository;
+        this.outboxService = outboxService;
     }
 
     public List<Order> findOrdersByUserId(User user) {
@@ -86,16 +82,7 @@ public class OrderService extends GenericService<Order, Long>{
             cart.setActive(false);
             cartService.save(cart);
 
-            OutboxEvent event = OutboxEvent.builder()
-                    .aggregateType("ORDER")
-                    .aggregateId(orderSaved.getId())
-                    .eventType("ORDER_CONFIRMED")
-                    .payload(JsonUtils.toJson(
-                            new OrderDTO(orderSaved.getId(), orderSaved.getStatus().toString())
-                    ))
-                    .status(EventStatus.PENDING)
-                    .build();
-            outboxRepository.save(event);
+            outboxService.createOrderEvent(orderSaved);
 
             order.setStatus(OrderStatus.CONFIRMED);
         } else {
@@ -195,7 +182,7 @@ public class OrderService extends GenericService<Order, Long>{
     }
 
     private void reserveStockForCart(Cart cart) {
-        for (CartItems item : cart.getCartItems()) {
+        for (CartItems item: cart.getCartItems()) {
             for (ProductSku sku : item.getProduct().getSkus()) {
                 stockService.reserveStock(sku, item.getQuantity());
             }
@@ -203,7 +190,7 @@ public class OrderService extends GenericService<Order, Long>{
     }
 
     private void confirmStockReservation(Cart cart) {
-        for (CartItems item : cart.getCartItems()) {
+        for (CartItems item: cart.getCartItems()) {
             for (ProductSku sku : item.getProduct().getSkus()) {
                 stockService.confirmReservation(sku, item.getQuantity());
             }
@@ -211,7 +198,7 @@ public class OrderService extends GenericService<Order, Long>{
     }
 
     private void releaseStockReservation(Cart cart) {
-        for (CartItems item : cart.getCartItems()) {
+        for (CartItems item: cart.getCartItems()) {
             for (ProductSku sku : item.getProduct().getSkus()) {
                 stockService.releaseReservation(sku, item.getQuantity());
             }
