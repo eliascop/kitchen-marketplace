@@ -50,6 +50,7 @@ public class StockLambdaHandler implements RequestHandler<SQSEvent, String> {
                 item.put("sku", AttributeValue.builder().s(stockDTO.getSku()).build());
                 item.put("sellerId", AttributeValue.builder().s(String.valueOf(stockDTO.getSellerId())).build());
                 item.put("soldQuantity", AttributeValue.builder().s(String.valueOf(stockDTO.getSoldQuantity())).build());
+                item.put("stockAction", AttributeValue.builder().s(stockDTO.getStockAction()).build());
                 item.put("reservedQuantity", AttributeValue.builder().s(String.valueOf(stockDTO.getReservedQuantity())).build());
                 item.put("totalQuantity", AttributeValue.builder().s(String.valueOf(stockDTO.getTotalQuantity())).build());
                 item.put("createdAt", AttributeValue.builder().s(LocalDateTime.now().toString()).build());

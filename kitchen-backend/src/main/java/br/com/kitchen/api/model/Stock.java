@@ -32,6 +32,9 @@ public class Stock {
     @JsonIgnore
     private Seller seller;
 
+    @Transient
+    private String stockAction;
+
     public int getAvailableQuantity() {
         return totalQuantity - reservedQuantity-soldQuantity;
     }

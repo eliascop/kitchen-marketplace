@@ -36,8 +36,6 @@ public class SqsOrderConsumer {
             StockDTO stockDTO = mapper.readValue(notification.getMessage(), StockDTO.class);
             System.out.println("Stock received: " + stockDTO);
 
-//            OrderWebSocket.notifyOrderUpdate(orderDTO);
-
         } catch (Exception e) {
             System.err.println("Error on deserializer: " + e.getMessage());
         }

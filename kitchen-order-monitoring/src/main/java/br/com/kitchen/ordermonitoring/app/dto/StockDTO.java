@@ -8,6 +8,7 @@ import lombok.Data;
 public class StockDTO {
     private Long id;
     private String sku;
+    private String stockAction;
     private Long sellerId;
     private int soldQuantity;
 }

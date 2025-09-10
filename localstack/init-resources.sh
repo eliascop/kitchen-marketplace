@@ -31,8 +31,12 @@ awslocal sns subscribe --topic-arn $TOPIC_ARN_STOCK --protocol sqs --notificatio
 echo ">> Criando tabela DynamoDB: StockHistory"
 awslocal dynamodb create-table \
   --table-name StockHistory \
-  --attribute-definitions AttributeName=id,AttributeType=N \
-  --key-schema AttributeName=id,KeyType=HASH \
+  --attribute-definitions \
+	AttributeName=id,AttributeType=N \
+	AttributeName=createdAt,AttributeType=S \
+  --key-schema \
+	AttributeName=id,KeyType=HASH \
+	AttributeName=createdAt,KeyType=RANGE \
   --billing-mode PAY_PER_REQUEST || true
 
 echo ">> Criando tabela DynamoDB: Order"

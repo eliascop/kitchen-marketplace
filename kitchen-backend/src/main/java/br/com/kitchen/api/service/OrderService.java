@@ -153,7 +153,7 @@ public class OrderService extends GenericService<Order, Long>{
 
         Map<Seller, SellerOrder> sellerOrderMap = new HashMap<>();
 
-        for (CartItems item : cart.getCartItems()) {
+        for (CartItems item: cart.getCartItems()) {
             Seller seller = item.getProduct().getSeller();
             SellerOrder sellerOrder = sellerOrderMap.computeIfAbsent(seller, s -> {
                 SellerOrder so = new SellerOrder();

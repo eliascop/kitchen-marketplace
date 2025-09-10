@@ -12,7 +12,7 @@ public class KafkaOrderConsumer extends KafkaGenericConsumer<OrderDTO> {
         super(OrderDTO.class, OrderWebSocket::notifyOrderUpdate);
     }
 
-    @KafkaListener(topics = "order-status-updates", groupId = "order-monitoring-consumer-order-update")
+    @KafkaListener(topics = "order-status-updates", groupId = "${spring.kafka.consumer.group-id}")
     public void listenOrderUpdates(String message) {consume(message);}
 
     @Override

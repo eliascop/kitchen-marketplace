@@ -78,7 +78,7 @@ public class CartController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "code", HttpStatus.BAD_REQUEST.value(),
-                    "message", "Item not included into the cart",
+                    "message", "Item not included in the cart",
                     "details", e.getMessage()
             ));
         }
@@ -125,7 +125,7 @@ public class CartController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "errorCode", HttpStatus.BAD_REQUEST.value(),
-                    "message", "Item not included into the cart",
+                    "message", "Item not included in the cart",
                     "details", e.getMessage()
             ));
         }
@@ -154,7 +154,7 @@ public class CartController {
         try {
             cartService.clearCart(userDetails.user());
             return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                    "code",HttpStatus.OK.value(),
+                    "code", HttpStatus.OK.value(),
                     "message", "Cart cleared."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(

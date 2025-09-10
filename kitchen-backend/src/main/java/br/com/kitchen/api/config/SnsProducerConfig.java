@@ -14,11 +14,17 @@ public class SnsProducerConfig {
     @Value("${spring.cloud.aws.sns.endpoint}")
     String snsUri;
 
+    @Value("${spring.cloud.aws.credentials.access-key}")
+    String accessKeyId;
+
+    @Value("${spring.cloud.aws.credentials.secret-key}")
+    String secretAccessKeyId;
+
     @Bean
     public SnsClient snsClient() {
         return SnsClient.builder()
                 .credentialsProvider(
-                        StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test"))
+                        StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKeyId))
                 )
                 .region(Region.US_EAST_1)
                 .endpointOverride(java.net.URI.create(snsUri))

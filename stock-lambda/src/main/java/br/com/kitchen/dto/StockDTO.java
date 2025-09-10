@@ -13,6 +13,7 @@ public class StockDTO {
     private Long id;
     private String sku;
     private Long sellerId;
+    private String stockAction;
     private int soldQuantity;
     private int totalQuantity;
     private int reservedQuantity;
