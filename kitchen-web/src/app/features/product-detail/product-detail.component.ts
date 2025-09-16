@@ -75,7 +75,7 @@ export class ProductDetailComponent implements OnInit {
     this.selectedSku = sku;
   }
 
-  addToCart(productId: number): void {
+  addToCart(): void {
     if (!this.selectedSku) {
       console.warn('Nenhum SKU selecionado para adicionar ao carrinho.');
       return;
@@ -84,7 +84,7 @@ export class ProductDetailComponent implements OnInit {
     if (this.selectedQuantity == 0) {
       alert('Selecione a quantidade');
     }
-    this.cartService.addToCart(productId, this.selectedSku.sku, this.selectedQuantity)
+    this.cartService.addToCart(this.selectedSku.sku, this.selectedQuantity)
       .pipe(take(1))
       .subscribe({
         next: data => {

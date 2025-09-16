@@ -29,7 +29,7 @@
   cursor: pointer;
 }
 
-.sku-table {
+.table-details {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
@@ -48,4 +48,25 @@
     margin: 0;
     padding-left: 1rem;
   }
+}
+
+.table-details.nested {
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  background-color: #fafafa;
+}
+
+.table-details.nested th {
+  background-color: #eee;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #007bff;
+  text-decoration: underline;
+}
+button:hover {
+  color: #0056b3;
 }

@@ -17,40 +17,34 @@ public class StockHistoryService {
         this.dynamoDbClient = dynamoDbClient;
     }
 
-    public List<StockHistoryDTO> getStockHistories(Long sellerId) {
+    public List<StockHistoryDTO> getBySellerId(Long sellerId) {
+        return queryStockHistory("sellerId = :sellerId", Map.of(
+                ":sellerId", AttributeValue.builder().s(sellerId.toString()).build()
+        ));
+    }
+
+    public List<StockHistoryDTO> getBySku(String sku) {
+        return queryStockHistory("sku = :sku", Map.of(
+                ":sku", AttributeValue.builder().s(sku).build()
+        ));
+    }
+
+    /**
+     * Método genérico para buscar no DynamoDB usando filtro e valores dinâmicos
+     */
+    private List<StockHistoryDTO> queryStockHistory(String filterExpression,
+                                                    Map<String, AttributeValue> expressionValues) {
         try {
             ScanRequest scanRequest = ScanRequest.builder()
                     .tableName("StockHistory")
-                    .filterExpression("sellerId = :sellerId")
-                    .expressionAttributeValues(Map.of(
-                            ":sellerId", AttributeValue.builder().s(sellerId.toString()).build()
-                    ))
-                    .build();
-
-            ScanResponse response = dynamoDbClient.scan(scanRequest);
-
-            return StockHistoryMapper.toDTOList(response.items());
-        } catch (Exception e){
-            throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    public List<StockHistoryDTO> getStockHistoryBySku(String sku) {
-        System.out.println("getStockHistoryBySku:: "+sku);
-        try{
-            ScanRequest scanRequest = ScanRequest.builder()
-                    .tableName("StockHistory")
-                    .filterExpression("sku = :sku")
-                    .expressionAttributeValues(Map.of(
-                            ":sku", AttributeValue.builder().s(sku).build()
-                    ))
+                    .filterExpression(filterExpression)
+                    .expressionAttributeValues(expressionValues)
                     .build();
 
             ScanResponse response = dynamoDbClient.scan(scanRequest);
             return StockHistoryMapper.toDTOList(response.items());
-        } catch (Exception e){
-            throw new RuntimeException(e.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao consultar StockHistory: " + e.getMessage(), e);
         }
     }
-
 }

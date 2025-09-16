@@ -17,7 +17,7 @@
       </div>
   
       <h3>SKUs</h3>
-      <table class="sku-table" *ngIf="product.skus?.length > 0">
+      <table class="table-details" *ngIf="product.skus?.length > 0">
         <thead>
           <tr>
             <th>ID</th>
@@ -25,30 +25,61 @@
             <th>Preço</th>
             <th>Atributos</th>
             <th>Estoque</th>
+            <th>Histórico</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let sku of product.skus">
-            <td>{{ sku.id }}</td>
-            <td>{{ sku.sku }}</td>
-            <td>R$ {{ sku.price | currencyFormatter }}</td>
-            <td>
-              <ul>
-                <li *ngFor="let attr of sku.attributes">
-                  {{ attr.name }}: {{ attr.attributeValue }}
-                </li>
-              </ul>
-            </td>
-            <td>
-              Disponível: {{ sku.stock.availableQuantity }}
-            </td>
-          </tr>
+          <ng-container *ngFor="let sku of product.skus">
+            <tr>
+              <td>{{ sku.id }}</td>
+              <td>{{ sku.sku }}</td>
+              <td>R$ {{ sku.price | currencyFormatter }}</td>
+              <td>
+                <ul>
+                  <li *ngFor="let attr of sku.attributes">
+                    {{ attr.name }}: {{ attr.attributeValue }}
+                  </li>
+                </ul>
+              </td>
+              <td>Disponível: {{ sku.stock.availableQuantity }}</td>
+              <td>
+                <button (click)="sku.expanded = !sku.expanded" *ngIf="sku.stockHistory.length > 0">
+                  {{ sku.expanded ? '▲ Esconder' : '▼ Ver histórico' }}
+                </button>
+                <span *ngIf="sku.stockHistory.length === 0"> Sem Movimentação </span>
+              </td>
+            </tr>
+
+            <tr *ngIf="sku.expanded">
+              <td colspan="6">
+                <table class="table-details nested" *ngIf="sku.stockHistory.length > 0">
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Ação</th>
+                      <th>Qtd. Original</th>
+                      <th>Qtd. reservada</th>
+                      <th>Qtd. vendida</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let hst of sku.stockHistory">
+                      <td center>{{ hst.createdAt | formatDateTime}}</td>
+                      <td>{{ hst.eventType | stockStatus }}</td>
+                      <td>{{ hst.totalQuantity }}</td>
+                      <td>{{ hst.reservedQuantity }}</td>
+                      <td>{{ hst.soldQuantity}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p *ngIf="!sku.stockHistory?.length">Nenhum histórico até o momento.</p>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
-  
-      <div *ngIf="!product.skus?.length">
-        <p>Nenhum SKU cadastrado.</p>
-      </div>
+
+      
     </div>
   </div>
   

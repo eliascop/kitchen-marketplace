@@ -9,7 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -78,11 +80,15 @@ public class ProductService extends GenericService<Product, Long>{
 
         List<Product> products = productRepository.findBySellerId(sellerId);
 
+        List<StockHistoryDTO> allHistories = historyClient.getStockHistoriesBySellerId(sellerId);
+
+        Map<String, List<StockHistoryDTO>> historiesMap = allHistories.stream()
+                .collect(Collectors.groupingBy(StockHistoryDTO::getSku));
+
         for (Product product: products) {
             for (ProductSku sku: product.getSkus()) {
-                List<StockHistoryDTO> histories = historyClient.getHistoryBySku(sku.getSku());
-                System.out.println(histories.toString());
-                sku.setStockHistory(histories);
+                List<StockHistoryDTO> h = historiesMap.getOrDefault(sku.getSku(), Collections.emptyList());
+                sku.setStockHistory(h);
             }
         }
 

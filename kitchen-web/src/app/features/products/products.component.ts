@@ -21,6 +21,7 @@ export class ProductsComponent implements OnInit {
   products: Product[] = [];
   selectedOrder: any = null;
   selectedProduct: Product | null = null;
+  histories: History[] = [];
 
   constructor(private productService: ProductService, private router: Router, private toast: ToastService) {
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
@@ -70,4 +71,4 @@ export class ProductsComponent implements OnInit {
   onShowDetails(product: Product) {
     this.selectedProduct = product;
   }
-}
+} 

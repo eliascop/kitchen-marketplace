@@ -67,7 +67,7 @@
           </div>
 
           <button class="btn btn-blue add-to-cart-btn"
-                  (click)="addToCart(product.id!)"
+                  (click)="addToCart()"
                   [disabled]="!selectedSku || selectedSku.stock.availableQuantity === 0">
             Adicionar ao Carrinho
           </button>

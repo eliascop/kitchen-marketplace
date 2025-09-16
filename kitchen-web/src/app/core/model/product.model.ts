@@ -37,6 +37,17 @@ export interface Sku {
   price: number;
   stock: Stock;
   attributes: Attribute[];
+  stockHistory: StockHistory[];
+}
+
+export interface StockHistory{
+  id: number;
+  createdAt: string;
+  eventType: string;
+  sku: string;
+  soldQuantity: number;
+  reservedQuantity: number;
+  totalQuantity: number;
 }
 
 export interface SellerStore {

@@ -23,7 +23,7 @@ public class StockHistoryController {
     @GetMapping("/seller/{sellerId}")
     public ResponseEntity<?> getStockHistories(@PathVariable Long sellerId) {
         try {
-            return ResponseEntity.ok(stockHistoryService.getStockHistories(sellerId));
+            return ResponseEntity.ok(stockHistoryService.getBySellerId(sellerId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "message", "An error occurred on get stock histories:",
@@ -35,7 +35,7 @@ public class StockHistoryController {
     @GetMapping("/sku/{sku}")
     public ResponseEntity<?> getStockHistoriesBySku(@PathVariable String sku) {
         try {
-            return ResponseEntity.ok(stockHistoryService.getStockHistoryBySku(sku));
+            return ResponseEntity.ok(stockHistoryService.getBySku(sku));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "message", "An error occurred on get stock history by sku",

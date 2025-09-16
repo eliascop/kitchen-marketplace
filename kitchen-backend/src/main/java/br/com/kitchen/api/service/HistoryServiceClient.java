@@ -1,6 +1,7 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.StockHistoryDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
+@Slf4j
 public class HistoryServiceClient {
 
     private final RestTemplate restTemplate;
@@ -22,13 +24,13 @@ public class HistoryServiceClient {
         this.restTemplate = restTemplate;
     }
 
-    public List<StockHistoryDTO> getHistoryBySku(String sku) {
+    public List<StockHistoryDTO> getStockHistoriesBySellerId(Long sellerId) {
         try {
-            String url = baseUrl + sku;
+            String url = baseUrl + sellerId;
             StockHistoryDTO[] histories = restTemplate.getForObject(url, StockHistoryDTO[].class);
             return histories != null ? Arrays.asList(histories) : Collections.emptyList();
         } catch (Exception e) {
-            System.err.println("Erro ao buscar histórico do SKU " + sku + ": " + e.getMessage());
+            log.error("An error occurred on get history by sellerId {}: Error: {}", sellerId, e.getMessage());
             return Collections.emptyList();
         }
     }

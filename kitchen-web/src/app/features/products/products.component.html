@@ -7,5 +7,6 @@
 <app-product-details-modal
   *ngIf="selectedProduct"
   [product]="selectedProduct"
+  [histories]="histories"
   (close)="selectedProduct = null">
 </app-product-details-modal>
