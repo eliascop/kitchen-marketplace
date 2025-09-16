@@ -3,6 +3,7 @@ package br.com.kitchen.api.service;
 import br.com.kitchen.api.dto.CartDTO;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.ShippingDTO;
+import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.mapper.ShippingMapper;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.repository.CartItemRepository;
@@ -65,11 +66,11 @@ public class CartService extends GenericService<Cart, Long> {
     }
 
     private void addOrUpdateItem(Cart cart, ProductDTO productDTO, int quantity) {
-
-        Product product = productService.findProductById(productDTO.getId());
-
+        Product product = productService.findProductBySku(productDTO.getSku());
+        System.out.println("addOrUpdateItem produto enviado >> " + product.getSkus().size());
         Optional<CartItems> existingItem = cart.getCartItems().stream()
-                .filter(item -> item.getProduct().getId().equals(product.getId()))
+                .filter(item -> item.getProduct().equals(product))
+                .peek(itm -> System.out.println(itm.getProduct().getSkus().size()))
                 .findFirst();
 
         if (product.getSeller().isBlocked()) {
@@ -95,12 +96,12 @@ public class CartService extends GenericService<Cart, Long> {
     }
 
     @Transactional
-    public Cart manageItems(User user, Long productId, int quantity) throws Exception{
-        Product p = productService.findProductById(productId);
+    public Cart manageItems(User user, String sku, int quantity) throws Exception{
+        Product product = productService.findProductBySku(sku);
         ProductDTO productDTO = ProductDTO.builder()
-                .id(p.getId())
-                .name(p.getName())
-                .sku(p.getSkus().get(0).getSku())
+                .id(product.getId())
+                .name(product.getName())
+                .sku(sku)
                 .build();
 
         Cart cart = getOrCreateCart(user);

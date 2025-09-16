@@ -25,7 +25,7 @@ public class SkuService {
 
         return skuDtos.stream()
                 .map(skuDTO -> {
-                    String generatedSku = generateSku(product.getId(), skuDTO.attributes());
+                    String generatedSku = generateSku(product, skuDTO.attributes());
 
                     ProductSku sku = productSkuRepository
                             .findBySkuAndProductId(generatedSku, product.getId())
@@ -65,8 +65,8 @@ public class SkuService {
         return stock;
     }
 
-    private String generateSku(Long productId, List<ProductAttributeDTO> attributesDTO) {
-        return "PROD-" + productId + attributesDTO.stream()
+    private String generateSku(Product product, List<ProductAttributeDTO> attributesDTO) {
+        return "PROD-" + product.getSeller().getId() + "-" + product.getId() + attributesDTO.stream()
                 .sorted(Comparator.comparing(ProductAttributeDTO::name))
                 .map(attr -> "-" + normalize(attr.value()))
                 .collect(Collectors.joining());

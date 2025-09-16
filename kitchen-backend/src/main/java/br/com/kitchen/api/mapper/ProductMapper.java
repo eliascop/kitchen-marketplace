@@ -1,5 +1,6 @@
 package br.com.kitchen.api.mapper;
 
+import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.response.*;
 import br.com.kitchen.api.model.*;
 
@@ -40,6 +41,7 @@ public class ProductMapper {
                 .attributes(sku.getAttributes().stream()
                         .map(ProductMapper::toAttributeResponseDTO)
                         .toList())
+                .stockHistory(sku.getStockHistory())
                 .build();
     }
 

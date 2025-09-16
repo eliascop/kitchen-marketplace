@@ -7,5 +7,5 @@ RUN mvn clean package -DskipTests
 FROM bellsoft/liberica-openjdk-alpine:17
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
-EXPOSE 8082
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]

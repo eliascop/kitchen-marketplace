@@ -6,6 +6,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -13,6 +14,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class OrderLambdaHandler implements RequestHandler<SQSEvent, String> {
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -31,30 +33,30 @@ public class OrderLambdaHandler implements RequestHandler<SQSEvent, String> {
     @Override
     public String handleRequest(SQSEvent event, Context context) {
         try {
-            System.out.println("Entrou no handler order");
             for (SQSEvent.SQSMessage msg: event.getRecords()) {
 
                 SnsNotificationDTO notification = mapper.readValue(msg.getBody(), SnsNotificationDTO.class);
                 OrderDTO orderDTO = mapper.readValue(notification.getMessage(), OrderDTO.class);
 
                 if (orderDTO.getId() == null) {
-                    System.out.println("Mensagem ignorada: Order id é null");
+                    log.warn("Message was ignored by lambda. Order id is null");
                     continue;
                 }
 
-                System.out.println("Pedido recebido na Lambda: " + orderDTO);
+                log.info("Order received in Lambda: {}", orderDTO);
 
                 Map<String, AttributeValue> item = new HashMap<>();
                 item.put("id", AttributeValue.builder().n(orderDTO.getId().toString()).build());
                 item.put("status", AttributeValue.builder().s(orderDTO.getStatus()).build());
 
                 dynamoDbClient.putItem(builder -> builder.tableName("Order").item(item));
+                log.info("Order DTO was stored, order:"+ item.toString());
             }
 
             return "OK";
         } catch (Exception e) {
-            System.out.println("Erro ao processar a Lambda: " + e.getMessage());
-            return "ERROR";
+            log.error("An error occurred on processing lambda: {}", e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }

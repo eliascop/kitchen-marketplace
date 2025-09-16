@@ -12,8 +12,8 @@ import java.util.Optional;
 public interface ProductRepository extends GenericRepository<Product, Long> {
     List<Product> findBySellerId(Long sellerId);
 
-    @Query("SELECT p FROM Product p JOIN p.skus s WHERE s.sku = :sku AND p.seller.id = :sellerId")
-    Optional<Product> findBySkuAndSellerId(@Param("sku") String sku, @Param("sellerId") Long sellerId);
+    @Query("SELECT p FROM Product p JOIN p.skus s WHERE s.sku = :sku")
+    Optional<Product> findBySku(@Param("sku") String sku);
 
     List<Product> findByCatalogIdIn(List<Long> catalogIds);
 }

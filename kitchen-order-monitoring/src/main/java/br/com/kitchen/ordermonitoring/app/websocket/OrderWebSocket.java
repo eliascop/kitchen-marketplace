@@ -9,6 +9,7 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component
 @ServerEndpoint("/ws/orders/v1/{orderId}")
+@Slf4j
 public class OrderWebSocket {
 
     private static final Map<String, Set<Session>> sessions = new ConcurrentHashMap<>();
@@ -26,12 +28,12 @@ public class OrderWebSocket {
     @OnOpen
     public void onOpen(Session session, @PathParam("orderId") String orderId) {
         sessions.computeIfAbsent(orderId, k -> new CopyOnWriteArraySet<>()).add(session);
-        System.out.println("Client connected for order: " + orderId);
+        log.info("Client connected on order: {}",orderId);
     }
 
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
-        System.out.println("Received message from client: " + message);
+        log.info("Received message from client: {}",message);
         session.getBasicRemote().sendText("Echo: " + message);
     }
 
@@ -44,18 +46,18 @@ public class OrderWebSocket {
                 sessions.remove(orderId);
             }
         }
-        System.out.println("Client disconnected from order: " + orderId);
+        log.info("Client disconnected from order: {}", orderId);
     }
 
     public static void sendToOrder(String orderId, String message) {
         Set<Session> orderSessions = sessions.get(orderId);
         if (orderSessions != null) {
-            for (Session session : orderSessions) {
+            for (Session session: orderSessions) {
                 if (session.isOpen()) {
                     try {
                         session.getBasicRemote().sendText(message);
                     } catch (IOException e) {
-                        System.err.println("Erro ao enviar mensagem: " + e.getMessage());
+                        log.error("An error occurred on send message: {}", e.getMessage());
                     }
                 }
             }
@@ -69,7 +71,7 @@ public class OrderWebSocket {
             sendToOrder(orderDTO.getId().toString(), message);
             AllOrdersWebSocket.notifyAll(message);
         } catch (JsonProcessingException e) {
-            System.out.println("Ocorreu um erro ao enviar o status: "+orderDTO.toString());
+            log.error("An error has occurred on sending the status: {}, error: {}", orderDTO.toString(), e.getMessage());
         }
     }
 }

@@ -70,9 +70,9 @@ public class PaymentController {
                             @RequestParam("token") String token,
                             @RequestParam("cartId") Long cartId) {
         try {
-            System.out.println("Cancelar");
+            log.info("Cancel payment");
         } catch (Exception e) {
-            System.out.println("Erro:"+e.getMessage());
+            log.error("Error on cancel payment {}",e.getMessage());
         }
     }
 

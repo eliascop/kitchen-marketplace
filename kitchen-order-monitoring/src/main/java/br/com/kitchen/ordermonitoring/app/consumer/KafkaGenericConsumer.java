@@ -1,9 +1,11 @@
 package br.com.kitchen.ordermonitoring.app.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.Consumer;
 
+@Slf4j
 public abstract class KafkaGenericConsumer<T> {
 
     private final Class<T> type;
@@ -19,13 +21,13 @@ public abstract class KafkaGenericConsumer<T> {
         try {
             T message = objectMapper.readValue(rawMessage, type);
             if (isValid(message)) {
-                System.out.println("New order received: "+rawMessage);
+                log.info("New order received: {}",rawMessage);
                 messageHandler.accept(message);
             } else {
-                System.err.println("Invalid message: " + rawMessage);
+                log.error("Invalid message received: {}", rawMessage);
             }
         } catch (Exception e) {
-            System.err.println("Failed to parse message: " + rawMessage);
+            log.error("Failed to parse message: {}", rawMessage);
         }
     }
 

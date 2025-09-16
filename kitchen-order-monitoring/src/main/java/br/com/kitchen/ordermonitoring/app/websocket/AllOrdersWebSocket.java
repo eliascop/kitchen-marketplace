@@ -1,10 +1,10 @@
 package br.com.kitchen.ordermonitoring.app.websocket;
 
-import br.com.kitchen.ordermonitoring.app.dto.OrderDTO;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 @Component
 @ServerEndpoint("/ws/orders/v1")
+@Slf4j
 public class AllOrdersWebSocket {
 
     private static final Set<Session> sessions = new CopyOnWriteArraySet<>();
@@ -20,22 +21,23 @@ public class AllOrdersWebSocket {
     @OnOpen
     public void onOpen(Session session) {
         sessions.add(session);
-        System.out.println("Cliente conectado ao WebSocket global de pedidos");
+        log.info("A client was connected on order global webSocket");
     }
 
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
-        System.out.println("Cliente desconectado do WebSocket global");
+        log.info("A client was disconnected on global webSocket");
     }
 
     public static void notifyAll(String message) {
-        for (Session session : sessions) {
+        for (Session session: sessions) {
             if (session.isOpen()) {
                 try {
                     session.getBasicRemote().sendText(message);
+                    log.info("A notification was sent. Messsage: {}", message);
                 } catch (IOException e) {
-                    System.err.println("Erro ao enviar para o painel: " + e.getMessage());
+                    log.error("An error occurred on send message to painel: {}", e.getMessage());
                 }
             }
         }

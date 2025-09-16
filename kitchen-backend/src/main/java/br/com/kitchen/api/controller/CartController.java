@@ -84,22 +84,12 @@ public class CartController {
         }
     }
 
-    @PatchMapping("product/{productId}/sku/{productSku}/quantity/{quantity}")
+    @PatchMapping("productSku/{sku}/quantity/{quantity}")
     public ResponseEntity<?> manageCartItems(@AuthenticationPrincipal UserPrincipal userDetails,
-                                             @PathVariable Long productId,
-                                             @PathVariable String productSku,
+                                             @PathVariable String sku,
                                              @PathVariable int quantity) {
         try {
-            if (productId == 0) {
-                return ResponseEntity
-                        .status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of(
-                                "errorCode", HttpStatus.BAD_REQUEST.value(),
-                                "message", "Product cannot be empty"
-                        ));
-            }
-
-            if ("".equals(productSku)) {
+            if (sku.trim().isEmpty()) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(Map.of(
@@ -117,7 +107,7 @@ public class CartController {
                         ));
             }
 
-            Cart cartSaved = cartService.manageItems(userDetails.user(), productId, quantity);
+            Cart cartSaved = cartService.manageItems(userDetails.user(), sku, quantity);
 
             return ResponseEntity
                     .status(HttpStatus.OK)

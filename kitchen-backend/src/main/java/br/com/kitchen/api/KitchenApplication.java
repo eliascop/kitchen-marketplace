@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableScheduling
 @EnableJpaRepositories(
 		basePackages = "br.com.kitchen.api.repository",
 		repositoryBaseClass = br.com.kitchen.api.repository.impl.GenericRepositoryImpl.class

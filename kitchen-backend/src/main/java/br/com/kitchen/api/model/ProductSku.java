@@ -1,5 +1,6 @@
 package br.com.kitchen.api.model;
 
+import br.com.kitchen.api.dto.StockHistoryDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -36,6 +37,9 @@ public class ProductSku implements Serializable {
 
     @OneToOne(mappedBy = "sku", cascade = CascadeType.ALL, orphanRemoval = true)
     private Stock stock;
+
+    @Transient
+    private List<StockHistoryDTO> stockHistory = new ArrayList<>();
 
     @OneToMany(mappedBy = "sku", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductAttribute> attributes = new ArrayList<>();

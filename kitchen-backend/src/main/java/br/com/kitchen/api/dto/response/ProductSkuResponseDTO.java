@@ -1,5 +1,6 @@
 package br.com.kitchen.api.dto.response;
 
+import br.com.kitchen.api.dto.StockHistoryDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,5 +18,6 @@ public class ProductSkuResponseDTO {
     private String sku;
     private BigDecimal price;
     private StockResponseDTO stock;
+    private List<StockHistoryDTO> stockHistory;
     private List<ProductAttributeResponseDTO> attributes;
 }

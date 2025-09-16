@@ -7,10 +7,12 @@ import br.com.kitchen.ordermonitoring.app.websocket.OrderWebSocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class SqsOrderConsumer {
 
     private final ObjectMapper mapper;
@@ -20,12 +22,12 @@ public class SqsOrderConsumer {
         try {
             SnsNotification notification = mapper.readValue(message, SnsNotification.class);
             OrderDTO orderDTO = mapper.readValue(notification.getMessage(), OrderDTO.class);
-            System.out.println("Order received: " + orderDTO);
+            log.info("Order received: {}", orderDTO);
 
             OrderWebSocket.notifyOrderUpdate(orderDTO);
 
         } catch (Exception e) {
-            System.err.println("Error on deserializer: " + e.getMessage());
+            log.error("An error has occurred on deserialize the message: {}", e.getMessage());
         }
     }
 
@@ -34,10 +36,10 @@ public class SqsOrderConsumer {
         try {
             SnsNotification notification = mapper.readValue(message, SnsNotification.class);
             StockDTO stockDTO = mapper.readValue(notification.getMessage(), StockDTO.class);
-            System.out.println("Stock received: " + stockDTO);
+            log.info("Stock received: {}", stockDTO);
 
         } catch (Exception e) {
-            System.err.println("Error on deserializer: " + e.getMessage());
+            log.error("An error has occurred on deserialize: {}", e.getMessage());
         }
     }
 

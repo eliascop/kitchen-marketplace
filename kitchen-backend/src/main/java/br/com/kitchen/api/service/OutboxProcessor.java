@@ -9,6 +9,7 @@ import br.com.kitchen.api.producer.KafkaProducer;
 import br.com.kitchen.api.producer.SnsProducer;
 import br.com.kitchen.api.repository.OutboxRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 public class OutboxProcessor {
 
@@ -57,7 +59,7 @@ public class OutboxProcessor {
                 outboxRepository.save(event);
 
             } catch (Exception e) {
-                System.out.println("Erro: "+e.getMessage());
+                log.error("An error occurred on save message {}" , e.getMessage());
                 event.setStatus(EventStatus.FAILED);
                 outboxRepository.save(event);
             }
