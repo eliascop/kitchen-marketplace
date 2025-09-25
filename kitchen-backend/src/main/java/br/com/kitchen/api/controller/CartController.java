@@ -60,41 +60,23 @@ public class CartController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "code", HttpStatus.BAD_REQUEST.value(),
-                    "message", "Addresses not included into the cart",
+                    "message", "Addresses not included in the cart",
                     "details", e.getMessage()
             ));
         }
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createCart(@AuthenticationPrincipal UserPrincipal userDetails,
-                                           @Valid @RequestBody CartDTO cartDTO) {
-        try {
-            Cart cartSaved = cartService.createCart(userDetails.user(), cartDTO);
-
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(CartMapper.toResponseDTO(cartSaved));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                    "code", HttpStatus.BAD_REQUEST.value(),
-                    "message", "Item not included in the cart",
-                    "details", e.getMessage()
-            ));
-        }
-    }
-
-    @PatchMapping("productSku/{sku}/quantity/{quantity}")
+    @PatchMapping("skuId/{skuId}/quantity/{quantity}")
     public ResponseEntity<?> manageCartItems(@AuthenticationPrincipal UserPrincipal userDetails,
-                                             @PathVariable String sku,
+                                             @PathVariable Long skuId,
                                              @PathVariable int quantity) {
         try {
-            if (sku.trim().isEmpty()) {
+            if (skuId == 0) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
                         .body(Map.of(
                                 "errorCode", HttpStatus.BAD_REQUEST.value(),
-                                "message", "ProductId cannot be empty"
+                                "message", "SkuId cannot be empty"
                         ));
             }
 
@@ -107,7 +89,7 @@ public class CartController {
                         ));
             }
 
-            Cart cartSaved = cartService.manageItems(userDetails.user(), sku, quantity);
+            Cart cartSaved = cartService.manageItems(userDetails.user(), skuId, quantity);
 
             return ResponseEntity
                     .status(HttpStatus.OK)

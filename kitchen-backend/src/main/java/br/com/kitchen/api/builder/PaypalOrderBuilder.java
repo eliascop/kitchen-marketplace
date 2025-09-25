@@ -25,7 +25,7 @@ public class PaypalOrderBuilder {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         List<PaypalItemDTO> items = cart.getCartItems().stream().map(item -> {
-            Product product = item.getProduct();
+            Product product = item.getProductSku().getProduct();
             return new PaypalItemDTO(
                     product.getName(),
                     product.getDescription(),

@@ -52,7 +52,7 @@ public class Order implements Serializable {
         }
 
         this.total = orderItems.stream()
-                .map(item -> item.getProduct().getPrice()
+                .map(item -> item.getProductSku().getPrice()
                         .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }

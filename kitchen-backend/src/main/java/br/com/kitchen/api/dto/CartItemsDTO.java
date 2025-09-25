@@ -11,8 +11,9 @@ import java.math.BigDecimal;
 public class CartItemsDTO {
 
         private Long id;
-        @JsonProperty("product")
-        private ProductDTO productDTO;
+        private Long skuId;
+        private String productName;
+        private String description;
         private int quantity;
         @JsonProperty("value")
         private BigDecimal itemValue;

@@ -20,7 +20,7 @@ export class Product {
 }
 
 export interface Attribute {
-  name: string;
+  attributeName: string;
   attributeValue: string;
 }
 

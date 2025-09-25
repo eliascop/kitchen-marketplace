@@ -1,7 +1,7 @@
 package br.com.kitchen.api.controller;
 
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
-import br.com.kitchen.api.dto.response.ProductResponseDTO;
+import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.security.UserPrincipal;
@@ -29,28 +29,28 @@ public class ProductController {
 
     @GetMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<ProductResponseDTO>> listAllProducts() {
-        List<ProductResponseDTO> response = productService.findAll()
+    public ResponseEntity<List<ProductDTO>> listAllProducts() {
+        List<ProductDTO> response = productService.findAll()
                 .stream()
-                .map(ProductMapper::toResponseDTO)
+                .map(ProductMapper::toProductResponseDTO)
                 .toList();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/seller")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<List<ProductResponseDTO>> listMyProducts(@AuthenticationPrincipal UserPrincipal principal) {
-        List<ProductResponseDTO> response = productService.findProductsBySellerId(principal.user().getId())
+    public ResponseEntity<List<ProductDTO>> listMyProducts(@AuthenticationPrincipal UserPrincipal principal) {
+        List<ProductDTO> response = productService.findProductsBySellerId(principal.user().getId())
                 .stream()
-                .map(ProductMapper::toResponseDTO)
+                .map(ProductMapper::toProductResponseDTO)
                 .toList();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         Product product = productService.findProductById(id);
-        return ResponseEntity.ok(ProductMapper.toResponseDTO(product));
+        return ResponseEntity.ok(ProductMapper.toProductResponseDTO(product));
     }
 
     @PostMapping
@@ -61,7 +61,7 @@ public class ProductController {
             Product created = productService.createProduct(principal.user(), dto);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(ProductMapper.toResponseDTO(created));
+                    .body(ProductMapper.toProductResponseDTO(created));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -77,9 +77,9 @@ public class ProductController {
     public ResponseEntity<?> createProductBatch(@AuthenticationPrincipal UserPrincipal principal,
                                                 @RequestBody List<ProductRequestDTO> dtos) {
         try {
-            List<ProductResponseDTO> response = productService.createProducts(principal.user(), dtos)
+            List<ProductDTO> response = productService.createProducts(principal.user(), dtos)
                     .stream()
-                    .map(ProductMapper::toResponseDTO)
+                    .map(ProductMapper::toProductResponseDTO)
                     .toList();
             return ResponseEntity
                     .status(HttpStatus.CREATED)

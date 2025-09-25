@@ -114,12 +114,10 @@ public class OrderService extends GenericService<Order, Long>{
 
     private void validateStockAvailability(Cart cart){
         cart.getCartItems().forEach(item -> {
-            if(item.getProduct().getSkus().isEmpty()){
+            if(item.getProductSku() == null){
                 throw new IllegalArgumentException("Product sku not found in the cart");
             }
-            item.getProduct().getSkus().forEach(sku ->{
-                stockService.validateSkuAvailability(sku, item.getQuantity());
-            });
+            stockService.validateSkuAvailability(item.getProductSku(), item.getQuantity());
         });
     }
 
@@ -154,7 +152,7 @@ public class OrderService extends GenericService<Order, Long>{
         Map<Seller, SellerOrder> sellerOrderMap = new HashMap<>();
 
         for (CartItems item: cart.getCartItems()) {
-            Seller seller = item.getProduct().getSeller();
+            Seller seller = item.getProductSku().getProduct().getSeller();
             SellerOrder sellerOrder = sellerOrderMap.computeIfAbsent(seller, s -> {
                 SellerOrder so = new SellerOrder();
                 so.setOrder(order);
@@ -165,7 +163,7 @@ public class OrderService extends GenericService<Order, Long>{
 
             OrderItems orderItem = new OrderItems();
             orderItem.setOrder(order);
-            orderItem.setProduct(item.getProduct());
+            orderItem.setProductSku(item.getProductSku());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setItemValue(item.getItemValue());
             orderItem.calculateItemValue();
@@ -183,25 +181,19 @@ public class OrderService extends GenericService<Order, Long>{
 
     private void reserveStockForCart(Cart cart) {
         for (CartItems item: cart.getCartItems()) {
-            for (ProductSku sku : item.getProduct().getSkus()) {
-                stockService.reserveStock(sku, item.getQuantity());
-            }
+            stockService.reserveStock(item.getProductSku(), item.getQuantity());
         }
     }
 
     private void confirmStockReservation(Cart cart) {
         for (CartItems item: cart.getCartItems()) {
-            for (ProductSku sku : item.getProduct().getSkus()) {
-                stockService.confirmReservation(sku, item.getQuantity());
-            }
+            stockService.confirmReservation(item.getProductSku(), item.getQuantity());
         }
     }
 
     private void releaseStockReservation(Cart cart) {
         for (CartItems item: cart.getCartItems()) {
-            for (ProductSku sku : item.getProduct().getSkus()) {
-                stockService.releaseReservation(sku, item.getQuantity());
-            }
+            stockService.releaseReservation(item.getProductSku(), item.getQuantity());
         }
     }
 

@@ -20,7 +20,7 @@ public class ProductAttribute implements Serializable {
     private Long id;
 
     @NotBlank
-    private String name;
+    private String attributeName;
 
     @NotBlank
     private String attributeValue;

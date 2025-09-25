@@ -1,13 +1,12 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.OrderDTO;
-import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.StockDTO;
+import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.OutboxEvent;
 import br.com.kitchen.api.model.Product;
-import br.com.kitchen.api.model.Stock;
 import br.com.kitchen.api.repository.OutboxRepository;
 import br.com.kitchen.api.util.JsonUtils;
 import org.springframework.stereotype.Service;

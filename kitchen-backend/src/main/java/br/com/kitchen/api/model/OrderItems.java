@@ -35,8 +35,8 @@ public class OrderItems implements Serializable {
     private SellerOrder sellerOrder;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name = "product_sku_id",  nullable = false)
+    private ProductSku productSku;
 
     public int quantity;
 
@@ -49,14 +49,14 @@ public class OrderItems implements Serializable {
 
     public void calculateItemValue() {
         BigDecimal totalValue = BigDecimal.ZERO;
-        totalValue = totalValue.add(product.getPrice().multiply(new BigDecimal(quantity)));
+        totalValue = totalValue.add(productSku.getPrice().multiply(new BigDecimal(quantity)));
 
         this.itemValue = totalValue;
     }
 
-    public OrderItems(Order order, Product product, int quantity, Seller seller) {
+    public OrderItems(Order order, ProductSku productSku, int quantity, Seller seller) {
         this.order = order;
-        this.product = product;
+        this.productSku = productSku;
         this.quantity = quantity;
         this.seller = seller;
         calculateItemValue();

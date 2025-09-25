@@ -21,16 +21,17 @@ public class CartItems implements Serializable {
     private Cart cart;
 
     @ManyToOne
-    private Product product;
+    @JoinColumn(name = "product_sku_id",  nullable = false)
+    private ProductSku productSku;
 
     private int quantity;
 
     private BigDecimal itemValue;
 
-    public CartItems(Cart cart, Product product,int quantity){
+    public CartItems(Cart cart, ProductSku productSku,int quantity){
         this.cart = cart;
-        this.product = product;
+        this.productSku = productSku;
         this.quantity = quantity;
-        this.itemValue = product.getPrice();
+        this.itemValue = productSku.getPrice();
     }
 }

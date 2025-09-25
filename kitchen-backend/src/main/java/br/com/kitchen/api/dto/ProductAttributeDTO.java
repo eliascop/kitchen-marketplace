@@ -1,7 +1,15 @@
 package br.com.kitchen.api.dto;
 
-public record ProductAttributeDTO(
-        String name,
-        String value
-) {}
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductAttributeDTO {
+    private String attributeName;
+    private String attributeValue;
+}

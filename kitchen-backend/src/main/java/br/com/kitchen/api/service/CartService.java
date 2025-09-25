@@ -1,9 +1,7 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.CartDTO;
-import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.ShippingDTO;
-import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.mapper.ShippingMapper;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.repository.CartItemRepository;
@@ -22,21 +20,21 @@ public class CartService extends GenericService<Cart, Long> {
     private final AddressService addressService;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final ProductService productService;
     private final SellerService sellerService;
+    private final ProductSkuService productSkuService;
 
     @Autowired
     public CartService(AddressService addressService,
                        CartRepository cartRepository,
                        CartItemRepository cartItemRepository,
                        SellerService sellerService,
-                       ProductService productService) {
+                       ProductSkuService productSkuService) {
         super(cartRepository, Cart.class);
         this.addressService = addressService;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
-        this.productService = productService;
         this.sellerService = sellerService;
+        this.productSkuService = productSkuService;
     }
 
     public Cart getOrCreateCart(User user) throws Exception{
@@ -53,27 +51,13 @@ public class CartService extends GenericService<Cart, Long> {
                 });
     }
 
-    @Transactional
-    public Cart createCart(User user, CartDTO cartDTO) throws Exception{
-        Cart cart = getOrCreateCart(user);
+    private void addOrUpdateItem(Cart cart, ProductSku productSku, int quantity) {
 
-        cartDTO.getCartItems().forEach(itemDTO -> {
-            addOrUpdateItem(cart, itemDTO.getProductDTO(), itemDTO.getQuantity());
-        });
-
-        cart.updateCartTotal();
-        return cartRepository.save(cart);
-    }
-
-    private void addOrUpdateItem(Cart cart, ProductDTO productDTO, int quantity) {
-        Product product = productService.findProductBySku(productDTO.getSku());
-        System.out.println("addOrUpdateItem produto enviado >> " + product.getSkus().size());
         Optional<CartItems> existingItem = cart.getCartItems().stream()
-                .filter(item -> item.getProduct().equals(product))
-                .peek(itm -> System.out.println(itm.getProduct().getSkus().size()))
+                .filter(item -> item.getProductSku().getId().equals(productSku.getId()))
                 .findFirst();
 
-        if (product.getSeller().isBlocked()) {
+        if (productSku.getProduct().getSeller().isBlocked()) {
             throw new IllegalArgumentException("The seller of this product is blocked. Remove this item and send the cart again.");
         }
 
@@ -88,7 +72,7 @@ public class CartService extends GenericService<Cart, Long> {
             }
         } else {
             if (quantity > 0) {
-                cart.getCartItems().add(new CartItems(cart, product, quantity));
+                cart.getCartItems().add(new CartItems(cart, productSku, quantity));
             } else {
                 throw new IllegalArgumentException("Quantity must be positive when adding a new item.");
             }
@@ -96,16 +80,11 @@ public class CartService extends GenericService<Cart, Long> {
     }
 
     @Transactional
-    public Cart manageItems(User user, String sku, int quantity) throws Exception{
-        Product product = productService.findProductBySku(sku);
-        ProductDTO productDTO = ProductDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .sku(sku)
-                .build();
+    public Cart manageItems(User user, Long skuId, int quantity) throws Exception{
+        ProductSku productSku = productSkuService.getById(skuId);
 
         Cart cart = getOrCreateCart(user);
-        addOrUpdateItem(cart, productDTO, quantity);
+        addOrUpdateItem(cart, productSku, quantity);
         cart.updateCartTotal();
         return cartRepository.save(cart);
     }

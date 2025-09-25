@@ -64,7 +64,7 @@ public class Cart implements Serializable {
         }
 
         this.cartTotal = cartItems.stream()
-                .map(item -> item.getProduct().getPrice()
+                .map(item -> item.getProductSku().getPrice()
                         .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }

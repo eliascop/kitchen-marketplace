@@ -1,8 +1,8 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.OrderDTO;
-import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.StockDTO;
+import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.model.OutboxEvent;
 import br.com.kitchen.api.producer.KafkaProducer;

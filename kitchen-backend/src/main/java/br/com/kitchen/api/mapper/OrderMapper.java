@@ -21,7 +21,7 @@ public class OrderMapper {
                 .sorted(
                         Comparator
                                 .comparing((OrderItemsResponseDTO i) -> i.getSeller().getStoreName())
-                                .thenComparing(i -> i.getProduct().getName())
+                                .thenComparing(i -> i.getProductSkuDTO().getProduct().getName())
                 )
                 .toList());
         dto.setPayment(PaymentMapper.toDTO(order.getPayment()));
@@ -31,7 +31,7 @@ public class OrderMapper {
     public static OrderItemsResponseDTO itemToDTO(OrderItems orderItems){
         OrderItemsResponseDTO dto = new OrderItemsResponseDTO();
         dto.setId(orderItems.getId());
-        dto.setProduct(ProductMapper.toResponseDTO(orderItems.getProduct()));
+        dto.setProductSkuDTO(ProductMapper.toSkuResponseDTO(orderItems.getProductSku()));
         dto.setQuantity(orderItems.getQuantity());
         dto.setItemValue(orderItems.getItemValue());
         dto.setSeller(SellerMapper.toDTO(orderItems.getSeller()));

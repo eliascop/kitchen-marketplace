@@ -1,11 +1,10 @@
 package br.com.kitchen.api.service;
 
-import br.com.kitchen.api.dto.response.CatalogResponseDTO;
-import br.com.kitchen.api.dto.response.ProductResponseDTO;
+import br.com.kitchen.api.dto.CatalogDTO;
+import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.mapper.CatalogMapper;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.Catalog;
-import br.com.kitchen.api.model.Category;
 import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.model.Seller;
 import br.com.kitchen.api.repository.CatalogRepository;
@@ -29,7 +28,7 @@ public class CatalogService extends GenericService<Catalog, Long>{
         this.productRepository = productRepository;
     }
 
-    public List<CatalogResponseDTO> findAllDistinctive(){
+    public List<CatalogDTO> findAllDistinctive(){
         List<Catalog> catalog = repository.findAllDistinctBySlug();
         return CatalogMapper.toDTOList(catalog);
     }
@@ -39,7 +38,7 @@ public class CatalogService extends GenericService<Catalog, Long>{
                 .orElseGet(() -> repository.save(new Catalog(seller, catalogName)));
     }
 
-    public List<ProductResponseDTO> findProductsByCatalogSlug(String catalogSlug) {
+    public List<ProductDTO> findProductsByCatalogSlug(String catalogSlug) {
         List<Long> catalogIds = repository.findBySlug(catalogSlug)
                 .stream()
                 .map(Catalog::getId)
