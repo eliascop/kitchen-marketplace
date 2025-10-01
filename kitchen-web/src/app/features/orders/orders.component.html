@@ -37,11 +37,11 @@
         <h4>{{ group.storeName }}</h4>
         <ul>
           <li *ngFor="let item of group.items" class="item-order">
-            {{ item.product.name }}<br>
+            {{ item.productName }}<br>
             Quantidade: {{ item.quantity }}x
-            Valor Unit: R$ {{ item.product.price | currencyFormatter }}
+            Valor Unit: R$ {{ item.price | currencyFormatter }}
             –
-            Sub-Total: R$ {{ item.product.price * item.quantity | currencyFormatter }}
+            Sub-Total: R$ {{ item.price * item.quantity | currencyFormatter }}
           </li>
         </ul>
       </div>

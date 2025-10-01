@@ -2,6 +2,8 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.StockDTO;
 import br.com.kitchen.api.mapper.StockMapper;
+import br.com.kitchen.api.model.Cart;
+import br.com.kitchen.api.model.CartItems;
 import br.com.kitchen.api.model.ProductSku;
 import br.com.kitchen.api.model.Stock;
 import br.com.kitchen.api.repository.StockRepository;
@@ -75,5 +77,26 @@ public class StockService extends GenericService<Stock,Long> {
         Stock stockSaved = stockRepository.save(stock);
         StockDTO dto = StockMapper.toDTO(stockSaved);
         outboxService.createStockEvent(dto);
+    }
+
+    @Transactional
+    public void reserveStockFromCart(Cart cart) {
+        for (CartItems item: cart.getCartItems()) {
+            reserveStock(item.getProductSku(), item.getQuantity());
+        }
+    }
+
+    @Transactional
+    public void confirmStockFromCart(Cart cart) {
+        for (CartItems item: cart.getCartItems()) {
+            confirmReservation(item.getProductSku(), item.getQuantity());
+        }
+    }
+
+    @Transactional
+    public void releaseStockFromCart(Cart cart) {
+        for (CartItems item: cart.getCartItems()) {
+            releaseReservation(item.getProductSku(), item.getQuantity());
+        }
     }
 }

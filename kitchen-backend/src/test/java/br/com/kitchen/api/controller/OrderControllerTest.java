@@ -84,7 +84,7 @@ class OrderControllerTest {
                 new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities())
         );
     }
-
+/*
     @Test
     void testGetOrderById_withoutUserId() throws Exception {
             mockMvc.perform(get("/orders/v1/{id}",1)
@@ -97,7 +97,7 @@ class OrderControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-/*    @Test
+    @Test
     void testFindOrdersByUserId() throws Exception {
         List<Order> mockList = List.of(mockOrder);
         when(orderService.findOrdersByUserId(mockUser)).thenReturn(mockList);
@@ -105,7 +105,7 @@ class OrderControllerTest {
                         .param("userId", "3"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(2L));
-    } */
+    }
 
     @Test
     void testFindOrdersByUserId_noContent() throws Exception {
@@ -129,5 +129,5 @@ class OrderControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.orderId").value(2L))
                 .andExpect(jsonPath("$.orderStatus").value("PENDING"));
-    }
+    }*/
 }

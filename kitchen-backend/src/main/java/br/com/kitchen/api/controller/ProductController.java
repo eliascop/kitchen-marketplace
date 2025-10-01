@@ -40,7 +40,7 @@ public class ProductController {
     @GetMapping("/seller")
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<List<ProductDTO>> listMyProducts(@AuthenticationPrincipal UserPrincipal principal) {
-        List<ProductDTO> response = productService.findProductsBySellerId(principal.user().getId())
+        List<ProductDTO> response = productService.findProductsBySellerId(principal.user())
                 .stream()
                 .map(ProductMapper::toProductResponseDTO)
                 .toList();

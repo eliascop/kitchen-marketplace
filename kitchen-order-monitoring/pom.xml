@@ -14,7 +14,7 @@
 	<artifactId>kitchen-order-monitoring</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>kitchen order monitoring</name>
+	<name>kitchen-order-monitoring</name>
 	<description>Project for Spring Boot</description>
 
 	<properties>
@@ -27,6 +27,7 @@
 		<spring.boot.version>3.4.5</spring.boot.version>
 		<awspring.version>3.0.2</awspring.version>
 		<sqs.version>2.25.28</sqs.version>
+        <sns.version>2.25.50</sns.version>
 	</properties>
 
 	<dependencies>
@@ -42,6 +43,12 @@
 			<version>${sqs.version}</version>
 			<artifactId>sqs</artifactId>
 		</dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sns</artifactId>
+            <version>${sns.version}</version>
+        </dependency>
 
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

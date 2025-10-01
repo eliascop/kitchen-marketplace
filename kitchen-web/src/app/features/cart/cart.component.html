@@ -19,7 +19,7 @@
       <div class="cart-item-list">
         <div *ngFor="let item of cart.items" class="cart-item">
           <div class="item-details">
-            <span class="item-name">{{ item.product.name }}</span>
+            <span class="item-name">{{ item.productName }}</span>
             <span class="item-quantity">x {{ item.quantity }}</span>
             <span class="item-price">R$ {{ item.value | currencyFormatter}}</span>
             <span class="item-subTotal">R$ {{ (item.value * item.quantity) | currencyFormatter}}</span>
@@ -92,7 +92,7 @@
       <div class="cart-item-list">
         <div *ngFor="let item of cart.items" class="cart-item">
           <div class="item-details">
-            <span class="item-name">{{ item.product.name }}</span>
+            <span class="item-name">{{ item.productName }}</span>
             <span class="item-quantity">x {{ item.quantity }}</span>
             <span class="item-price">R$ {{ item.value | currencyFormatter}}</span>
             <span class="item-subTotal">R$ {{ (item.value * item.quantity) | currencyFormatter}}</span>

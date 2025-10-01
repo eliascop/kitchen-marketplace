@@ -13,13 +13,20 @@
     box-sizing: border-box;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    width: 400px;
-    height: 300px;
+    width: 40rem;
+    height: 40rem;
     background-color: white;
 }
+
+.main-header{
+    text-align: center;
+    width: 100%;
+    flex:0;
+}
+
 .order-tracking{
-    width: 320px;
-    height: 230px;
+    flex: 1;
+    width: 90%;
 }
 
 .order-details{

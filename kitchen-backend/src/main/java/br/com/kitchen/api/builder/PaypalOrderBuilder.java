@@ -8,12 +8,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
 public class PaypalOrderBuilder {
 
     private static final ObjectMapper mapper = new ObjectMapper();
+
     private static final String serviceRote = "http://localhost/cart?status=";
 
     static {
@@ -30,7 +32,7 @@ public class PaypalOrderBuilder {
                     product.getName(),
                     product.getDescription(),
                     String.valueOf(item.getQuantity()),
-                    new PaypalItemDTO.UnitAmountDTO("BRL", item.getItemValue().setScale(2, RoundingMode.HALF_UP).toString())
+                    new PaypalItemDTO.UnitAmountDTO("BRL", scale(item.getItemValue()))
             );
         }).toList();
 
@@ -38,21 +40,25 @@ public class PaypalOrderBuilder {
         paypalOrderDTO.setIntent("CAPTURE");
 
         PaypalOrderDTO.Amount amount = new PaypalOrderDTO.Amount();
-        amount.setCurrency_code("BRL");
-        amount.setValue(cart.getCartTotal().setScale(2, RoundingMode.HALF_UP).toString());
+        amount.setCurrencyCode("BRL");
+        amount.setValue(scale(cart.getCartTotal()));
         amount.setBreakdown(new PaypalOrderDTO.Breakdown(
-                new PaypalOrderDTO.ItemTotal("BRL", cart.getCartTotal().setScale(2,RoundingMode.HALF_UP).toString())
+            new PaypalOrderDTO.ItemTotal("BRL", scale(cart.getCartTotal()))
         ));
 
-        paypalOrderDTO.setPurchase_units(List.of(new PaypalOrderDTO.PurchaseUnit(
-                "Pedido da KitchenApp",
-                amount,
-                items
+        paypalOrderDTO.setPurchaseUnits(List.of(new PaypalOrderDTO.PurchaseUnit(
+            "Pedido da KitchenApp",
+            amount,
+            cart.getId().toString(),
+            items
         )));
 
-        paypalOrderDTO.setApplication_context(new PaypalOrderDTO.ApplicationContext(
-                serviceRote + "success&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken(),
-                serviceRote + "cancelled&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken()
+        paypalOrderDTO.setApplicationContext(new PaypalOrderDTO.ApplicationContext(
+            "KitchenWeb Marketplace",
+            "LOGIN",
+            "CONTINUE",
+            serviceRote + "success&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken(),
+            serviceRote + "cancelled&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken()
         ));
 
         try {
@@ -62,7 +68,7 @@ public class PaypalOrderBuilder {
         }
     }
 
-    private static String scale(java.math.BigDecimal value) {
+    private static String scale(BigDecimal value) {
         return value.setScale(2, RoundingMode.HALF_UP).toString();
     }
 }

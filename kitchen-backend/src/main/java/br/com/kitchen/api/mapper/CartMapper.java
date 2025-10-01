@@ -6,6 +6,7 @@ import br.com.kitchen.api.dto.SellerDTO;
 import br.com.kitchen.api.dto.ShippingDTO;
 import br.com.kitchen.api.model.Cart;
 import br.com.kitchen.api.model.CartItems;
+import br.com.kitchen.api.model.ProductSku;
 
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -46,12 +47,23 @@ public class CartMapper {
     }
 
     private static CartItemsDTO itemToResponseDTO(CartItems cartItems) {
+        ProductSku sku = cartItems.getProductSku();
+        String attributesText = sku.getAttributes().stream()
+                .map(attr -> attr.getAttributeName() + ": " + attr.getAttributeValue())
+                .collect(Collectors.joining(", "));
+
+        String productName = sku.getProduct().getName();
+        if (!attributesText.isEmpty()) {
+            productName += " (" + attributesText + ")";
+        }
+
         return new CartItemsDTO(
                 cartItems.getId(),
-                ProductMapper.toProductResponseDTO(cartItems.getProductSku()),
+                sku.getId(),
+                productName,
+                sku.getPrice(),
                 cartItems.getQuantity(),
                 cartItems.getItemValue()
         );
     }
-
 }

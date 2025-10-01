@@ -1,13 +1,11 @@
 package br.com.kitchen.api.mapper;
 
 import br.com.kitchen.api.dto.ProductAttributeDTO;
-import br.com.kitchen.api.dto.ProductSkuDTO;
 import br.com.kitchen.api.dto.ProductDTO;
-import br.com.kitchen.api.dto.response.StockResponseDTO;
+import br.com.kitchen.api.dto.ProductSkuDTO;
 import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.model.ProductAttribute;
 import br.com.kitchen.api.model.ProductSku;
-import br.com.kitchen.api.model.Stock;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,20 +63,11 @@ public class ProductMapper {
                 .sku(sku.getSku())
                 .price(sku.getPrice())
                 .product(toProductDTO(sku.getProduct()))
-                .stock(toStockResponseDTO(sku.getStock()))
+                .stock(StockMapper.toStockResponseDTO(sku.getStock()))
+                .stockHistory(sku.getStockHistory())
                 .attributes(sku.getAttributes().stream()
                         .map(ProductMapper::toAttributeResponseDTO)
                         .toList())
-                .build();
-    }
-
-    public static StockResponseDTO toStockResponseDTO(Stock stock) {
-        if (stock == null) return null;
-        return StockResponseDTO.builder()
-                .totalQuantity(stock.getTotalQuantity())
-                .reservedQuantity(stock.getReservedQuantity())
-                .soldQuantity(stock.getSoldQuantity())
-                .availableQuantity(stock.getAvailableQuantity())
                 .build();
     }
 
