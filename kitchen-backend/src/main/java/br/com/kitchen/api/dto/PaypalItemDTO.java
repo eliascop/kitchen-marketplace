@@ -1,5 +1,6 @@
 package br.com.kitchen.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Data
@@ -9,13 +10,15 @@ public class PaypalItemDTO {
     private String name;
     private String description;
     private String quantity;
-    private UnitAmountDTO unit_amount;
+    @JsonProperty("unit_amount")
+    private UnitAmountDTO unitAmount;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UnitAmountDTO {
-        private String currency_code;
+        @JsonProperty("currency_code")
+        private String currencyCode;
         private String value;
     }
 }

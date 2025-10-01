@@ -37,16 +37,16 @@
               <td>
                 <ul>
                   <li *ngFor="let attr of sku.attributes">
-                    {{ attr.name }}: {{ attr.attributeValue }}
+                    {{ attr.attributeName }}: {{ attr.attributeValue }}
                   </li>
                 </ul>
               </td>
               <td>Disponível: {{ sku.stock.availableQuantity }}</td>
               <td>
-                <button (click)="sku.expanded = !sku.expanded" *ngIf="sku.stockHistory.length > 0">
+                <button (click)="sku.expanded = !sku.expanded" *ngIf="sku.stockHistory !== null">
                   {{ sku.expanded ? '▲ Esconder' : '▼ Ver histórico' }}
                 </button>
-                <span *ngIf="sku.stockHistory.length === 0"> Sem Movimentação </span>
+                <span *ngIf="sku.stockHistory.length == 0"> Sem Movimentação </span>
               </td>
             </tr>
 

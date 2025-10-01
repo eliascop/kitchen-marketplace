@@ -1,5 +1,6 @@
 package br.com.kitchen.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.util.List;
 
@@ -8,8 +9,10 @@ import java.util.List;
 @NoArgsConstructor
 public class PaypalOrderDTO {
     private String intent;
-    private List<PurchaseUnit> purchase_units;
-    private ApplicationContext application_context;
+    @JsonProperty("purchase_units")
+    private List<PurchaseUnit> purchaseUnits;
+    @JsonProperty("application_context")
+    private ApplicationContext applicationContext;
 
     @Data
     @AllArgsConstructor
@@ -17,6 +20,8 @@ public class PaypalOrderDTO {
     public static class PurchaseUnit {
         private String description;
         private Amount amount;
+        @JsonProperty("invoice_id")
+        private String invoiceId;
         private List<PaypalItemDTO> items;
     }
 
@@ -24,7 +29,8 @@ public class PaypalOrderDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Amount {
-        private String currency_code;
+        @JsonProperty("currency_code")
+        private String currencyCode;
         private String value;
         private Breakdown breakdown;
     }
@@ -33,14 +39,16 @@ public class PaypalOrderDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Breakdown {
-        private ItemTotal item_total;
+        @JsonProperty("item_total")
+        private ItemTotal itemTotal;
     }
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ItemTotal {
-        private String currency_code;
+        @JsonProperty("currency_code")
+        private String currencyCode;
         private String value;
     }
 
@@ -48,7 +56,19 @@ public class PaypalOrderDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ApplicationContext {
-        private String return_url;
-        private String cancel_url;
+        @JsonProperty("brand_name")
+        private String brandName;
+
+        @JsonProperty("landing_page")
+        private String landingPage;
+
+        @JsonProperty("user_action")
+        private String userAction;
+
+        @JsonProperty("return_url")
+        private String returnUrl;
+
+        @JsonProperty("cancel_url")
+        private String cancelUrl;
     }
 }

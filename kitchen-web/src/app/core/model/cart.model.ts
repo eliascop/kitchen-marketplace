@@ -1,22 +1,22 @@
-import { Product } from "./product.model";
+import { Attribute } from "./product.model";
 import { Shipping } from "./shipping.model";
 
 export class CartItem {
   public id: number | null = null;
-  public product: Product = new Product();
+  public skuId: number = 0;
+  public productName: string = "";
+  public attributes: Attribute[] = [];
+  public price: number = 0;
   public quantity: number = 0;
 
   constructor(init?: Partial<CartItem>) {
     if (init) {
       Object.assign(this, init);
-      if (init.product && !(init.product instanceof Product)) {
-        this.product = new Product(init.product);
-      }
     }
   }
 
   get value(): number {
-    const price = Number(this.product?.price ?? 0);
+    const price = Number(this.price ?? 0);
     const qty = Number(this.quantity ?? 0);
     return price * qty;
   }
@@ -26,12 +26,12 @@ export class Cart {
   public id: number = 0;
   public userId: number = 0;
   public items: CartItem[] = [];
-  public totalItems: number = 0; 
+  public totalItems: number = 0;
   public creation: Date = new Date();
   public cartTotal: number = 0;
   public shippingMethod: Shipping[] = [];
-  public shippingAddressId: number | undefined = 0;
-  public billingAddressId: number | undefined = 0;
+  public shippingAddressId?: number = 0;
+  public billingAddressId?: number = 0;
 
   constructor(init?: Partial<Cart>) {
     if (init) {
@@ -54,21 +54,8 @@ export class Cart {
     this.totalItems = this.items.reduce((acc, item) => acc + Number(item.quantity ?? 0), 0);
   }
 
-  addItem(product: Product, quantity: number): void {
-    const qty = Number(quantity) || 0;
-    if (!product || qty <= 0) return;
-
-    const existing = this.items.find(i => i.product?.id === product.id);
-    if (existing) {
-      existing.quantity += qty;
-    } else {
-      this.items.push(new CartItem({ product, quantity: qty }));
-    }
-    this.recalculateTotals();
-  }
-
-  setItemQuantity(productId: number, quantity: number): void {
-    const item = this.items.find(i => i.product?.id === productId);
+  setItemQuantity(skuId: number, quantity: number): void {
+    const item = this.items.find(i => i.skuId === skuId);
     if (!item) return;
 
     const qty = Math.max(0, Number(quantity) || 0);
@@ -86,8 +73,8 @@ export class Cart {
     this.recalculateTotals();
   }
 
-  removeItemByProductId(productId: number): void {
-    this.items = this.items.filter(i => i.product?.id !== productId);
+  removeItemBySkuId(skuId: number): void {
+    this.items = this.items.filter(i => i.skuId !== skuId);
     this.recalculateTotals();
   }
 

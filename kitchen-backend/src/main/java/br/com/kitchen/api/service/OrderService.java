@@ -64,33 +64,38 @@ public class OrderService extends GenericService<Order, Long>{
         return order.orElseThrow(() -> new RuntimeException("Order not found!"));
     }
 
+    public Order findOrderByPaymentId(Long paymentId) {
+        return orderRepository.findOrderByPaymentId(paymentId)
+                .orElseThrow(() -> new RuntimeException("Order not found!"));
+    }
+
     @Transactional
     public Order checkoutFromCart(Long userId) throws Exception{
         Cart cart = getValidatedCart(userId);
         Order order = createOrderFromCart(cart);
-        Order orderSaved = orderRepository.save(order);
 
-        reserveStockForCart(cart);
+        stockService.reserveStockFromCart(cart);
 
         PaymentProvider paymentProvider = paymentProviderFactory.getProvider(cart.getPayment().getMethod().name());
         String paymentStatus = paymentProvider.confirmPayment(cart.getPayment().getProviderOrderId());
+        cart.getPayment().setStatus(PaymentStatus.PENDING);
+        order.setStatus(OrderStatus.PENDING_PAYMENT);
 
-        if("COMPLETED".equals(paymentStatus) || "CREATED".equals(paymentStatus) || "APPROVED".equals(paymentStatus)) {
-            cart.getPayment().setStatus(PaymentStatus.SUCCESS);
-            confirmStockReservation(cart);
-
-            cart.setActive(false);
-            cartService.save(cart);
-
-            outboxService.createOrderEvent(orderSaved);
-
-            order.setStatus(OrderStatus.CONFIRMED);
-        } else {
-            releaseStockReservation(cart);
-
+        if("DECLINED".equals(paymentStatus) || "DENIED".equals(paymentStatus)) {
+            stockService.releaseStockFromCart(cart);
             cart.getPayment().setStatus(PaymentStatus.FAILED);
             order.setStatus(OrderStatus.CANCELLED);
+        }else if("COMPLETED".equals(paymentStatus) || "APPROVED".equals(paymentStatus) || "SUCCESS".equals(paymentStatus)) {
+            stockService.confirmStockFromCart(cart);
+            cart.getPayment().setStatus(PaymentStatus.SUCCESS);
+            order.setStatus(OrderStatus.CONFIRMED);
+        }else {
+            System.err.println("Unhandled PayPal payment status: " + paymentStatus);
         }
+        cart.setActive(false);
+        cartService.save(cart);
+        Order orderSaved = orderRepository.save(order);
+        outboxService.createOrderEvent(orderSaved);
         return orderSaved;
     }
 
@@ -114,12 +119,10 @@ public class OrderService extends GenericService<Order, Long>{
 
     private void validateStockAvailability(Cart cart){
         cart.getCartItems().forEach(item -> {
-            if(item.getProduct().getSkus().isEmpty()){
+            if(item.getProductSku() == null){
                 throw new IllegalArgumentException("Product sku not found in the cart");
             }
-            item.getProduct().getSkus().forEach(sku ->{
-                stockService.validateSkuAvailability(sku, item.getQuantity());
-            });
+            stockService.validateSkuAvailability(item.getProductSku(), item.getQuantity());
         });
     }
 
@@ -154,7 +157,7 @@ public class OrderService extends GenericService<Order, Long>{
         Map<Seller, SellerOrder> sellerOrderMap = new HashMap<>();
 
         for (CartItems item: cart.getCartItems()) {
-            Seller seller = item.getProduct().getSeller();
+            Seller seller = item.getProductSku().getProduct().getSeller();
             SellerOrder sellerOrder = sellerOrderMap.computeIfAbsent(seller, s -> {
                 SellerOrder so = new SellerOrder();
                 so.setOrder(order);
@@ -165,7 +168,7 @@ public class OrderService extends GenericService<Order, Long>{
 
             OrderItems orderItem = new OrderItems();
             orderItem.setOrder(order);
-            orderItem.setProduct(item.getProduct());
+            orderItem.setProductSku(item.getProductSku());
             orderItem.setQuantity(item.getQuantity());
             orderItem.setItemValue(item.getItemValue());
             orderItem.calculateItemValue();
@@ -179,30 +182,6 @@ public class OrderService extends GenericService<Order, Long>{
         order.updateOrderTotal();
         order.setSellerOrders(new ArrayList<>(sellerOrderMap.values()));
         return order;
-    }
-
-    private void reserveStockForCart(Cart cart) {
-        for (CartItems item: cart.getCartItems()) {
-            for (ProductSku sku : item.getProduct().getSkus()) {
-                stockService.reserveStock(sku, item.getQuantity());
-            }
-        }
-    }
-
-    private void confirmStockReservation(Cart cart) {
-        for (CartItems item: cart.getCartItems()) {
-            for (ProductSku sku : item.getProduct().getSkus()) {
-                stockService.confirmReservation(sku, item.getQuantity());
-            }
-        }
-    }
-
-    private void releaseStockReservation(Cart cart) {
-        for (CartItems item: cart.getCartItems()) {
-            for (ProductSku sku : item.getProduct().getSkus()) {
-                stockService.releaseReservation(sku, item.getQuantity());
-            }
-        }
     }
 
 }

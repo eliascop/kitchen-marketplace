@@ -54,12 +54,12 @@ export class CartService {
     );
   }
 
-  addToCart(sku: string, quantity: number) {
+  addToCart(skuId: number, quantity: number) {
     const userId = this.authService.currentUserId;
     if (!userId) throw new Error('Usuário não autenticado.');
 
     return this.dataService.patch<Cart>({
-      url: `${CART_SERVICE_REST}/productSku/${sku}/quantity/${quantity}`
+      url: `${CART_SERVICE_REST}/skuId/${skuId}/quantity/${quantity}`
     }).pipe(
       map(response => {
         this.updateCartCountFromCart(response.data);

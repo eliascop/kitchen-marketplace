@@ -75,12 +75,14 @@ public class ProductService extends GenericService<Product, Long>{
                 .toList();
     }
 
-    public List<Product> findProductsBySellerId(Long sellerId) {
-        log.info("findProductsBySellerId::{}",sellerId);
+    public List<Product> findProductsBySellerId(User user) {
+        Seller seller = sellerService.getActiveSeller(user);
 
-        List<Product> products = productRepository.findBySellerId(sellerId);
+        log.info("findProductsBySellerId::{}",seller.getId());
 
-        List<StockHistoryDTO> allHistories = historyClient.getStockHistoriesBySellerId(sellerId);
+        List<Product> products = productRepository.findBySellerId(seller.getId());
+
+        List<StockHistoryDTO> allHistories = historyClient.getStockHistoriesBySellerId(seller.getId());
 
         Map<String, List<StockHistoryDTO>> historiesMap = allHistories.stream()
                 .collect(Collectors.groupingBy(StockHistoryDTO::getSku));

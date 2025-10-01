@@ -59,7 +59,7 @@ export class OrdersComponent implements OnInit{
     const groups = new Map<string, OrderItem[]>();
 
     for (const item of this.selectedOrder!.items) {
-      const name = item.seller?.storeName ?? 'Sem Loja';
+      const name = item.storeName ?? 'Sem Loja';
       if (!groups.has(name)) {
         groups.set(name, []);
       }

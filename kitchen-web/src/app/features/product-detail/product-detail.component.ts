@@ -68,7 +68,7 @@ export class ProductDetailComponent implements OnInit {
   }
 
   getAttributeValue(sku: Sku, attributeName: string): string {
-    return sku.attributes.find(attr => attr.name === attributeName)?.attributeValue ?? '';
+    return sku.attributes.find(attr => attr.attributeName === attributeName)?.attributeValue ?? '';
   }
 
   selectSku(sku: Sku): void {
@@ -84,7 +84,7 @@ export class ProductDetailComponent implements OnInit {
     if (this.selectedQuantity == 0) {
       alert('Selecione a quantidade');
     }
-    this.cartService.addToCart(this.selectedSku.sku, this.selectedQuantity)
+    this.cartService.addToCart(this.selectedSku.id, this.selectedQuantity)
       .pipe(take(1))
       .subscribe({
         next: data => {

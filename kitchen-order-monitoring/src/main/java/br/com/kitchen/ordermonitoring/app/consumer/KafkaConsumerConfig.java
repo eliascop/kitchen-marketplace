@@ -1,4 +1,4 @@
-package br.com.kitchen.ordermonitoring.app.config;
+package br.com.kitchen.ordermonitoring.app.consumer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface OrderRepository extends GenericRepository<Order, Long> {
     Optional<List<Order>> findOrdersByUserId(Long userId);
     Optional<Order> findOrderByIdAndUserId(Long id, Long userId);
+    Optional<Order> findOrderByPaymentId(Long paymentId);
 }
 

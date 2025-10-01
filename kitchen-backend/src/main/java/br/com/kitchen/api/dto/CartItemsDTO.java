@@ -10,11 +10,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CartItemsDTO {
 
-        private Long id;
-        @JsonProperty("product")
-        private ProductDTO productDTO;
-        private int quantity;
-        @JsonProperty("value")
-        private BigDecimal itemValue;
+    private Long id;
+    private Long skuId;
+    private String productName;
+    private BigDecimal price;
+    private int quantity;
+    @JsonProperty("value")
+    private BigDecimal itemValue;
 }
 

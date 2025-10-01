@@ -1,13 +1,20 @@
 <div class="main-container">
   <div class="main">
-    <h2>Pedido realizado com sucesso!</h2>
+    <div class="main-header">
+      <h2>Pedido finalizado com sucesso!</h2>
+    </div>
     <div class="order-tracking" *ngIf="order; else loading">
-      <p class="order-status">Status do Pedido #{{ order.id }} - {{ order.status }}</p>
+      <h2>Detalhes do pedido</h2>
+      <p class="order-status">Número do Pedido: #{{ order.id }}</p>
+      <p class="order-status">Status do pedido: {{ order.status }}</p>
       <p>{{statusMessage}}</p>
+
+      <p>Tipo de pagamento: {{order.payment!.method}} </p>
+      <p>Status do pagamento: {{order.payment!.status}} </p>
       <p>Detalhes:</p>
       <ul class="order-details">
         <li *ngFor="let item of order.items">
-          {{ item.quantity }}x {{ item.product.name }}
+          {{ item.quantity }}x {{ item.productName }} ({{item.sku}})
         </li>
       </ul>
       <p>Total: <strong> {{order.total | currencyFormatter }} </strong></p>

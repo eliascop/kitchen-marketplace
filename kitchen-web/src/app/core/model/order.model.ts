@@ -3,35 +3,32 @@ import { Product } from './product.model';
 import { Seller, User } from './user.model';
 
 export class OrderItem {
-  public id: number | null = null;
-  public product: Product = new Product();
-  public seller: Seller | null = null;
-  public quantity: number = 0;
-  public value: number = 0;
+  id: number | null = null;
+  sku = '';
+  price = 0;
+  productName = '';
+  storeName = '';
+  quantity = 0;
+  value = 0;
 
   constructor(init?: Partial<OrderItem>) {
-    if (init) {
-      Object.assign(this, init);
-      if (init.product && !(init.product instanceof Product)) {
-        this.product = new Product(init.product);
-      }
-    }
+    Object.assign(this, init);
   }
 }
 
 export class Order {
-  public id: number | null = null;
-  public user: User = new User();
-  public blink: boolean = false;
-  public items: OrderItem[] = [];
-  public total: number = 0;
-  public status: string = 'PENDING';
-  public creation: Date = new Date();
-  public payment: Payment | null = null;
-  public shippingId: number = 0;
+  id:number | null = null;
+  user: User = new User();
+  blink = false;
+  items: OrderItem[] = [];
+  total = 0;
+  status = 'PENDING';
+  creation: Date = new Date();
+  payment: Payment | null = null;
+  shippingId = 0;
   
-  public shippingAddressId: number = 0;
-  public billingAddressId: number = 0;
+  shippingAddressId = 0;
+  billingAddressId = 0;
 
   constructor(init?: Partial<Order>) {
     if (init) {

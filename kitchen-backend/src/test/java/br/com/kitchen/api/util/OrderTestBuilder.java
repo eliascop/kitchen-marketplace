@@ -17,7 +17,8 @@ public class OrderTestBuilder {
         order.setStatus(OrderStatus.PENDING_PROCESSING);
         order.setTotal(BigDecimal.valueOf(100));
 
-        OrderItems item = new OrderItems(order, product, 2, seller);
+        OrderItems item = new OrderItems();
+       // OrderItems item = new OrderItems(order, product, 2, seller);
         order.getOrderItems().add(item);
 
         return order;

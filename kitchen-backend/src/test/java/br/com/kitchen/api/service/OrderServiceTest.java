@@ -66,7 +66,7 @@ class OrderServiceTest {
         product.setSkus(Collections.singletonList(sku));
 
         CartItems item = new CartItems();
-        item.setProduct(product);
+        item.setProductSku(sku);
         item.setQuantity(2);
         item.setItemValue(new BigDecimal("20.00"));
 

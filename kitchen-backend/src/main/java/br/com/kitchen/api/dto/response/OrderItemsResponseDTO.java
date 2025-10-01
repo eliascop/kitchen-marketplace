@@ -1,6 +1,5 @@
 package br.com.kitchen.api.dto.response;
 
-import br.com.kitchen.api.dto.SellerDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,8 +11,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class OrderItemsResponseDTO {
     private Long id;
-    private ProductResponseDTO product;
+    private String sku;
+    private BigDecimal price;
+    private String productName;
     public int quantity;
     private BigDecimal itemValue;
-    private SellerDTO seller;
+    private String storeName;
 }

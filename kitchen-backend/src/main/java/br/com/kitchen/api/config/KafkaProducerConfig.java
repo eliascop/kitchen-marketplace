@@ -1,8 +1,7 @@
 package br.com.kitchen.api.config;
 
-import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.WalletTransactionDTO;
-import br.com.kitchen.api.model.WalletTransaction;
+import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.producer.KafkaProducer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

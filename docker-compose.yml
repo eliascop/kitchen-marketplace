@@ -109,6 +109,8 @@ services:
     depends_on:
       kafka:
         condition: service_started
+      localstack:
+        condition: service_started
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     networks:
@@ -148,6 +150,7 @@ services:
       - ./localstack/init-resources.sh:/etc/localstack/init/ready.d/init-resources.sh
       - ./order-lambda/target/order-lambda-1.0-SNAPSHOT.jar:/tmp/order-lambda.jar
       - ./stock-lambda/target/stock-lambda-1.0-SNAPSHOT.jar:/tmp/stock-lambda.jar
+      - ./payment-lambda/target/payment-lambda-1.0-SNAPSHOT.jar:/tmp/payment-lambda.jar
     networks:
       - kitchen-network
 
@@ -164,6 +167,15 @@ services:
     build: ./order-lambda
     image: order-lambda:latest
     container_name: order-lambda
+    networks:
+      - kitchen-network
+    depends_on:
+      - localstack
+
+  payment-lambda:
+    build: ./payment-lambda
+    image: payment-lambda:latest
+    container_name: payment-lambda
     networks:
       - kitchen-network
     depends_on:

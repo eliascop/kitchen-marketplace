@@ -1,8 +1,9 @@
 package br.com.kitchen.api.service;
 
+import br.com.kitchen.api.dto.ProductSkuDTO;
+import br.com.kitchen.api.dto.response.StockResponseDTO;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.dto.ProductAttributeDTO;
-import br.com.kitchen.api.dto.ProductSkuDTO;
 import br.com.kitchen.api.repository.ProductSkuRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,21 +22,21 @@ public class SkuService {
 
     public List<ProductSku> createOrUpdateSkus(Product product,
                                                Seller seller,
-                                               List<ProductSkuDTO> skuDtos) {
+                                               List<ProductSkuDTO> skuDTOs) {
 
-        return skuDtos.stream()
+        return skuDTOs.stream()
                 .map(skuDTO -> {
-                    String generatedSku = generateSku(product, skuDTO.attributes());
+                    String generatedSku = generateSku(product, skuDTO.getAttributes());
 
                     ProductSku sku = productSkuRepository
                             .findBySkuAndProductId(generatedSku, product.getId())
                             .orElse(new ProductSku());
 
                     sku.setSku(generatedSku);
-                    sku.setPrice(skuDTO.price());
+                    sku.setPrice(skuDTO.getPrice());
                     sku.setProduct(product);
-                    sku.setAttributes(buildAttributes(skuDTO.attributes(), sku));
-                    sku.setStock(buildStock(sku, seller, skuDTO.stock()));
+                    sku.setAttributes(buildAttributes(skuDTO.getAttributes(), sku));
+                    sku.setStock(buildStock(sku, seller, skuDTO.getStock()));
 
                     return sku;
                 })
@@ -45,14 +46,14 @@ public class SkuService {
     private List<ProductAttribute> buildAttributes(List<ProductAttributeDTO> attributesDTO, ProductSku sku) {
         return attributesDTO.stream().map(attrDTO -> {
             ProductAttribute attr = new ProductAttribute();
-            attr.setName(attrDTO.name());
-            attr.setAttributeValue(attrDTO.value());
+            attr.setAttributeName(attrDTO.getAttributeName());
+            attr.setAttributeValue(attrDTO.getAttributeValue());
             attr.setSku(sku);
             return attr;
         }).toList();
     }
 
-    private Stock buildStock(ProductSku sku, Seller seller, int totalQuantity) {
+    private Stock buildStock(ProductSku sku, Seller seller, StockResponseDTO stockDTO) {
         Stock stock = sku.getStock();
         if (stock == null) {
             stock = new Stock();
@@ -60,15 +61,19 @@ public class SkuService {
             stock.setSeller(seller);
             stock.setReservedQuantity(0);
             stock.setSoldQuantity(0);
+            stock.setTotalQuantity(stockDTO.getTotalQuantity());
+        }else {
+            stock.setReservedQuantity(stock.getReservedQuantity() + stockDTO.getTotalQuantity());
+            stock.setSoldQuantity(stock.getSoldQuantity() + stockDTO.getTotalQuantity());
+            stock.setTotalQuantity(stock.getTotalQuantity() + stockDTO.getTotalQuantity());
         }
-        stock.setTotalQuantity(totalQuantity);
         return stock;
     }
 
     private String generateSku(Product product, List<ProductAttributeDTO> attributesDTO) {
         return "PROD-" + product.getSeller().getId() + "-" + product.getId() + attributesDTO.stream()
-                .sorted(Comparator.comparing(ProductAttributeDTO::name))
-                .map(attr -> "-" + normalize(attr.value()))
+                .sorted(Comparator.comparing(ProductAttributeDTO::getAttributeName))
+                .map(attr -> "-" + normalize(attr.getAttributeValue()))
                 .collect(Collectors.joining());
     }
 

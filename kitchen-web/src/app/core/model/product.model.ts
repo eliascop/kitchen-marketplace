@@ -19,25 +19,25 @@ export class Product {
   }
 }
 
-export interface Attribute {
-  name: string;
-  attributeValue: string;
+export class Attribute {
+  public attributeName: string = '';
+  public attributeValue: string = '';
 }
 
-export interface Stock {
-  totalQuantity: number;
-  reservedQuantity: number;
-  soldQuantity: number;
-  availableQuantity: number;
+export class Stock {
+  public totalQuantity: number = 0;
+  public reservedQuantity: number = 0;
+  public soldQuantity: number = 0;
+  public availableQuantity: number = 0;
 }
 
-export interface Sku {
-  id: number;
-  sku: string;
-  price: number;
-  stock: Stock;
-  attributes: Attribute[];
-  stockHistory: StockHistory[];
+export class Sku {
+  public id: number = 0;
+  public sku: string = '';
+  public price: number = 0;
+  public stock: Stock = new Stock;
+  public attributes: Attribute[] = [];
+  public stockHistory: StockHistory[] = [];
 }
 
 export interface StockHistory{
