@@ -1,0 +1,150 @@
+.product-list-wrapper {
+  margin-bottom: 2.5rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem;
+  width: 75rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.product-list-title {
+  font-size: 2rem;
+  color: #004080;
+  margin-bottom: 2rem;
+  text-align: center;
+  border-bottom: 3px solid #0056b3;
+  padding-bottom: 0.75rem;
+}
+
+.product-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.product-card {
+  border-radius: 10px;
+  padding: 1.25rem;
+  text-align: center;
+  width: 234px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #fff;
+}
+
+.product-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.product-image {
+  max-width: 100%;
+  height: 200px;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  object-fit: cover;
+}
+
+.product-name {
+  font-size: 1.25rem;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.product-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.5rem 0 1rem;
+  height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-price {
+  font-size: 0.95rem;
+  font-weight: bold;
+  margin-bottom: 1.25rem;
+  color: #004080;
+}
+
+.product-button {
+  background-color: white;
+  color: #3483fa;
+  border: none;
+  padding: 0.4rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.product-button:hover {
+  background-color: #007bff26;
+}
+
+.loading-anchor {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 1.5rem;
+  font-weight: bold;
+  color: #666;
+}
+
+.no-products-message {
+  font-size: 1.3rem;
+  color: #666;
+  text-align: center;
+  width: 100%;
+  padding: 2.5rem;
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+  .product-list {
+    gap: 1.5rem;
+  }
+  .product-card {
+    width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-list-title {
+    font-size: 1.75rem;
+  }
+  .product-card {
+    width: 180px;
+    padding: 1rem;
+  }
+  .product-image {
+    height: 120px;
+  }
+  .product-name {
+    font-size: 1.1rem;
+  }
+  .product-price {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-list {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .product-card {
+    width: 90%;
+  }
+  .product-list-wrapper {
+    padding: 1rem;
+  }
+}

@@ -1,7 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 export interface AuthUser {
   id: number
@@ -15,6 +15,9 @@ export interface AuthUser {
 export class AuthService {
   private userSubject = new BehaviorSubject<AuthUser | null>(this.getUserFromToken());
   private loggedIn = new BehaviorSubject<boolean>(false);
+  private logoutSubject = new Subject<void>();
+  
+  logout$ = this.logoutSubject.asObservable();
   loggedIn$ = this.loggedIn.asObservable();
 
   constructor(){
@@ -85,6 +88,7 @@ export class AuthService {
     localStorage.removeItem('token');
     this.userSubject.next(null);
     this.loggedIn.next(false);
+    this.logoutSubject.next()
   }
 
 }

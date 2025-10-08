@@ -1,11 +1,15 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.StockHistoryDTO;
-import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
-import br.com.kitchen.api.repository.*;
+import br.com.kitchen.api.model.*;
+import br.com.kitchen.api.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +72,7 @@ public class ProductService extends GenericService<Product, Long>{
     }
 
     @Transactional
+    @CacheEvict(value = "products", allEntries = true)
     public List<Product> createProducts(User user, List<ProductRequestDTO> dtos) {
         log.info("createProducts::{}", dtos.toString());
         return dtos.stream()
@@ -95,6 +100,11 @@ public class ProductService extends GenericService<Product, Long>{
         }
 
         return products;
+    }
+
+    @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
+    public Page<Product> findAllproducts(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 
     public Product findProductBySku(String sku){

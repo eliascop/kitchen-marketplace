@@ -10,6 +10,8 @@ import br.com.kitchen.api.model.Seller;
 import br.com.kitchen.api.repository.CatalogRepository;
 import br.com.kitchen.api.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,13 +40,12 @@ public class CatalogService extends GenericService<Catalog, Long>{
                 .orElseGet(() -> repository.save(new Catalog(seller, catalogName)));
     }
 
-    public List<ProductDTO> findProductsByCatalogSlug(String catalogSlug) {
+    public Page<Product> findProductsByCatalogSlug(String catalogSlug, PageRequest pageRequest) {
         List<Long> catalogIds = repository.findBySlug(catalogSlug)
                 .stream()
                 .map(Catalog::getId)
                 .toList();
 
-        List<Product> productsList = productRepository.findByCatalogIdIn(catalogIds);
-        return ProductMapper.toDTOList(productsList);
+        return productRepository.findByCatalogIdIn(catalogIds, pageRequest);
     }
 }

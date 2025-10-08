@@ -14,7 +14,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Address } from '../../core/model/address.model';
 import { Shipping } from '../../core/model/shipping.model';
 
-//mock de api de frete
 export const shippingOptions = [
   { id: 1, carrier: 'Correios', method: 'SEDEX', cost: 10.5, estimatedDays: 2 },
   { id: 2, carrier: 'Jadlog', method: 'PAC', cost: 12.5, estimatedDays: 5 },

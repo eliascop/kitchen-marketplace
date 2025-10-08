@@ -17,6 +17,8 @@ public class SqsOrderConsumer {
 
     private final ObjectMapper mapper;
 
+    //Todo order-status-update
+
     @SqsListener("order-queue")
     public void listenOrderQueue(String message) {
         try {

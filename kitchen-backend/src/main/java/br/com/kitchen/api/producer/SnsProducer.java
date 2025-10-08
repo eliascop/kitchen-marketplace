@@ -18,8 +18,14 @@ public class SnsProducer {
     @Value("${order.events.topic}")
     private String topicOrderArn;
 
+    @Value("${product.events.topic}")
+    private String topicProductArn;
+
     @Value("${stock.events.topic}")
     private String topicStockArn;
+
+    @Value("${wallet-transaction.events.topic}")
+    private String topicWalletTransactionArn;
 
     private final SnsClient snsClient;
 
@@ -29,8 +35,16 @@ public class SnsProducer {
         publishToTopic(topicOrderArn, data);
     }
 
+    public <T> void sendProductNotification(T data) {
+        publishToTopic(topicProductArn, data);
+    }
+
     public <T> void sendStockNotification(T data) {
         publishToTopic(topicStockArn, data);
+    }
+
+    public <T> void sendWalletTransactionNotification(T data) {
+        publishToTopic(topicWalletTransactionArn, data);
     }
 
     private <T> void publishToTopic(String topicArn, T data) {

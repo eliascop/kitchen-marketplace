@@ -5,11 +5,9 @@ import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.service.CatalogService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,12 +26,6 @@ public class CatalogController {
     @GetMapping
     public ResponseEntity<List<CatalogDTO>> showAll() {
         List<CatalogDTO> response = service.findAllDistinctive();
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("{catalogSlug}/products")
-    public ResponseEntity<List<ProductDTO>> findProductsInCatalog(@PathVariable String catalogSlug) {
-        List<ProductDTO> response = service.findProductsByCatalogSlug(catalogSlug);
         return ResponseEntity.ok(response);
     }
 

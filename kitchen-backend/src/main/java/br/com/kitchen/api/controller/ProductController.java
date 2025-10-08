@@ -2,11 +2,17 @@ package br.com.kitchen.api.controller;
 
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
 import br.com.kitchen.api.dto.ProductDTO;
+import br.com.kitchen.api.dto.response.PaginatedResponse;
+import br.com.kitchen.api.mapper.PaginateMapper;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.security.UserPrincipal;
+import br.com.kitchen.api.service.CatalogService;
 import br.com.kitchen.api.service.ProductService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,20 +28,31 @@ import java.util.Map;
 public class ProductController {
 
     private final ProductService productService;
+    private final CatalogService catalogService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, CatalogService catalogService) {
         this.productService = productService;
+        this.catalogService = catalogService;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<ProductDTO>> listAllProducts() {
-        List<ProductDTO> response = productService.findAll()
-                .stream()
-                .map(ProductMapper::toProductResponseDTO)
-                .toList();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<PaginatedResponse<ProductDTO>> listAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String catalog
+    ) {
+        Page<Product> products;
+        if (catalog != null && !catalog.isEmpty()) {
+            products = catalogService.findProductsByCatalogSlug(catalog, PageRequest.of(page, size));
+        } else {
+            products = productService.findAllproducts(PageRequest.of(page, size));
+        }
+
+        Page<ProductDTO> mapped = products.map(ProductMapper::toProductResponseDTO);
+        return ResponseEntity.ok(PaginateMapper.toDTO(mapped));
     }
+
 
     @GetMapping("/seller")
     @PreAuthorize("hasRole('SELLER')")

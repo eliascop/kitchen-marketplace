@@ -3,14 +3,13 @@ package br.com.kitchen.api.service;
 import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.dto.StockDTO;
 import br.com.kitchen.api.dto.ProductDTO;
+import br.com.kitchen.api.dto.WalletTransactionDTO;
 import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.model.OutboxEvent;
-import br.com.kitchen.api.producer.KafkaProducer;
 import br.com.kitchen.api.producer.SnsProducer;
 import br.com.kitchen.api.repository.OutboxRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +22,13 @@ public class OutboxProcessor {
 
     private final OutboxRepository outboxRepository;
     private final SnsProducer snsProducer;
-    private final KafkaProducer<ProductDTO> productProducer;
     private final ObjectMapper objectMapper;
 
     public OutboxProcessor(OutboxRepository outboxRepository,
                            SnsProducer snsProducer,
-                           @Qualifier("productProducer") KafkaProducer<ProductDTO> productProducer,
                            ObjectMapper objectMapper) {
         this.outboxRepository = outboxRepository;
         this.snsProducer = snsProducer;
-        this.productProducer = productProducer;
         this.objectMapper = objectMapper;
     }
 
@@ -45,13 +41,17 @@ public class OutboxProcessor {
                     OrderDTO dto = objectMapper.readValue(event.getPayload(), OrderDTO.class);
                     snsProducer.sendOrderNotification(dto);
                 }
-                if ("STOCK".equals(event.getAggregateType())) {
+                if ("STOCK".equals(event.getAggregateType()) && "ORDER_CONFIRMED".equals(event.getEventType())) {
                     StockDTO dto = objectMapper.readValue(event.getPayload(), StockDTO.class);
                     snsProducer.sendStockNotification(dto);
                 }
                 if ("PRODUCT".equals(event.getAggregateType())) {
                     ProductDTO dto = objectMapper.readValue(event.getPayload(), ProductDTO.class);
-                    productProducer.sendNotification(dto);
+                    snsProducer.sendProductNotification(dto);
+                }
+                if ("WALLET-TRANSACTION".equals(event.getAggregateType())) {
+                    WalletTransactionDTO dto = objectMapper.readValue(event.getPayload(), WalletTransactionDTO.class);
+                    snsProducer.sendWalletTransactionNotification(dto);
                 }
 
                 event.setStatus(EventStatus.SENT);
