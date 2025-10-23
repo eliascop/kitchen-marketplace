@@ -1,5 +1,5 @@
 <div class="product-list-wrapper">
-  <h2 class="product-list-title">Produtos</h2>
+  <h2 class="product-list-title">{{catalogSlug}}</h2>
   <div class="product-list">
     <div *ngFor="let product of products" class="product-card">
       <img [src]="product.imageUrl" alt="{{ product.name }}" class="product-image" />

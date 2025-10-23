@@ -1,40 +1,14 @@
-<div class="page">
-  <div class="header">
-    <div class="header-container">
+<app-header
+  [user]="user"
+  [totalItems]="totalItems"
+  [isHomePage]="isHomePage()"
+  (menuClick)="toggleSidenav()"
+  (searchChange)="onSearchChange($event)">
+</app-header>
 
-      <div class="header-row row-1">
-        <div class="logo">
-          <span class="title">Seja bem vindo a Kitchen</span>
-          <a *ngIf="!isHomePage()" href="#" (click)="goHome($event)" class="go-home">Ir para a home</a>
-        </div>
-        <div class="search-field" *ngIf="user">
-          <input type="text" id="search" formControlName="searchFor" placeholder="Buscar produtos ..." (input)="onSearchChange($event)" />
-        </div>
-        <div style="width: 20rem;"></div>
-      </div>
-
-      <div class="header-row row-2">
-        <div *ngIf="user" class="my-space">
-          <span><a href="#" (click)="userList($event)" class="logout" *ngIf="isSeller()">Lista de usuários</a></span>
-          <span><a href="#" (click)="myProducts($event)" class="logout" *ngIf="isSeller()"> Meus produtos </a></span>
-          <span><a href="#" (click)="userDetails($event)" class="logout"><i class="fas fa-user-circle"></i> {{ user.name }} </a></span>
-          <span><a href="#" (click)="myOrders($event)" class="logout"><i class="fas fa-shopping-bag"></i> Minhas Compras </a></span>
-          <span><a href="#" (click)="myCart($event)" class="logout"><i class="fas fa-shopping-cart"></i>Meu carrinho
-            <span *ngIf="totalItems > 0" class="cart-count">({{ totalItems }})</span></a>
-          </span>
-          <span><a href="#" (click)="logout($event)" class="logout"><i class="fas fa-sign-out-alt"></i> Sair </a></span>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="app-content">
-    <app-toast></app-toast>
-    <router-outlet></router-outlet>
-  </div>
-
-  <footer class="footer">
-    <p>&copy; 2025 Minha Aplicação. Todos os direitos reservados.</p>
-  </footer>
-</div>
+<app-sidebar
+  [user]="user"
+  [totalItems]="totalItems"
+  (searchChange)="onSearchChange($event)"
+  (sidenavReady)="onSidenavReady($event)">
+</app-sidebar>

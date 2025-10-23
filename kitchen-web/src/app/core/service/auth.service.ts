@@ -2,12 +2,7 @@
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 import { BehaviorSubject, Subject } from 'rxjs';
-
-export interface AuthUser {
-  id: number
-  user: string
-  seller: boolean
-}
+import { AuthUser } from '../model/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -32,8 +27,28 @@ export class AuthService {
     return this.userSubject.value?.id ?? null;
   }
 
-  get currentUserSeller(): boolean | null {
-    return this.userSubject.value?.seller ?? null;
+  get isSeller(): boolean {
+    return this.userSubject.value?.roles.includes('SELLER') ?? false;
+  }
+  
+  get isAdmin(): boolean {
+    return this.userSubject.value?.roles.includes('ADMIN') ?? false;
+  }
+  
+  get isUser(): boolean {
+    return this.userSubject.value?.roles.includes('USER') ?? false;
+  }
+
+  get currentUserRoles(): string[] {
+    return this.userSubject.value?.roles ?? [];
+  }
+
+  get normalizedRoles(): string[] {
+    return (this.userSubject.value?.roles ?? []).map(r => r.replace('ROLE_', ''));
+  }
+
+  hasRole(role: string): boolean {
+    return this.currentUserRoles.includes(role);
   }
   
   private getUserFromToken(): AuthUser | null {
@@ -45,7 +60,7 @@ export class AuthService {
       return {
         id: payload['id'],
         user: payload['sub'],
-        seller: payload['seller']
+        roles: Array.isArray(payload['roles']) ? payload['roles'] : []
       };
     } catch (e) {
       return null;

@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 })
 export class ProductListComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() catalogSlug?: string;
+  @Input() catalogs?: any[];
 
   products: Product[] = [];
   currentPage = 0;
@@ -29,6 +30,7 @@ export class ProductListComponent implements OnInit, AfterViewInit, OnChanges {
               private router: Router) {}
 
   ngOnInit() {
+    console.log(this.catalogs);
     this.loadProducts();
   }
 

@@ -69,7 +69,7 @@ class OrderControllerTest {
         mockOrder.setCreation(LocalDateTime.now());
         mockOrder.getOrderItems().add(mockOrderItem);
 
-        userPrincipal = new UserPrincipal(mockUser);
+        userPrincipal = new UserPrincipal(mockUser,null);
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities())
         );

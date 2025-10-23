@@ -1,24 +1,40 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
+import { MatSidenav } from '@angular/material/sidenav';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { HeaderComponent } from './shared/components/header/header.component';
 import { User } from './core/model/user.model';
 import { AuthService } from './core/service/auth.service';
 import { CartService } from './core/service/cart.service';
 import { UserService } from './core/service/user.service';
-import { ToastComponent } from './shared/components/toast/toast.component';
 import { SearchService } from './core/service/search.service';
+import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, ToastComponent],
+  imports: [
+    CommonModule,
+    HeaderComponent,
+    SidebarComponent,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule
+  ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
   title = 'kitchen-web';
   totalItems = 0;
   user!: User;
+  sidenav!: MatSidenav;
+  @Output() searchChange = new EventEmitter<Event>();
 
   constructor(
     private authService: AuthService,
@@ -27,6 +43,16 @@ export class AppComponent implements OnInit {
     private searchService: SearchService,
     private userService: UserService
   ) {}
+
+  onSidenavReady(sidenav: MatSidenav) {
+    this.sidenav = sidenav;
+  }
+
+  toggleSidenav() {
+    if (this.sidenav) {
+      this.sidenav.toggle();
+    }
+  }
 
   ngOnInit() {
     this.authService.user$.subscribe(user => {
@@ -53,6 +79,11 @@ export class AppComponent implements OnInit {
   goHome(event?: Event) {
     if (event) event.preventDefault();
     this.router.navigate(['/']);
+  }
+
+  manageCoupons(event: Event) {
+    event.preventDefault();
+    this.router.navigate(['/manage-coupons']);
   }
 
   userList(event: Event) {
