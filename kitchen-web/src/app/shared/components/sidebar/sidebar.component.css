@@ -1,78 +1,64 @@
-:host ::ng-deep .mat-drawer.mat-sidenav {
-    position: fixed !important;
-    inset: 0 auto 0 0 !important;
-    width: 240px !important;
-    min-width: 240px !important;
-    background: #003366bb;
-    color: #fff;
-    z-index: 3000 !important;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding-top: 3.8rem;
-    overflow-y: auto;
-    transition: transform 0.25s ease-in-out;
-  }
-  
-  :host ::ng-deep .mat-drawer-backdrop {
-    z-index: 2990 !important;
-    background-color: rgba(0, 0, 0, 0.4) !important;
-  }
-  
-  :host ::ng-deep mat-nav-list {
-    padding: 0;
-  }
-  
-  :host ::ng-deep mat-nav-list a {
-    color: #ffffff;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: 0 1.5rem 1.5rem 0;
-    text-decoration: none;
-    transition: background 0.3s ease, padding-left 0.2s ease;
-  }
+:host {
+  display: block;
+  height: 100%;
+  color: #ffffff;
+  padding-top: 3.2rem;
+  z-index: 2;
+}
 
-  :host ::ng-deep mat-nav-list a:hover {
-    background: rgba(255, 255, 255, 0.5);
-    padding-left: 1.25rem;
-  }
+mat-nav-list {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
 
-  :host ::ng-deep .mat-icon {
-    color: #ffffff;
-    font-size: 24px;
-  }
+mat-nav-list a {
+  display: flex;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-decoration: none;
+  transition: background 0.3s ease, padding-left 0.2s ease;
+  z-index: 2;
+}
 
-  .cart-count {
-    font-size: 12px;
-    color: #ffb47b;
-  }
+mat-nav-list a:hover {
+  background: rgba(255, 255, 255, 0.5);
+  padding-left: 1.25rem;
+}
 
-  @media (max-width: 768px) {
-    :host ::ng-deep .mat-drawer.mat-sidenav {
-      width: 200px !important;
-      min-width: 200px !important;
-    }
-  
-    :host ::ng-deep mat-nav-list a {
-      font-size: 0.9rem;
-      padding: 0.5rem 1rem;
-    }
+.matitem{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-weight: bold;
+  color: white;
+}
+
+mat-icon {
+  color: #ffffff;
+  font-size: 22px;
+  align-items: center;
+  height: 22px;
+  width: 22px;
+}
+
+.menu-label{
+  padding-left: 0.5rem;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+}
+
+.cart-count {
+  font-size: 12px;
+  color: #ffb47b;
+}
+
+@media (max-width: 768px) {
+  mat-nav-list a {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
   }
-  
-  .footer {
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
-  
-    background: #f8f8f8;
-    text-align: center;
-    font-size: 0.75rem;
-    line-height: 1.2;
-    border-top: 1px solid #ddd;
-    padding: 0.5rem 0;
-  }
+}

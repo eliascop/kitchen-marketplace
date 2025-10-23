@@ -1,24 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
-import { MatSidenav } from '@angular/material/sidenav';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { Component, OnInit, ViewChild, AfterViewInit, HostListener } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
+import { MatSidenav, MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { ToastComponent } from './shared/components/toast/toast.component';
 import { HeaderComponent } from './shared/components/header/header.component';
-import { User } from './core/model/user.model';
+import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 import { AuthService } from './core/service/auth.service';
 import { CartService } from './core/service/cart.service';
 import { UserService } from './core/service/user.service';
 import { SearchService } from './core/service/search.service';
-import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
+import { User } from './core/model/user.model';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule,
+    RouterOutlet,
+    ToastComponent,
     HeaderComponent,
     SidebarComponent,
     MatSidenavModule,
@@ -30,11 +32,11 @@ import { SidebarComponent } from './shared/components/sidebar/sidebar.component'
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'kitchen-web';
-  totalItems = 0;
+  @ViewChild('sidenav', { static: false }) sidenav!: MatSidenav;
+  @ViewChild(MatSidenavContainer) sidenavContainer!: MatSidenavContainer;
   user!: User;
-  sidenav!: MatSidenav;
-  @Output() searchChange = new EventEmitter<Event>();
+  totalItems = 0;
+  isCollapsed = true;
 
   constructor(
     private authService: AuthService,
@@ -44,14 +46,12 @@ export class AppComponent implements OnInit {
     private userService: UserService
   ) {}
 
-  onSidenavReady(sidenav: MatSidenav) {
-    this.sidenav = sidenav;
+  expandMenu() {
+    this.isCollapsed = false;
   }
 
-  toggleSidenav() {
-    if (this.sidenav) {
-      this.sidenav.toggle();
-    }
+  collapseMenu() {
+    this.isCollapsed = true;
   }
 
   ngOnInit() {
@@ -79,51 +79,6 @@ export class AppComponent implements OnInit {
   goHome(event?: Event) {
     if (event) event.preventDefault();
     this.router.navigate(['/']);
-  }
-
-  manageCoupons(event: Event) {
-    event.preventDefault();
-    this.router.navigate(['/manage-coupons']);
-  }
-
-  userList(event: Event) {
-    event.preventDefault();
-    this.router.navigate(['/users']);
-  }
-
-  myProducts(event: Event) {
-    event.preventDefault();
-    this.router.navigate(['/products']);
-  }
-
-  myCart(event: Event) {
-    event.preventDefault();
-    this.router.navigate(['/cart']);
-  }
-
-  myOrders(event: Event) {
-    event.preventDefault();
-    this.router.navigate(['/orders']);
-  }
-
-  userDetails(event: Event) {
-    event.preventDefault();
-    this.router.navigate(['/user-details']);
-  }
-
-  isSeller(): boolean {
-    return !!this.user?.isSeller;
-  }
-
-  logout(event?: Event) {
-    if (event) event.preventDefault();
-    this.authService.logout();
-    this.totalItems = 0;
-    this.router.navigate(['/login']);
-  }
-
-  isHomePage(): boolean {
-    return this.router.url === '/' || this.router.url === '/login';
   }
 
   onSearchChange(event: Event) {

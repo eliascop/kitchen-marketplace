@@ -1,14 +1,38 @@
-<app-header
-  [user]="user"
-  [totalItems]="totalItems"
-  [isHomePage]="isHomePage()"
-  (menuClick)="toggleSidenav()"
-  (searchChange)="onSearchChange($event)">
-</app-header>
+<mat-sidenav-container>
+  
+  <mat-sidenav  
+    *ngIf="user"
+    #sidenav
+    mode="side"
+    opened
+    (mouseenter)="expandMenu()"
+    (mouseleave)="collapseMenu()"
+    [class.collapsed]="isCollapsed">
+    <app-sidebar
+      [user]="user"
+      [totalItems]="totalItems">
+    </app-sidebar>
+  </mat-sidenav>
 
-<app-sidebar
-  [user]="user"
-  [totalItems]="totalItems"
-  (searchChange)="onSearchChange($event)"
-  (sidenavReady)="onSidenavReady($event)">
-</app-sidebar>
+  <mat-sidenav-content
+    [class.content-shifted]="!isCollapsed"
+    [class.content-collapsed]="isCollapsed">
+
+    <app-header
+      [user]="user"
+      [totalItems]="totalItems"
+      (goHome)="goHome($event)"
+      (searchChange)="onSearchChange($event)">
+    </app-header>
+
+    <div class="app-content">
+      <app-toast></app-toast>
+      <router-outlet></router-outlet>
+    </div>
+
+    <footer class="footer">
+      <p>&copy; 2025 Kitchen Marketplace. Todos os direitos reservados.</p>
+    </footer>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>

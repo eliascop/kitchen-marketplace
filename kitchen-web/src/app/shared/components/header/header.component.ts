@@ -16,7 +16,6 @@ export class HeaderComponent {
   @Input() user!: User | undefined;
   @Input() totalItems = 0;
   @Input() isHomePage = false;
-  @Output() menuClick = new EventEmitter<void>();
   @Output() goHome = new EventEmitter<Event>();
   @Output() searchChange = new EventEmitter<Event>();
 
@@ -26,9 +25,5 @@ export class HeaderComponent {
 
   onSearchChange(event: Event) {
     this.searchChange.emit(event);
-  }
-
-  openMenu(){
-    this.menuClick.emit()
   }
 }

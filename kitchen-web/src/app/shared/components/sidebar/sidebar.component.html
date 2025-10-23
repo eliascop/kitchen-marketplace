@@ -1,62 +1,42 @@
-<mat-sidenav-container class="sidenav-container">
+<mat-nav-list>
+  <a mat-list-item (click)="goHome($event)">
+      <mat-icon>home</mat-icon>
+      <span *ngIf="!collapsed" class="menu-label">Início</span>
+  </a>
 
-    <mat-sidenav
-      #sidenav
-      class="sidenav"
-      mode="over"
-      (mouseenter)="sidenav.open()"
-      (mouseleave)="sidenav.close()">
-      <mat-nav-list>
-        <a mat-list-item (click)="goHome($event)">
-          <mat-icon>home</mat-icon>
-          Início
-        </a>
-  
-        <a mat-list-item *ngIf="isSeller()" (click)="manageCoupons($event)">
-          <mat-icon>card_giftcard</mat-icon>
-          Gestão de Cupons
-        </a>
-  
-        <a mat-list-item *ngIf="isSeller()" (click)="userList($event)">
-          <mat-icon>group</mat-icon>
-          Lista de Usuários
-        </a>
-  
-        <a mat-list-item *ngIf="isSeller()" (click)="myProducts($event)">
-          <mat-icon>inventory_2</mat-icon>
-          Meus Produtos
-        </a>
-  
-        <a mat-list-item (click)="userDetails($event)">
-          <mat-icon>person</mat-icon>
-          {{ user?.name || 'Usuário' }}
-        </a>
-  
-        <a mat-list-item (click)="myOrders($event)">
-          <mat-icon>receipt_long</mat-icon>
-          Minhas Compras
-        </a>
-  
-        <a mat-list-item (click)="myCart($event)">
-          <mat-icon>shopping_cart</mat-icon>
-          Meu Carrinho
-          <span *ngIf="totalItems > 0" class="cart-count">({{ totalItems }})</span>
-        </a>
-  
-        <a mat-list-item (click)="logout($event)">
-          <mat-icon>logout</mat-icon>
-          Sair
-        </a>
-      </mat-nav-list>
-    </mat-sidenav>
-  
-    <mat-sidenav-content>
-      <app-toast></app-toast>
-      <router-outlet></router-outlet>
-      <footer class="footer">
-        <p>&copy; 2025 Kitchen Marketplace. Todos os direitos reservados.</p>
-      </footer>
-    </mat-sidenav-content>
-  
-  </mat-sidenav-container>
-  
+  <a mat-list-item *ngIf="isSeller()" (click)="manageCoupons($event)">
+    <mat-icon>card_giftcard</mat-icon>
+    <span *ngIf="!collapsed" class="menu-label">Gestão de Cupons</span>
+  </a>
+
+  <a mat-list-item *ngIf="isSeller()" (click)="userList($event)">
+    <mat-icon>group</mat-icon>
+    <span *ngIf="!collapsed" class="menu-label">Lista de Usuários</span>
+  </a>
+
+  <a mat-list-item *ngIf="isSeller()" (click)="myProducts($event)">
+    <mat-icon>inventory_2</mat-icon>
+    <span *ngIf="!collapsed" class="menu-label">Meus Produtos</span>
+  </a>
+
+  <a mat-list-item (click)="userDetails($event)">
+    <mat-icon>person</mat-icon>
+    <span *ngIf="!collapsed" class="menu-label">{{ user?.name || 'Usuário' }}</span>
+  </a>
+
+  <a mat-list-item (click)="myOrders($event)">
+    <mat-icon>receipt_long</mat-icon>
+    <span *ngIf="!collapsed" class="menu-label">Minhas Compras</span>
+  </a>
+
+  <a mat-list-item (click)="myCart($event)">
+    <mat-icon>shopping_cart</mat-icon>
+    <span *ngIf="!collapsed" class="menu-label">Meu Carrinho
+    <span *ngIf="totalItems > 0" class="cart-count">({{ totalItems }})</span></span>
+  </a>
+
+  <a mat-list-item (click)="logout($event)">
+    <mat-icon>logout</mat-icon>
+    <span *ngIf="!collapsed" class="menu-label">Sair</span>
+  </a>
+</mat-nav-list>
