@@ -1,15 +1,14 @@
 <div class="catalog-container">
   <div class="catalog-list">
     <div *ngFor="let c of catalogs"
-      class="catalog-item"
-      [class.active]="c.slug === selectedCatalogSlug"
-      (click)="selectCatalog(c)">
+         class="catalog-item"
+         [class.active]="c.slug === selectedCatalogSlug"
+         (click)="selectCatalog(c)">
       {{ c.name }}
     </div>
   </div>
 
-  <app-product-carousel
-    [title]="selectedCatalogSlug"
-    [products]="catalogedProducts">
-  </app-product-carousel>
+  <app-product-list 
+    [catalogSlug]="selectedCatalogSlug"
+    [catalogs]="catalogs"></app-product-list>
 </div>

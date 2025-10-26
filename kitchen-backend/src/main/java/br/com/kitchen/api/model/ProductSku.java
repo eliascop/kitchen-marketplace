@@ -41,7 +41,7 @@ public class ProductSku implements Serializable {
     @Transient
     private List<StockHistoryDTO> stockHistory = new ArrayList<>();
 
-    @OneToMany(mappedBy = "sku", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "sku", cascade = CascadeType.ALL, orphanRemoval = true,fetch=FetchType.EAGER)
     private List<ProductAttribute> attributes = new ArrayList<>();
 
 }

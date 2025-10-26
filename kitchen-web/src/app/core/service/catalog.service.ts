@@ -21,9 +21,4 @@ export class CatalogService {
     });
   }
 
-  getProductsByCatalog(catalogSlug: String) {
-    return this.dataService.get<Product[]>({
-      url: `${CATALOG_SERVICE_REST}/${catalogSlug}/products`
-    });
-  }
 }

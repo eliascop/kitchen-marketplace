@@ -1,106 +1,84 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { User } from './core/model/user.model';
+import { MatSidenav, MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { ToastComponent } from './shared/components/toast/toast.component';
+import { HeaderComponent } from './shared/components/header/header.component';
+import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 import { AuthService } from './core/service/auth.service';
 import { CartService } from './core/service/cart.service';
 import { UserService } from './core/service/user.service';
-import { ToastComponent } from './shared/components/toast/toast.component';
 import { SearchService } from './core/service/search.service';
+import { User } from './core/model/user.model';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet,CommonModule, ToastComponent],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    ToastComponent,
+    HeaderComponent,
+    SidebarComponent,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule
+  ],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  title = 'kitchen-web';
-  totalItems = 0;
+export class AppComponent implements OnInit {
+  @ViewChild('sidenav', { static: false }) sidenav!: MatSidenav;
+  @ViewChild(MatSidenavContainer) sidenavContainer!: MatSidenavContainer;
   user!: User;
+  totalItems = 0;
+  isCollapsed = true;
 
-  constructor(private authService: AuthService, 
+  constructor(
+    private authService: AuthService,
     private cartService: CartService,
-    private router: Router, 
+    private router: Router,
     private searchService: SearchService,
-    private userService: UserService) {}
+    private userService: UserService
+  ) {}
+
+  expandMenu() {
+    this.isCollapsed = false;
+  }
+
+  collapseMenu() {
+    this.isCollapsed = true;
+  }
 
   ngOnInit() {
     this.authService.user$.subscribe(user => {
       if (user) {
         this.userService.getUserById(user.id).subscribe(response => {
           this.user = new User(response.data!);
-          localStorage.setItem('userData', JSON.stringify(this.user)); 
+          localStorage.setItem('userData', JSON.stringify(this.user));
+          this.loadCart();
         });
-        this.cartService.getCartTotalItems().subscribe();
-        this.cartService.cartItemsCount$.subscribe(count => {
-        this.totalItems = count;
-    });
       } else {
         this.user = undefined!;
+        this.totalItems = 0;
       }
     });
   }
 
+  private loadCart() {
+    this.cartService.getCartTotalItems().subscribe();
+    this.cartService.cartItemsCount$.subscribe(count => {
+      this.totalItems = count;
+    });
+  }
+
   goHome(event?: Event) {
-    if (event) {
-      event.preventDefault();
-    }
+    if (event) event.preventDefault();
     this.router.navigate(['/']);
-  }
-
-  userList(event: Event){
-    if (event){
-      event.preventDefault();
-    }
-    this.router.navigate(['/users']);
-  }
-
-  myProducts(event: Event){
-    if (event){
-      event.preventDefault();
-    }
-    this.router.navigate(['/products']);
-  }
-
-  myCart(event: Event){
-    if (event){
-      event.preventDefault();
-    }
-    this.router.navigate(['/cart']);
-  }
-
-  myOrders(event: Event) {
-    if (event){
-      event.preventDefault();
-    }
-    this.router.navigate(['/orders']);
-  }
-
-  userDetails(event: Event){
-    if (event) {
-      event.preventDefault();
-    }
-    this.router.navigate(['/user-details']);
-  }
-
-  isSeller(): boolean{
-    if(!this.user)
-      return false;
-    return this.user.isSeller;
-  }
-
-  logout(event?: Event) {
-    if (event) {
-      event.preventDefault();
-    }
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
-
-  isHomePage(): boolean {
-    return this.router.url === '/' || this.router.url === '/login' ;
   }
 
   onSearchChange(event: Event) {

@@ -17,5 +17,6 @@ public class CartItemsDTO {
     private int quantity;
     @JsonProperty("value")
     private BigDecimal itemValue;
+
 }
 

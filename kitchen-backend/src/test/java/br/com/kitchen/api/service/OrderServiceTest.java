@@ -1,6 +1,5 @@
 package br.com.kitchen.api.service;
 
-import br.com.kitchen.api.enumerations.OrderStatus;
 import br.com.kitchen.api.enumerations.PaymentMethod;
 import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.model.*;
@@ -11,7 +10,6 @@ import br.com.kitchen.api.repository.PaymentRepository;
 import br.com.kitchen.api.service.payment.PaymentProvider;
 import br.com.kitchen.api.service.payment.PaymentProviderFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -22,9 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.Collections;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("test")

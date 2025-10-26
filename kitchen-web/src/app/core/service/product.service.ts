@@ -3,6 +3,7 @@ import { ServiceResponse } from './model/http-options-request.model';
 import { DataService } from './data.service';
 import { environment } from '../../../environments/environment.dev';
 import { Product } from '../model/product.model';
+import { PaginatedResponse } from './model/paginated-response';
 
 export const PRODUCT_REST_SERVICE = environment.PRODUCT_REST_SERVICE;
 
@@ -19,9 +20,9 @@ export class ProductService {
     });
   }
 
-  getProducts(): ServiceResponse<Product[]> {
-    return this.dataService.get<Product[]>({
-      url: `${PRODUCT_REST_SERVICE}`
+  getProducts(page: number, size: number, catalogSlug: string | undefined): ServiceResponse<PaginatedResponse<Product>> {
+    return this.dataService.get<PaginatedResponse<Product>>({
+      url: `${PRODUCT_REST_SERVICE}?page=${page}&size=${size}&catalog=${catalogSlug}`
     });
   }
 

@@ -31,4 +31,8 @@ public class SellerService extends GenericService<Seller, Long> {
         }
         return seller;
     }
+
+    public Seller findByUserId(User user) {
+        return repository.findByUser(user).orElse(null);
+    }
 }

@@ -1,0 +1,20 @@
+<div class="header" *ngIf="user">
+    <div class="header-container">
+      <div class="header-row row-1">
+        <div class="logo">
+          <span class="title">Seja bem vindo à Kitchen</span>
+        </div>
+  
+        <div class="search-field" *ngIf="user">
+          <input
+            type="text"
+            id="search"
+            placeholder="Buscar produtos..."
+            (input)="onSearchChange($event)"
+          />
+        </div>
+        <div style="width: 20rem;"></div>
+      </div>
+    </div>
+  </div>
+  

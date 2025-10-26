@@ -7,13 +7,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "Stock", schema = "kitchen")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Stock {
+public class Stock implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

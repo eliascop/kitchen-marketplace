@@ -1,0 +1,64 @@
+:host {
+  display: block;
+  height: 100%;
+  color: #ffffff;
+  padding-top: 3.2rem;
+  z-index: 2;
+}
+
+mat-nav-list {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+mat-nav-list a {
+  display: flex;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 400;
+  text-decoration: none;
+  transition: background 0.3s ease, padding-left 0.2s ease;
+  z-index: 2;
+}
+
+mat-nav-list a:hover {
+  background: rgba(255, 255, 255, 0.5);
+  padding-left: 1.25rem;
+}
+
+.matitem{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-weight: bold;
+  color: white;
+}
+
+mat-icon {
+  color: #ffffff;
+  font-size: 22px;
+  align-items: center;
+  height: 22px;
+  width: 22px;
+}
+
+.menu-label{
+  padding-left: 0.5rem;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+}
+
+.cart-count {
+  font-size: 12px;
+  color: #ffb47b;
+}
+
+@media (max-width: 768px) {
+  mat-nav-list a {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+}

@@ -15,7 +15,7 @@
 	<packaging>jar</packaging>
 
 	<name>kitchen-marketplace</name>
-	<description>Projeto Spring Boot com Kafka integration</description>
+	<description>Projeto Spring Boot com SNS/SQS integration</description>
 
 	<properties>
 		<java.version>17</java.version>
@@ -33,6 +33,15 @@
 	</properties>
 
 	<dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -49,10 +58,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>

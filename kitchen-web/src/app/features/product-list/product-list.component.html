@@ -1,0 +1,17 @@
+<div class="product-list-wrapper">
+  <h2 class="product-list-title">{{catalogSlug}}</h2>
+  <div class="product-list">
+    <div *ngFor="let product of products" class="product-card">
+      <img [src]="product.imageUrl" alt="{{ product.name }}" class="product-image" />
+      <div class="product-name">{{ product.name }}</div>
+      <div class="product-description">{{ product.description }}</div>
+      <div class="product-price">R$ {{ product.price | currency:'BRL' }}</div>
+      <button class="product-button" (click)="viewDetails(product)">Ver produto</button>
+    </div>
+  </div>
+
+  <div #anchor class="loading-anchor">
+    <p *ngIf="loading">Carregando mais produtos...</p>
+    <p *ngIf="allLoaded">Todos os produtos carregados</p>
+  </div>
+</div>
