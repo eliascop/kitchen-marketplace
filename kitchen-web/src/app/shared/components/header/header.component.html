@@ -10,7 +10,7 @@
             type="text"
             id="search"
             placeholder="Buscar produtos..."
-            (input)="onSearchChange($event)"
+            (keyup.enter)="onSearchEnter($event)"
           />
         </div>
         <div style="width: 20rem;"></div>

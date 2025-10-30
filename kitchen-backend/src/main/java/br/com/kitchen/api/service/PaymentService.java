@@ -6,7 +6,7 @@ import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.model.Cart;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.Payment;
-import br.com.kitchen.api.repository.PaymentRepository;
+import br.com.kitchen.api.repository.jpa.PaymentRepository;
 import br.com.kitchen.api.service.payment.PaymentProvider;
 import br.com.kitchen.api.service.payment.PaymentProviderFactory;
 import org.springframework.stereotype.Service;

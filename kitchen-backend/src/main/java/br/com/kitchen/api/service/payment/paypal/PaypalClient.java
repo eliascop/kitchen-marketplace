@@ -3,7 +3,7 @@ package br.com.kitchen.api.service.payment.paypal;
 import br.com.kitchen.api.builder.PaypalOrderBuilder;
 import br.com.kitchen.api.model.Cart;
 import br.com.kitchen.api.model.Payment;
-import br.com.kitchen.api.repository.PaymentRepository;
+import br.com.kitchen.api.repository.jpa.PaymentRepository;
 import br.com.kitchen.api.service.GenericService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;

@@ -21,10 +21,14 @@ export class SidebarComponent {
   @Input() totalItems = 0;
   @Output() sidenavReady = new EventEmitter<MatSidenav>();
 
+  username: string = '';
+
   constructor(
     private router: Router,
     private authService: AuthService
-  ) {}
+  ) {
+    this.username = this.user?.name || 'Usuário'
+  }
 
   goHome(event: Event) {
     event.preventDefault();

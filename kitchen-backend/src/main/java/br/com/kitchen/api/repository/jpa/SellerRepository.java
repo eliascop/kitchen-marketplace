@@ -1,4 +1,4 @@
-package br.com.kitchen.api.repository;
+package br.com.kitchen.api.repository.jpa;
 
 import br.com.kitchen.api.model.Seller;
 import br.com.kitchen.api.model.User;

@@ -3,6 +3,8 @@ package br.com.kitchen.api.mapper;
 import br.com.kitchen.api.dto.ProductAttributeDTO;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.ProductSkuDTO;
+import br.com.kitchen.api.dto.SellerDTO;
+import br.com.kitchen.api.dto.search.ProductSearchDocumentDTO;
 import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.model.ProductAttribute;
 import br.com.kitchen.api.model.ProductSku;
@@ -77,4 +79,42 @@ public class ProductMapper {
                 .attributeValue(attr.getAttributeValue())
                 .build();
     }
+
+    public static ProductDTO fromSearchDocument(ProductSearchDocumentDTO doc) {
+        return ProductDTO.builder()
+                .id(doc.getId())
+                .name(doc.getName())
+                .description(doc.getDescription())
+                .imageUrl(doc.getImageUrl())
+                .price(doc.getPrice())
+                .catalog(doc.getCatalog())
+                .category(doc.getCategory())
+                .active(doc.getActive())
+
+                .seller(SellerDTO.builder()
+                        .id(doc.getSellerId())
+                        .storeName(doc.getSellerName())
+                        .build())
+
+                .skus(doc.getSkus() != null ?
+                        doc.getSkus().stream()
+                                .map(sku -> ProductSkuDTO.builder()
+                                        .id(sku.getId())
+                                        .sku(sku.getSku())
+                                        .price(sku.getPrice())
+                                        .attributes(sku.getAttributes() != null ?
+                                                sku.getAttributes().stream()
+                                                        .map(attr -> ProductAttributeDTO.builder()
+                                                                .attributeName(attr.getName())
+                                                                .attributeValue(attr.getValue())
+                                                                .build())
+                                                        .toList()
+                                                : null)
+                                        .build()
+                                )
+                                .toList()
+                        : null)
+                .build();
+    }
+
 }

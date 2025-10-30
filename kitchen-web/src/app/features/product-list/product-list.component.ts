@@ -13,9 +13,9 @@ import { Router } from '@angular/router';
 })
 export class ProductListComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() catalogSlug?: string;
-  @Input() catalogs?: any[];
+  @Input() products: Product[] = [];
+  @Input() isSearchMode = false;
 
-  products: Product[] = [];
   currentPage = 0;
   size = 12;
   totalPages = 0;
@@ -23,18 +23,22 @@ export class ProductListComponent implements OnInit, AfterViewInit, OnChanges {
   allLoaded = false;
 
   @ViewChild('anchor', { static: false }) anchor!: ElementRef<HTMLElement>;
-
   private observer!: IntersectionObserver;
 
-  constructor(private productService: ProductService,
-              private router: Router) {}
+  constructor(
+    private productService: ProductService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    console.log(this.catalogs);
-    this.loadProducts();
+    if (!this.isSearchMode) {
+      this.loadProducts();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (this.isSearchMode) return;
+
     if (changes['catalogSlug'] && !changes['catalogSlug'].firstChange) {
       this.products = [];
       this.currentPage = 0;
@@ -45,7 +49,7 @@ export class ProductListComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngAfterViewInit() {
     this.observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && !this.loading && !this.allLoaded) {
+      if (entries[0].isIntersecting && !this.loading && !this.allLoaded && !this.isSearchMode) {
         this.loadProducts();
       }
     }, { threshold: 1 });
@@ -56,25 +60,26 @@ export class ProductListComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   loadProducts() {
-    if (this.allLoaded) return;
+    if (this.allLoaded || this.isSearchMode) return;
 
     this.loading = true;
-    this.productService.getProducts(this.currentPage, this.size, this.catalogSlug).subscribe({
+    this.productService.getProductsByCatalogSlug(this.currentPage, this.size, this.catalogSlug).subscribe({
       next: (res) => {
-        if (!res.data || res.data.data.length === 0) {
+        const items = res.data?.data ?? [];
+        if (items.length === 0) {
           this.allLoaded = true;
         } else {
-          this.products = [...this.products, ...res.data.data];
+          this.products = [...this.products, ...items];
           this.currentPage++;
-          this.totalPages = res.data.totalPages;
+          this.totalPages = res.data?.totalPages ?? 0;
         }
         this.loading = false;
       },
       error: () => this.loading = false
     });
   }
+
   viewDetails(product: Product) {
     this.router.navigate([`/product/${product.id}`]);
   }
-  
 }

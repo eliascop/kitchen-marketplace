@@ -7,7 +7,7 @@ import br.com.kitchen.api.dto.WalletTransactionDTO;
 import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.model.OutboxEvent;
 import br.com.kitchen.api.producer.SnsProducer;
-import br.com.kitchen.api.repository.OutboxRepository;
+import br.com.kitchen.api.repository.jpa.OutboxRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

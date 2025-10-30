@@ -20,10 +20,18 @@ export class ProductService {
     });
   }
 
-  getProducts(page: number, size: number, catalogSlug: string | undefined): ServiceResponse<PaginatedResponse<Product>> {
+  getProductsByCatalogSlug(page: number, size: number, catalogSlug: string | undefined): ServiceResponse<PaginatedResponse<Product>> {
     return this.dataService.get<PaginatedResponse<Product>>({
       url: `${PRODUCT_REST_SERVICE}?page=${page}&size=${size}&catalog=${catalogSlug}`
     });
+  }
+
+  searchProducts(page: number,size: number, productName: string): ServiceResponse<PaginatedResponse<Product>> {
+    const queryParam = productName ? `&query=${encodeURIComponent(productName)}` : '';
+    return this.dataService.get<PaginatedResponse<Product>>({
+      url: `${PRODUCT_REST_SERVICE}/search?page=${page}&size=${size}&query=${encodeURIComponent(productName)}`,
+    });
+    
   }
 
   getProductById(id: number) {

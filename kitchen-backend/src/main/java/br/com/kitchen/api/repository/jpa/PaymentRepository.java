@@ -1,6 +1,5 @@
-package br.com.kitchen.api.repository;
+package br.com.kitchen.api.repository.jpa;
 
-import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.Payment;
 import org.springframework.stereotype.Repository;
 

@@ -1,14 +1,12 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.CatalogDTO;
-import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.mapper.CatalogMapper;
-import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.Catalog;
 import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.model.Seller;
-import br.com.kitchen.api.repository.CatalogRepository;
-import br.com.kitchen.api.repository.ProductRepository;
+import br.com.kitchen.api.repository.jpa.CatalogRepository;
+import br.com.kitchen.api.repository.jpa.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

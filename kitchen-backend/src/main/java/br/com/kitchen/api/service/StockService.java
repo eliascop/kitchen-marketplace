@@ -6,7 +6,7 @@ import br.com.kitchen.api.model.Cart;
 import br.com.kitchen.api.model.CartItems;
 import br.com.kitchen.api.model.ProductSku;
 import br.com.kitchen.api.model.Stock;
-import br.com.kitchen.api.repository.StockRepository;
+import br.com.kitchen.api.repository.jpa.StockRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

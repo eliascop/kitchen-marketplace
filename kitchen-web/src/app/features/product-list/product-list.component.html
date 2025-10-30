@@ -1,12 +1,11 @@
 <div class="product-list-wrapper">
   <h2 class="product-list-title">{{catalogSlug}}</h2>
   <div class="product-list">
-    <div *ngFor="let product of products" class="product-card">
+    <div *ngFor="let product of products" class="product-card" (click)="viewDetails(product)">
       <img [src]="product.imageUrl" alt="{{ product.name }}" class="product-image" />
       <div class="product-name">{{ product.name }}</div>
       <div class="product-description">{{ product.description }}</div>
-      <div class="product-price">R$ {{ product.price | currency:'BRL' }}</div>
-      <button class="product-button" (click)="viewDetails(product)">Ver produto</button>
+      <div class="product-price">{{ product.price | currency:'BRL' }}</div>
     </div>
   </div>
 

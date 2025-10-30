@@ -1,7 +1,7 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.model.ProductSku;
-import br.com.kitchen.api.repository.ProductSkuRepository;
+import br.com.kitchen.api.repository.jpa.ProductSkuRepository;
 import org.springframework.stereotype.Service;
 
 @Service

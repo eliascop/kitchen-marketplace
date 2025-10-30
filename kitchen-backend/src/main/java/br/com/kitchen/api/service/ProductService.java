@@ -1,9 +1,13 @@
 package br.com.kitchen.api.service;
 
+import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.StockHistoryDTO;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
+import br.com.kitchen.api.dto.search.ProductSearchDocumentDTO;
+import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.*;
-import br.com.kitchen.api.repository.ProductRepository;
+import br.com.kitchen.api.repository.jpa.ProductRepository;
+import br.com.kitchen.api.repository.search.ProductSearchRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -13,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +33,7 @@ public class ProductService extends GenericService<Product, Long>{
     private final SkuService skuService;
     private final OutboxService outboxService;
     private final ProductRepository productRepository;
+    private final ProductSearchRepository productSearchRepository;
     private final HistoryServiceClient historyClient;
 
     public ProductService(SellerService sellerService,
@@ -36,7 +42,7 @@ public class ProductService extends GenericService<Product, Long>{
                           SkuService skuService,
                           OutboxService outboxService,
                           HistoryServiceClient historyClient,
-                          ProductRepository productRepository) {
+                          ProductRepository productRepository, ProductSearchRepository productSearchRepository) {
         super(productRepository, Product.class);
         this.sellerService = sellerService;
         this.catalogService = catalogService;
@@ -45,6 +51,7 @@ public class ProductService extends GenericService<Product, Long>{
         this.outboxService = outboxService;
         this.productRepository = productRepository;
         this.historyClient = historyClient;
+        this.productSearchRepository = productSearchRepository;
     }
 
     @Transactional
@@ -60,10 +67,11 @@ public class ProductService extends GenericService<Product, Long>{
         product.setCatalog(catalog);
         product.setCategory(category);
         product.setSeller(seller);
+        product.setActive(true);
 
         product = productRepository.save(product);
 
-        List<ProductSku> skus = skuService.createOrUpdateSkus(product, seller, dto.skus());
+        List<ProductSku> skus = new ArrayList<>(skuService.createOrUpdateSkus(product, seller, dto.skus()));
         product.setSkus(skus);
         product = productRepository.save(product);
 
@@ -120,5 +128,17 @@ public class ProductService extends GenericService<Product, Long>{
     }
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
+    }
+
+    public Page<ProductDTO> searchProducts(String query, Pageable pageable) {
+        if (query == null || query.isBlank()) {
+            System.out.println("🟢 MySQL query (fallback)");
+            return productRepository.findAll(pageable)
+                    .map(ProductMapper::toProductResponseDTO);
+        }
+
+        System.out.println("🔍 Elasticsearch query");
+        return productSearchRepository.search(query, pageable)
+                .map(ProductMapper::fromSearchDocument);
     }
 }

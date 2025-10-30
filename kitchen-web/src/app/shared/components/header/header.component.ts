@@ -23,7 +23,7 @@ export class HeaderComponent {
     this.goHome.emit(event);
   }
 
-  onSearchChange(event: Event) {
+  onSearchEnter(event?: Event) {
     this.searchChange.emit(event);
   }
 }

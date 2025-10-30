@@ -1,5 +1,5 @@
 <div class="catalog-container">
-  <div class="catalog-list">
+  <div class="catalog-list" *ngIf="!isSearchMode">
     <div *ngFor="let c of catalogs"
          class="catalog-item"
          [class.active]="c.slug === selectedCatalogSlug"
@@ -10,5 +10,8 @@
 
   <app-product-list 
     [catalogSlug]="selectedCatalogSlug"
-    [catalogs]="catalogs"></app-product-list>
+    [products]="products"
+    [isSearchMode]="isSearchMode">
+  </app-product-list>
+
 </div>

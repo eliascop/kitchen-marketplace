@@ -4,7 +4,7 @@ import br.com.kitchen.api.enumerations.PaymentMethod;
 import br.com.kitchen.api.enumerations.PaymentStatus;
 import br.com.kitchen.api.model.Cart;
 import br.com.kitchen.api.model.Payment;
-import br.com.kitchen.api.repository.PaymentRepository;
+import br.com.kitchen.api.repository.jpa.PaymentRepository;
 import br.com.kitchen.api.service.payment.PaymentProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

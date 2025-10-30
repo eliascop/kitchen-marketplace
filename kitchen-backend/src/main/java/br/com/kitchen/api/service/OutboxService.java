@@ -7,7 +7,7 @@ import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.OutboxEvent;
 import br.com.kitchen.api.model.Product;
-import br.com.kitchen.api.repository.OutboxRepository;
+import br.com.kitchen.api.repository.jpa.OutboxRepository;
 import br.com.kitchen.api.util.JsonUtils;
 import org.springframework.stereotype.Service;
 

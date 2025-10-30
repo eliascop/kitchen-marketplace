@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { MatSidenav, MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -82,7 +82,6 @@ export class AppComponent implements OnInit {
   }
 
   onSearchChange(event: Event) {
-    const term = (event.target as HTMLInputElement).value;
-    this.searchService.setSearchTerm(term);
+    this.searchService.setSearchTerm(event);
   }
 }

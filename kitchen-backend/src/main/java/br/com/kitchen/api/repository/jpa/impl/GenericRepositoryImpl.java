@@ -1,6 +1,6 @@
-package br.com.kitchen.api.repository.impl;
+package br.com.kitchen.api.repository.jpa.impl;
 
-import br.com.kitchen.api.repository.GenericRepository;
+import br.com.kitchen.api.repository.jpa.GenericRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;

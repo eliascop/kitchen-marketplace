@@ -3,14 +3,12 @@ package br.com.kitchen.api.service;
 import br.com.kitchen.api.model.Seller;
 import br.com.kitchen.api.model.User;
 import br.com.kitchen.api.security.UserPrincipal;
-import br.com.kitchen.api.repository.UserRepository;
+import br.com.kitchen.api.repository.jpa.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

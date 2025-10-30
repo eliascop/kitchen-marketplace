@@ -21,7 +21,7 @@
 
   <a mat-list-item (click)="userDetails($event)">
     <mat-icon>person</mat-icon>
-    <span *ngIf="!collapsed" class="menu-label">{{ user?.name || 'Usuário' }}</span>
+    <span *ngIf="!collapsed" class="menu-label">{{ username }}</span>
   </a>
 
   <a mat-list-item (click)="myOrders($event)">

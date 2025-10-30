@@ -3,7 +3,7 @@ package br.com.kitchen.api.service;
 import br.com.kitchen.api.model.User;
 import br.com.kitchen.api.model.Wallet;
 import br.com.kitchen.api.model.WalletTransaction;
-import br.com.kitchen.api.repository.WalletRepository;
+import br.com.kitchen.api.repository.jpa.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -52,6 +52,25 @@ public class ProductController {
                 .body(PaginateMapper.toDTO(mapped));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> searchProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String query
+    ) {
+        try {
+            Page<ProductDTO> products = productService.searchProducts(query, PageRequest.of(page, size));
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(PaginateMapper.toDTO(products));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message", "An error has occurred when searching for products",
+                            "details", e.getMessage()
+                    ));
+        }
+    }
 
     @GetMapping("/seller")
     @PreAuthorize("hasRole('SELLER')")

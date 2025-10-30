@@ -33,10 +33,10 @@ export class ProductsComponent implements OnInit {
   }
   
   ngOnInit() {
-    this.getProducts();
+    this.loadMyProducts();
   }
 
-  getProducts() {
+  loadMyProducts() {
     this.productService.getMyProducts().subscribe(data => {
       this.products = data.data!;
     });

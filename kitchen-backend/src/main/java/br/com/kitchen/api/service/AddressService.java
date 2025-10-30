@@ -1,7 +1,7 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.model.Address;
-import br.com.kitchen.api.repository.AddressRepository;
+import br.com.kitchen.api.repository.jpa.AddressRepository;
 import org.springframework.stereotype.Service;
 
 @Service

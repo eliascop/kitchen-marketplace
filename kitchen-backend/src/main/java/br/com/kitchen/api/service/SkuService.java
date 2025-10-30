@@ -4,7 +4,7 @@ import br.com.kitchen.api.dto.ProductSkuDTO;
 import br.com.kitchen.api.dto.response.StockResponseDTO;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.dto.ProductAttributeDTO;
-import br.com.kitchen.api.repository.ProductSkuRepository;
+import br.com.kitchen.api.repository.jpa.ProductSkuRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
