@@ -1,5 +1,5 @@
 <div class="catalog-container">
-  <div class="catalog-list" *ngIf="!isSearchMode">
+  <div class="catalog-list">
     <div *ngFor="let c of catalogs"
          class="catalog-item"
          [class.active]="c.slug === selectedCatalogSlug"

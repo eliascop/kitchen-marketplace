@@ -3,7 +3,6 @@ package br.com.kitchen.api.service;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.StockHistoryDTO;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
-import br.com.kitchen.api.dto.search.ProductSearchDocumentDTO;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.repository.jpa.ProductRepository;
@@ -113,12 +112,6 @@ public class ProductService extends GenericService<Product, Long>{
     @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public Page<Product> findAllproducts(Pageable pageable) {
         return productRepository.findAll(pageable);
-    }
-
-    public Product findProductBySku(String sku){
-        log.info("findProductBySku::sku{}",sku);
-        return productRepository.findBySku(sku)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
 
     public Product findProductById(Long id) {

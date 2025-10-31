@@ -1,6 +1,8 @@
 .catalog-list {
   display: flex;
-  gap: 10px;
+  width: 78rem;
+  overflow-x: auto;
+  gap: 8px;
   margin-bottom: 20px;
 }
 
@@ -9,6 +11,8 @@
   background: #f2f2f2;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 0.71rem;
+  white-space: nowrap;
   transition: background 0.3s;
 }
 

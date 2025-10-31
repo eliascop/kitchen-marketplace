@@ -1,44 +1,100 @@
-
 <div class="product-form-container">
-    <h2>Cadastro de Produtos</h2>
+    <h2>{{ isEditing ? 'Editar Produto' : 'Cadastro de Produto' }}</h2>
+  
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+  
+      <!-- ===========================
+          INFORMAÇÕES GERAIS
+      ============================ -->
+      <div class="form-section">
+        <h3>Informações Gerais</h3>
+  
         <div class="form-group">
-            <label for="name">Nome do Produto:</label>
-            <input type="text" id="name" formControlName="name" />
-            <div *ngIf="productForm.controls['name'].invalid && (productForm.controls['name'].dirty || productForm.controls['name'].touched)" class="error-message">
-                Nome é obrigatório.
+          <input id="name" type="text" formControlName="name" placeholder="Nome do Produto"/>
+          <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="error-message">
+            Nome é obrigatório.
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <textarea id="description" formControlName="description"
+          placeholder="Descrição do Produto"
+          class="description-textarea"></textarea>
+        </div>
+  
+        <div class="form-group">
+          <select id="category" formControlName="category">
+            <option value="">Selecione uma categoria: </option>
+            <option value="drink">Bebida</option>
+            <option value="meal">Refeição</option>
+            <option value="accompaniment">Acompanhamento</option>
+            <option value="dessert">Sobremesa</option>
+            <option value="pizza">Pizza</option>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <input id="catalog" type="text" formControlName="catalog" placeholder="Catálogo" />
+        </div>
+  
+        <div class="form-group">
+          <input id="imageUrl" type="text" formControlName="imageUrl" placeholder="URL da imagem do produto"/>
+        </div>
+  
+        <div formGroupName="seller" class="form-group">
+          <label for="sellerId">Adicionar o ID do Vendedor na request</label>
+        </div>
+      </div>
+  
+      <!-- ===========================
+          SKUs
+      ============================ -->
+      <div formArrayName="skus" class="form-section">
+        <h3>Criação de SKUs</h3>
+  
+        <div *ngFor="let sku of skus.controls; let i = index" [formGroupName]="i" class="sku-card">
+  
+          <h4>SKU {{ i + 1 }}</h4>
+  
+          <!-- SKU + PREÇO + ESTOQUE MESMA LINHA -->
+          <div class="sku-row">
+            <input formControlName="sku" type="text" placeholder="SKU" class="input-sku" />
+  
+            <app-currency-input formControlName="price" placeholder="Preço" class="input-price"></app-currency-input>
+  
+            <input type="number" formControlName="totalQuantity"
+              placeholder="Qtd estoque"
+              class="input-stock"
+              formControlName="totalQuantity" />
+          </div>
+  
+          <!-- ATRIBUTOS -->
+          <div formArrayName="attributes" class="attributes-section">
+            <h5>Atributos</h5>
+  
+            <div *ngFor="let attr of attributes(i).controls; let j = index" class="attribute-row">
+              <input placeholder="Nome do atributo" formControlName="attributeName" />
+              <input placeholder="Valor" formControlName="attributeValue" />
+              <button type="button" (click)="removeAttribute(i, j)" class="btn-remove">🗑️</button>
             </div>
+  
+            <button type="button" (click)="addAttribute(i)" class="btn-add">+ Adicionar Atributo</button>
+          </div>
+  
+          <button type="button" (click)="removeSku(i)" class="btn-remove-sku">Remover SKU</button>
+  
         </div>
-
-        <div class="form-group">
-            <label for="description">Descrição:</label>
-            <input type="text" id="description" formControlName="description" />
-            <div *ngIf="productForm.controls['description'].invalid && (productForm.controls['description'].dirty || productForm.controls['description'].touched)" class="error-message">
-                Descrição é obrigatória.
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="type">Tipo de Produto:</label>
-            <select formControlName="type">
-                <option [value]="'drink'">Bebida</option>
-                <option [value]="'meal'">Refeição</option>
-                <option [value]="'accompaniment'">Acompanhamento</option>
-                <option [value]="'dessert'">Sobremesa</option>
-                <option [value]="'pizza'">Pizza</option>
-              </select>
-        </div>
-
-        <div class="form-group">
-            <label for="price">Preço:</label>
-            <app-currency-input
-                id="price"
-                formControlName="price"
-                class="price"
-                [required]="true">
-            </app-currency-input>
-        </div>
-
-        <button type="submit" [disabled]="productForm.invalid" class="submit-button">Salvar</button>
+  
+        <button type="button" (click)="addSku()" class="btn-add-sku">+ Adicionar SKU</button>
+      </div>
+  
+      <!-- SUBMIT -->
+      <div class="form-actions">
+        <button type="submit" [disabled]="productForm.invalid" class="submit-button">
+          {{ isEditing ? 'Salvar Alterações' : 'Cadastrar Produto' }}
+        </button>
+      </div>
+  
     </form>
-</div>
+  </div>
+  
