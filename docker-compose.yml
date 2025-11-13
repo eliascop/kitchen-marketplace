@@ -46,9 +46,12 @@ services:
         condition: service_healthy
       localstack:
         condition: service_started
+    ports:
+      - "5005:5005"
     environment:
+      JAVA_TOOL_OPTIONS:
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kitchen?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      APP_BASE_URL: http://localhost
       SQS_ENDPOINT: http://localstack:4566
       SNS_ENDPOINT: http://localstack:4566
     networks:

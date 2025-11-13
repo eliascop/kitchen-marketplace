@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends GenericRepository<Product, Long> {
-    List<Product> findBySellerId(Long sellerId);
+    Page<Product> findBySellerId(Long sellerId, Pageable pageable);
 
     @Query("SELECT p FROM Product p JOIN p.skus s WHERE s.sku = :sku")
     Optional<Product> findBySku(@Param("sku") String sku);

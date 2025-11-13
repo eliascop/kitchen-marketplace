@@ -14,9 +14,13 @@ export class ProductService {
 
   constructor(private dataService: DataService) {}   
 
-  getMyProducts(): ServiceResponse<Product[]> {
-    return this.dataService.get<Product[]>({
-      url: `${PRODUCT_REST_SERVICE}/seller`
+  getMyProducts(page: number, size: number,sortField?: string, sortDir?: 'asc'|'desc'): ServiceResponse<PaginatedResponse<Product>> {
+
+    const params: any = { page, size };
+    if (sortField) params.sort = `${sortField},${sortDir || 'asc'}`;
+    return this.dataService.get<PaginatedResponse<Product>>({
+      url: `${PRODUCT_REST_SERVICE}/seller`,
+      params: params
     });
   }
 

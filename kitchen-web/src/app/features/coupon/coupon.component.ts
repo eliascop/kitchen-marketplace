@@ -1,42 +1,81 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Coupon } from '../../core/model/coupon.model';
 import { CouponService } from '../../core/service/coupon.service';
+import { CurrencyInputComponent } from '../../shared/components/currency-input/currency-input.component';
+import { Router } from '@angular/router';
+import { ToastService } from '../../core/service/toast.service';
 
 @Component({
   selector: 'app-coupon',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, CurrencyInputComponent],
   templateUrl: './coupon.component.html',
   styleUrls: ['./coupon.component.css']
 })
-export class CouponComponent {
+export class CouponComponent implements OnInit{
   @Input() coupon?: Coupon;
-  @Output() saved = new EventEmitter<void>();
+  today = new Date();
 
-  form: Coupon = {
-    code: '',
-    type: 'PERCENTUAL',
-    amount: 0,
-    scope: 'SELLER',
-    visibility: 'PUBLIC',
-    active: true
-  };
+  couponForm!: FormGroup;
+  isEditing = false;
 
-  constructor(private couponService: CouponService) {}
+  constructor(
+    private fb: FormBuilder,
+    private couponService: CouponService,
+    private router: Router,
+    private toast: ToastService
+  ) {}
 
-  ngOnChanges() {
-    if (this.coupon) {
-      this.form = { ...this.coupon };
-    }
+  ngOnInit():void {
+    this.createForm();
   }
 
-  save() {
-    const request = this.form.id
-      ? this.couponService.updateCoupon(this.form.id!, this.form)
-      : this.couponService.createCoupon(this.form);
+  createForm() {
+    this.couponForm = this.fb.group({
+      id: [null],
+      code: ['', Validators.required],
+      couponType: [''],
+      visibility: [''],
+      scope: [''],
+      amount: [null, Validators.required],
+      minOrderAmount: [0, Validators.required],
+      maxDiscountAmount: [0, Validators.required],
+      usageLimitTotal: [''],
+      usageCountTotal: [''],
+      startsAt: ['', Validators.required],
+      expiresAt: ['', Validators.required]
+    });
+  }
 
-    request.subscribe(() => this.saved.emit());
+  onSubmit() {
+    if(this.couponForm.invalid){
+      this.couponForm.markAllAsTouched();
+      return;
+    }
+    const coupon: any = this.couponForm.value;
+    const request = this.isEditing
+      ? this.couponService.updateCoupon(coupon.id, coupon)
+      : this.couponService.createCoupon(coupon);
+
+    request.subscribe({
+      next: () => {
+        this.toast.show(
+          this.isEditing
+            ? 'Coupon atualizado com sucesso!'
+            : 'Coupon cadastrado com sucesso.'
+        );
+        this.router.navigate(['/manage-coupons']);
+      },
+      error: (err) => {
+        this.toast.show('Ocorreu um erro ao salvar o coupon.');
+        console.error(err);
+      }
+    });
+  }
+
+  cancel() {
+    this.router.navigate(['/manage-coupons']);
   }
 }

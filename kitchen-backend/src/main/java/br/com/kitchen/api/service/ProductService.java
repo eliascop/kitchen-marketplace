@@ -3,6 +3,8 @@ package br.com.kitchen.api.service;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.StockHistoryDTO;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
+import br.com.kitchen.api.dto.response.PaginatedResponse;
+import br.com.kitchen.api.mapper.PaginateMapper;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.*;
 import br.com.kitchen.api.repository.jpa.ProductRepository;
@@ -87,26 +89,27 @@ public class ProductService extends GenericService<Product, Long>{
                 .toList();
     }
 
-    public List<Product> findProductsBySellerId(User user) {
-        Seller seller = sellerService.getActiveSeller(user);
-
+    public PaginatedResponse<ProductDTO> findProductsBySellerId(Seller seller, Pageable pageable) {
         log.info("findProductsBySellerId::{}",seller.getId());
-
-        List<Product> products = productRepository.findBySellerId(seller.getId());
 
         List<StockHistoryDTO> allHistories = historyClient.getStockHistoriesBySellerId(seller.getId());
 
         Map<String, List<StockHistoryDTO>> historiesMap = allHistories.stream()
                 .collect(Collectors.groupingBy(StockHistoryDTO::getSku));
 
-        for (Product product: products) {
-            for (ProductSku sku: product.getSkus()) {
-                List<StockHistoryDTO> h = historiesMap.getOrDefault(sku.getSku(), Collections.emptyList());
-                sku.setStockHistory(h);
-            }
-        }
+        Page<Product> paginatedProducts = productRepository.findBySellerId(seller.getId(), pageable);
 
-        return products;
+        paginatedProducts.getContent().stream()
+                .flatMap(product -> product.getSkus().stream())
+                .forEach(sku -> {
+                    List<StockHistoryDTO> history =
+                            historiesMap.getOrDefault(sku.getSku(), Collections.emptyList());
+                    sku.setStockHistory(history);
+                });
+
+        Page<ProductDTO> mapped = paginatedProducts.map(ProductMapper::toProductResponseDTO);
+
+        return PaginateMapper.toDTO(mapped);
     }
 
     @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
@@ -119,6 +122,7 @@ public class ProductService extends GenericService<Product, Long>{
         return productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
+
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }

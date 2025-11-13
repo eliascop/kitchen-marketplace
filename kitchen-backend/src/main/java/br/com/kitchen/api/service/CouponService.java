@@ -7,11 +7,15 @@ import br.com.kitchen.api.enumerations.CouponScope;
 import br.com.kitchen.api.enumerations.CouponType;
 import br.com.kitchen.api.enumerations.CouponVisibility;
 import br.com.kitchen.api.mapper.CouponMapper;
+import br.com.kitchen.api.mapper.PaginateMapper;
 import br.com.kitchen.api.model.Coupon;
 import br.com.kitchen.api.model.Seller;
 import br.com.kitchen.api.repository.jpa.CouponRepository;
 import br.com.kitchen.api.repository.jpa.CouponUsageRepository;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,20 +37,38 @@ public class CouponService extends GenericService<Coupon, String>{
         this.couponUsageRepository = couponUsageRepository;
     }
 
-    public CouponDTO saveOrUpdate(CouponDTO dto) {
+    public CouponDTO saveOrUpdate(Seller seller, CouponDTO dto) {
         Coupon entity;
+
+        if (dto.getStartsAt().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("The field startsAt cannot be in the past");
+        }
+
+        if (dto.getExpiresAt().isEqual(dto.getStartsAt())) {
+            throw new IllegalArgumentException("The field expiresAt must be different than startsAt");
+        }
+
+        if (!dto.getExpiresAt().isAfter(dto.getStartsAt())) {
+            throw new IllegalArgumentException("The field expiresAt must be after than startsAt");
+        }
 
         if (dto.getId() != null && couponRepository.existsById(dto.getId())) {
             entity = couponRepository.findById(dto.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Coupon not found"));
 
+            if (!entity.getCode().equals(dto.getCode().trim())){
+                couponRepository.findByCode(dto.getCode())
+                        .ifPresent(coupon -> {
+                            throw new EntityExistsException("Coupon already exists.");
+                        });
+            }
             entity.setCode(dto.getCode());
             entity.setCouponType(dto.getCouponType());
             entity.setAmount(dto.getAmount());
             entity.setScope(dto.getScope());
             entity.setVisibility(dto.getVisibility());
             entity.setIssuerId(dto.getIssuerId());
-            entity.setSellerId(dto.getSellerId());
+            entity.setSellerId(seller.getId());
             entity.setApplicableProductIds(dto.getApplicableProductIds());
             entity.setAllowedBuyerIds(dto.getAllowedBuyerIds());
             entity.setMinOrderAmount(dto.getMinOrderAmount());
@@ -58,39 +80,41 @@ public class CouponService extends GenericService<Coupon, String>{
             entity.setActive(dto.isActive());
 
         } else {
+
+            couponRepository.findByCode(dto.getCode())
+                    .ifPresent(coupon -> {
+                        throw new EntityExistsException("Coupon already exists.");
+                    });
+            dto.setSellerId(seller.getId());
             entity = CouponMapper.toEntity(dto);
             entity.setUsageCountTotal(0);
             entity.setActive(true);
         }
 
-        Coupon saved = couponRepository.save(entity);
-        return CouponMapper.toDTO(saved);
+        return CouponMapper.toDTO(couponRepository.save(entity));
     }
 
-    public List<CouponDTO> findAvailableCoupons(CouponVisibility visibility, CouponScope scope) {
+    public Page<CouponDTO> findAvailableCoupons(CouponVisibility visibility, CouponScope scope, Pageable pageable) {
         return couponRepository
-                .findByActiveTrueAndVisibilityAndScopeAndExpiresAtAfter(visibility, scope, LocalDateTime.now())
-                .stream()
-                .map(CouponMapper::toDTO)
-                .toList();
+                .findByActiveTrueAndVisibilityAndScopeAndExpiresAtAfter(visibility, scope, LocalDateTime.now(), pageable)
+                .map(CouponMapper::toDTO);
     }
 
 
     @Transactional(readOnly = true)
-    public List<CouponDTO> findActivePublicCoupons() {
-        LocalDateTime now = LocalDateTime.now();
-        List<Coupon> coupons = couponRepository
+    public Page<CouponDTO> findActivePublicCoupons(Pageable pageable) {
+        return couponRepository
                 .findByActiveTrueAndVisibilityAndScopeAndExpiresAtAfter(
-                        CouponVisibility.PUBLIC, CouponScope.GLOBAL, now);
-        return CouponMapper.toDTOList(coupons);
+                        CouponVisibility.PUBLIC, CouponScope.GLOBAL, LocalDateTime.now(), pageable)
+                .map(CouponMapper::toDTO);
     }
 
     @Transactional(readOnly = true)
-    public List<CouponDTO> findActiveCouponsBySeller(Seller seller) {
-        List<Coupon> coupons = couponRepository
+    public Page<CouponDTO> findActiveCouponsBySeller(Seller seller, Pageable pageable) {
+        return couponRepository
                 .findByActiveTrueAndScopeAndSellerIdAndExpiresAtAfter(
-                        CouponScope.SELLER, seller.getId(), LocalDateTime.now());
-        return CouponMapper.toDTOList(coupons);
+                        CouponScope.SELLER, seller.getId(), LocalDateTime.now(), pageable)
+                .map(CouponMapper::toDTO);
     }
 
     @Transactional

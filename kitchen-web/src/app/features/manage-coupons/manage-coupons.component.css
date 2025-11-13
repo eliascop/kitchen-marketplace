@@ -27,6 +27,11 @@
     cursor: pointer;
   }
   
+  .primary {
+    background: #007bff;
+    color: #fff;
+  }
+  
   button:first-child {
     background: #007bff;
     color: #fff;

@@ -3,6 +3,7 @@ import { Coupon } from '../model/coupon.model';
 import { environment } from '../../../environments/environment.dev';
 import { DataService } from './data.service';
 import { ServiceResponse } from './model/http-options-request.model';
+import { PaginatedResponse } from './model/paginated-response';
 
 export const COUPON_SERVICE_REST = environment.COUPON_REST_SERVICE;
 
@@ -13,9 +14,13 @@ export class CouponService {
 
   constructor(private dataService: DataService) {}   
 
-  getSellerCoupons(): ServiceResponse<Coupon[]> {
-    return this.dataService.get<Coupon[]>({
-        url: `${COUPON_SERVICE_REST}/seller`
+  getSellerCoupons(page: number, size: number,sortField?: string, sortDir?: 'asc'|'desc'): ServiceResponse<PaginatedResponse<Coupon>> {
+    const params: any = { page, size };
+    if (sortField) params.sort = `${sortField},${sortDir || 'asc'}`;
+
+    return this.dataService.get<PaginatedResponse<Coupon>>({
+        url: `${COUPON_SERVICE_REST}/seller`,
+        params: params
     });
   }
 

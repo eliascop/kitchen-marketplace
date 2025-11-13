@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormatDateTimePipe } from "../../core/pipes/format-date-time.pipe";
 import { OrderService } from '../../core/service/order.service';
 import { OrderStatus } from '../../core/enums/order-status.enum';
-import { OrderSearchComponent } from '../components/order-search/order-search.component';
+import { OrderSearchComponent } from '../../shared/components/order-search/order-search.component';
 import { CurrencyFormatterPipe } from "../../core/pipes/currency-input.pipe";
 
 @Component({

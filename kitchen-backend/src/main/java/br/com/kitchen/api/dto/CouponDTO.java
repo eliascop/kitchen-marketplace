@@ -2,14 +2,19 @@ package br.com.kitchen.api.dto;
 import br.com.kitchen.api.enumerations.CouponScope;
 import br.com.kitchen.api.enumerations.CouponType;
 import br.com.kitchen.api.enumerations.CouponVisibility;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class CouponDTO {
     private String id;
@@ -20,8 +25,8 @@ public class CouponDTO {
     private CouponVisibility visibility;
     private Long issuerId;
     private Long sellerId;
-    private Set<Long> applicableProductIds;
-    private Set<Long> allowedBuyerIds;
+    private Set<Long> applicableProductIds = new HashSet<>();
+    private Set<Long> allowedBuyerIds = new HashSet<>();
     private BigDecimal minOrderAmount;
     private BigDecimal maxDiscountAmount;
     private int usageLimitTotal;
@@ -29,7 +34,7 @@ public class CouponDTO {
     private int usageCountTotal;
     private LocalDateTime startsAt;
     private LocalDateTime expiresAt;
-    private boolean active;
-    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
+    private boolean active;
 }

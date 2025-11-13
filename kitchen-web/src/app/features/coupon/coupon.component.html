@@ -1,15 +1,14 @@
 <div class="coupon-container">
-    <h3>{{ form.id ? 'Editar Cupom' : 'Criar Novo Cupom' }}</h3>
+    <h3>{{ isEditing ? 'Editar Cupom' : 'Criar Novo Cupom' }}</h3>
   
-    <form (ngSubmit)="save()" #couponForm="ngForm">
+    <form [formGroup]="couponForm" (ngSubmit)="onSubmit()">
       <div class="form-grid">
         <div class="form-group">
           <label for="code">Código</label>
           <input
-            type="text"
             id="code"
-            name="code"
-            [(ngModel)]="form.code"
+            type="text"
+            formControlName="code"
             required
             placeholder="Ex: NATAL2025"
           />
@@ -19,47 +18,19 @@
           <label for="type">Tipo</label>
           <select
             id="type"
-            name="type"
-            [(ngModel)]="form.type"
+            formControlName="couponType"
             required
           >
             <option value="PERCENTUAL">Percentual</option>
-            <option value="VALOR_FIXO">Valor Fixo</option>
+            <option value="FIXED">Valor Fixo</option>
           </select>
         </div>
-  
-        <div class="form-group">
-          <label for="amount">Valor</label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            step="0.01"
-            [(ngModel)]="form.amount"
-            required
-            placeholder="Ex: 10 ou 50.00"
-          />
-        </div>
-  
-        <div class="form-group">
-          <label for="scope">Escopo</label>
-          <select
-            id="scope"
-            name="scope"
-            [(ngModel)]="form.scope"
-            required
-          >
-            <option value="SELLER">Seller</option>
-            <option value="MARKETPLACE">Marketplace</option>
-          </select>
-        </div>
-  
+ 
         <div class="form-group">
           <label for="visibility">Visibilidade</label>
           <select
             id="visibility"
-            name="visibility"
-            [(ngModel)]="form.visibility"
+            formControlName="visibility"
             required
           >
             <option value="PUBLIC">Público</option>
@@ -68,88 +39,96 @@
         </div>
   
         <div class="form-group">
+          <label for="scope">Escopo</label>
+          <select
+            id="scope"
+            formControlName="scope"
+            required
+          >
+            <option value="SELLER">Seller</option>
+            <option value="GLOBAL">Marketplace</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="amount">Valor</label>
+          <app-currency-input 
+            id="amount"
+            formControlName="amount"
+            placeholder="0.00"
+            class="input-price">
+          </app-currency-input> 
+        </div>
+  
+        <div class="form-group">
           <label for="minOrderAmount">Valor mínimo do pedido</label>
-          <input
-            type="number"
+          <app-currency-input 
             id="minOrderAmount"
-            name="minOrderAmount"
-            step="0.01"
-            [(ngModel)]="form.minOrderAmount"
+            formControlName="minOrderAmount"
             placeholder="Ex: 100.00"
-          />
+            class="input-price">
+          </app-currency-input> 
         </div>
   
         <div class="form-group">
           <label for="maxDiscountAmount">Desconto máximo</label>
-          <input
-            type="number"
+          <app-currency-input 
             id="maxDiscountAmount"
-            name="maxDiscountAmount"
-            step="0.01"
-            [(ngModel)]="form.maxDiscountAmount"
+            formControlName="maxDiscountAmount"
             placeholder="Ex: 50.00"
-          />
+            class="input-price">
+          </app-currency-input> 
         </div>
   
         <div class="form-group">
-          <label for="usageLimitTotal">Limite total de uso</label>
+          <label for="usageLimitTotal">Limite total de uso por usuário</label>
           <input
-            type="number"
             id="usageLimitTotal"
-            name="usageLimitTotal"
-            [(ngModel)]="form.usageLimitTotal"
-            placeholder="Ex: 500"
-          />
-        </div>
-  
-        <div class="form-group">
-          <label for="usageLimitPerBuyer">Limite por comprador</label>
-          <input
             type="number"
-            id="usageLimitPerBuyer"
-            name="usageLimitPerBuyer"
-            [(ngModel)]="form.usageLimitPerBuyer"
-            placeholder="Ex: 1"
+            formControlName="usageLimitTotal"
+            placeholder="Ex: 5"
           />
         </div>
   
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="usageCountTotal">Limite total de uso geral</label>
+          <input
+            id="usageCountTotal"
+            type="number"
+            formControlName="usageCountTotal"
+            placeholder="Ex: 1000"
+          />
+        </div>
+
         <div class="form-group">
           <label for="startsAt">Início</label>
           <input
-            type="datetime-local"
             id="startsAt"
-            name="startsAt"
-            [(ngModel)]="form.startsAt"
+            type="datetime-local"
+            formControlName="startsAt"
           />
         </div>
   
         <div class="form-group">
           <label for="expiresAt">Expira em</label>
           <input
-            type="datetime-local"
             id="expiresAt"
-            name="expiresAt"
-            [(ngModel)]="form.expiresAt"
+            type="datetime-local"
+            formControlName="expiresAt"
           />
-        </div>
-  
-        <div class="form-group checkbox-group">
-          <label>
-            <input
-              type="checkbox"
-              name="active"
-              [(ngModel)]="form.active"
-            />
-            Ativo
-          </label>
         </div>
       </div>
   
       <div class="form-actions">
         <button type="submit" [disabled]="couponForm.invalid" class="btn-primary">
-          {{ form.id ? 'Atualizar' : 'Criar' }}
+          {{ isEditing ? 'Atualizar' : 'Criar' }}
         </button>
-        <button type="button" (click)="saved.emit()" class="btn-secondary">
+        <button type="button" (click)="cancel()" class="btn-secondary">
           Cancelar
         </button>
       </div>

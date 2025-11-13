@@ -19,10 +19,10 @@ public class ProductAttribute implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Attribute name must not be blank")
     private String attributeName;
 
-    @NotBlank
+    @NotBlank(message = "Attribute value must not be blank")
     private String attributeValue;
 
     @ManyToOne

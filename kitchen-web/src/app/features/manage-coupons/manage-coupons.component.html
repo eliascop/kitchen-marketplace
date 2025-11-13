@@ -1,40 +1,23 @@
 <div class="coupon-container">
     <h2>Cupons de Desconto</h2>
-  
-    <app-coupon
-      [coupon]="selectedCoupon"
-      (saved)="onSaved()"
-    ></app-coupon>
-  
-    <table class="coupon-table" *ngIf="coupons.length > 0">
-      <thead>
-        <tr>
-          <th>Código</th>
-          <th>Tipo</th>
-          <th>Valor</th>
-          <th>Válido até</th>
-          <th>Ativo</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let coupon of coupons">
-          <td>{{ coupon.code }}</td>
-          <td>{{ coupon.type }}</td>
-          <td>
-            {{ coupon.type === 'PERCENTUAL' ? coupon.amount + '%' : 'R$ ' + coupon.amount }}
-          </td>
-          <td>{{ coupon.expiresAt | date: 'shortDate' }}</td>
-          <td>{{ coupon.active ? 'Sim' : 'Não' }}</td>
-          <td>
-            <button (click)="editCoupon(coupon)">Editar</button>
-            <button (click)="desactiveCopupon(coupon.id)">
-              Desativar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div style="width: 100%; text-align: right">
+      <button class="primary" (click)="newCoupon()"> Novo Coupon </button>
+    </div>
+
+    <app-generic-table
+      [data]="coupons"
+      [loading]="loading"
+      [columns]="columns"
+      [page]="page"
+      [pageSize]="pageSize"
+      [totalItems]="totalItems"
+      [sortField]="sortField"
+      [sortDir]="sortDir"
+      (paginate)="onPaginate($event)"
+      (sortChange)="onSort($event)"
+      (activate)="onActivate($event)"
+      (edit)="onEdit($event)">
+    </app-generic-table>
   
     <p *ngIf="!loading && coupons.length === 0">Nenhum cupom cadastrado.</p>
   </div>

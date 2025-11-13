@@ -19,7 +19,6 @@ public class CouponMapper {
                 .scope(coupon.getScope())
                 .visibility(coupon.getVisibility())
                 .issuerId(coupon.getIssuerId())
-                .sellerId(coupon.getSellerId())
                 .applicableProductIds(coupon.getApplicableProductIds())
                 .allowedBuyerIds(coupon.getAllowedBuyerIds())
                 .minOrderAmount(coupon.getMinOrderAmount())
@@ -27,11 +26,11 @@ public class CouponMapper {
                 .usageLimitTotal(coupon.getUsageLimitTotal())
                 .usageLimitPerBuyer(coupon.getUsageLimitPerBuyer())
                 .usageCountTotal(coupon.getUsageCountTotal())
+                .createdAt(coupon.getCreatedAt())
                 .startsAt(coupon.getStartsAt())
                 .expiresAt(coupon.getExpiresAt())
-                .active(coupon.isActive())
-                .createdAt(coupon.getCreatedAt())
                 .updatedAt(coupon.getUpdatedAt())
+                .active(coupon.isActive())
                 .build();
     }
 
@@ -56,9 +55,6 @@ public class CouponMapper {
                 .usageCountTotal(dto.getUsageCountTotal())
                 .startsAt(dto.getStartsAt())
                 .expiresAt(dto.getExpiresAt())
-                .active(dto.isActive())
-                .createdAt(dto.getCreatedAt())
-                .updatedAt(dto.getUpdatedAt())
                 .build();
     }
 

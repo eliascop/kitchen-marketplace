@@ -35,21 +35,29 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<PaginatedResponse<ProductDTO>> listAllProducts(
+    public ResponseEntity<?> listAllProducts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String catalog
     ) {
-        Page<Product> products;
-        if (catalog != null && !catalog.isEmpty()) {
-            products = catalogService.findProductsByCatalogSlug(catalog, PageRequest.of(page, size));
-        } else {
-            products = productService.findAllproducts(PageRequest.of(page, size));
-        }
+        try {
+            Page<Product> products;
+            if (catalog != null && !catalog.isEmpty()) {
+                products = catalogService.findProductsByCatalogSlug(catalog, PageRequest.of(page, size));
+            } else {
+                products = productService.findAllproducts(PageRequest.of(page, size));
+            }
 
-        Page<ProductDTO> mapped = products.map(ProductMapper::toProductResponseDTO);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(PaginateMapper.toDTO(mapped));
+            Page<ProductDTO> mapped = products.map(ProductMapper::toProductResponseDTO);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(PaginateMapper.toDTO(mapped));
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message", "An error has occurred when list all products",
+                            "details", e.getMessage()
+                    ));
+        }
     }
 
     @GetMapping("/search")
@@ -74,12 +82,21 @@ public class ProductController {
 
     @GetMapping("/seller")
     @PreAuthorize("hasRole('SELLER')")
-    public ResponseEntity<List<ProductDTO>> listMyProducts(@AuthenticationPrincipal UserPrincipal principal) {
-        List<ProductDTO> response = productService.findProductsBySellerId(principal.user())
-                .stream()
-                .map(ProductMapper::toProductResponseDTO)
-                .toList();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> listMyProducts(@AuthenticationPrincipal UserPrincipal principal,
+                                                           @RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(defaultValue = "20") int size
+    ) {
+        try {
+            PaginatedResponse<ProductDTO> response = productService.findProductsBySellerId(principal.getSeller().get(),PageRequest.of(page, size));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message", "An error has occurred when list seller products",
+                            "details", e.getMessage()
+                    ));
+        }
     }
 
     @GetMapping("/{id}")

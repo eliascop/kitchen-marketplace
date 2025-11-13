@@ -2,6 +2,7 @@ package br.com.kitchen.api.model;
 
 import br.com.kitchen.api.dto.StockHistoryDTO;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -29,6 +30,7 @@ public class ProductSku implements Serializable {
     @Column(nullable = false)
     private String sku;
 
+    @Min(value = 1, message = "Price must be greater than zero")
     private BigDecimal price;
 
     @ManyToOne

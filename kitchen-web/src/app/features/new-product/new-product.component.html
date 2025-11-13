@@ -3,9 +3,6 @@
   
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
   
-      <!-- ===========================
-          INFORMAÇÕES GERAIS
-      ============================ -->
       <div class="form-section">
         <h3>Informações Gerais</h3>
   
@@ -45,10 +42,6 @@
           <label for="sellerId">Adicionar o ID do Vendedor na request</label>
         </div>
       </div>
-  
-      <!-- ===========================
-          SKUs
-      ============================ -->
       <div formArrayName="skus" class="form-section">
         <h3>Criação de SKUs</h3>
   
@@ -56,7 +49,6 @@
   
           <h4>SKU {{ i + 1 }}</h4>
   
-          <!-- SKU + PREÇO + ESTOQUE MESMA LINHA -->
           <div class="sku-row">
             <input formControlName="sku" type="text" placeholder="SKU" class="input-sku" />
   
@@ -68,7 +60,6 @@
               formControlName="totalQuantity" />
           </div>
   
-          <!-- ATRIBUTOS -->
           <div formArrayName="attributes" class="attributes-section">
             <h5>Atributos</h5>
   
@@ -88,7 +79,6 @@
         <button type="button" (click)="addSku()" class="btn-add-sku">+ Adicionar SKU</button>
       </div>
   
-      <!-- SUBMIT -->
       <div class="form-actions">
         <button type="submit" [disabled]="productForm.invalid" class="submit-button">
           {{ isEditing ? 'Salvar Alterações' : 'Cadastrar Produto' }}

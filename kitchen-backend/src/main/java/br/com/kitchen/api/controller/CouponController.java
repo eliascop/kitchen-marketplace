@@ -5,10 +5,11 @@ import br.com.kitchen.api.dto.request.ApplyCouponRequestDTO;
 import br.com.kitchen.api.dto.response.ApplyCouponResponseDTO;
 import br.com.kitchen.api.enumerations.CouponScope;
 import br.com.kitchen.api.enumerations.CouponVisibility;
-import br.com.kitchen.api.model.Seller;
+import br.com.kitchen.api.mapper.PaginateMapper;
 import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.CouponService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,8 +31,9 @@ public class CouponController {
     public ResponseEntity<?> createCoupon(@AuthenticationPrincipal UserPrincipal userDetails,
                                           @RequestBody CouponDTO couponDTO) {
         try {
-            couponService.saveOrUpdate(couponDTO);
-            return ResponseEntity.ok(ResponseEntity.noContent());
+            CouponDTO coupon = couponService.saveOrUpdate(userDetails.getSeller().get(), couponDTO);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(coupon);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of(
@@ -47,8 +49,9 @@ public class CouponController {
     public ResponseEntity<?> updateCoupon(@AuthenticationPrincipal UserPrincipal userDetails,
                                           @RequestBody CouponDTO couponDTO) {
         try {
-            couponService.saveOrUpdate(couponDTO);
-            return ResponseEntity.ok(ResponseEntity.noContent());
+            CouponDTO coupon = couponService.saveOrUpdate(userDetails.getSeller().get(), couponDTO);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(coupon);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of(
@@ -61,13 +64,12 @@ public class CouponController {
 
     @PreAuthorize("hasRole('SELLER')")
     @GetMapping("/seller")
-    public ResponseEntity<?> listSellerCoupons(@AuthenticationPrincipal UserPrincipal userDetails){
+    public ResponseEntity<?> listSellerCoupons(@AuthenticationPrincipal UserPrincipal userDetails,
+                                               @RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "20") int size){
         try{
-            Seller seller = userDetails.getSeller().orElseThrow();
-
-            List<CouponDTO> couponsList = couponService.findActiveCouponsBySeller(seller);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(couponsList);
+                    .body(PaginateMapper.toDTO(couponService.findActiveCouponsBySeller(userDetails.getSeller().orElseThrow(), Pageable.ofSize(size).withPage(page))));
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of(
@@ -96,11 +98,12 @@ public class CouponController {
     }
 
     @GetMapping("/available")
-    public ResponseEntity<?> listAvailableCoupons(@AuthenticationPrincipal UserPrincipal userDetails) {
+    public ResponseEntity<?> listAvailableCoupons(@AuthenticationPrincipal UserPrincipal userDetails,
+                                                  @RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "20") int size) {
         try {
-            List<CouponDTO> coupons = couponService.findAvailableCoupons(CouponVisibility.PUBLIC, CouponScope.GLOBAL);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(coupons);
+                    .body(couponService.findAvailableCoupons(CouponVisibility.PUBLIC, CouponScope.GLOBAL, Pageable.ofSize(size).withPage(page)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of(

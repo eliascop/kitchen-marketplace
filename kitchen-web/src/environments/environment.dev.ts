@@ -6,7 +6,7 @@ export const environment = {
 
     CATALOG_REST_SERVICE: '/api/catalog/v1',
 
-    COUPON_REST_SERVICE: '/api/coupon/v1',
+    COUPON_REST_SERVICE: '/api/coupons/v1',
 
     ORDER_REST_SERVICE: '/api/orders/v1',
 

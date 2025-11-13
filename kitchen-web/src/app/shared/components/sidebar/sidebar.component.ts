@@ -47,7 +47,7 @@ export class SidebarComponent {
 
   myProducts(event: Event) {
     event.preventDefault();
-    this.router.navigate(['/products']);
+    this.router.navigate(['/seller-products']);
   }
 
   myCart(event: Event) {

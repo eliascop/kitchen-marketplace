@@ -46,7 +46,7 @@ public class AuthController {
             final String jwt = jwtTokenUtil.generateToken(user);
 
             return ResponseEntity
-                    .status(HttpStatus.OK.value())
+                    .status(HttpStatus.OK)
                     .body(new AuthResponseDTO(jwt));
 
         } catch (Exception ex) {

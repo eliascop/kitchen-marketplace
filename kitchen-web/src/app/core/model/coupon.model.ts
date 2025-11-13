@@ -1,7 +1,7 @@
 export interface Coupon {
     id?: string;
     code: string;
-    type: 'PERCENTUAL' | 'VALOR_FIXO';
+    couponType: 'PERCENTUAL' | 'FIXED';
     amount: number;
     scope: 'SELLER' | 'MARKETPLACE';
     visibility: 'PUBLIC' | 'PRIVATE';
@@ -14,8 +14,8 @@ export interface Coupon {
     usageCountTotal?: number;
     startsAt?: string;
     expiresAt?: string;
-    active?: boolean;
     createdAt?: string;
     updatedAt?: string;
+    active?: boolean;
   }
   

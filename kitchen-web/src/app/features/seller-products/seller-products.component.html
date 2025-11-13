@@ -1,0 +1,31 @@
+<div class="title-page">
+  <h1>Lista de Produtos</h1>
+
+  <div class="toolbar">
+    <button mat-raised-button color="primary" (click)="onAdd()">
+      <mat-icon>add</mat-icon> Adicionar Produto
+    </button>
+  </div>
+</div>
+
+<app-generic-table
+  [data]="products"
+  [loading]="loading"
+  [columns]="columns"
+  [page]="page"
+  [pageSize]="pageSize"
+  [totalItems]="totalItems"
+  [sortField]="sortField"
+  [sortDir]="sortDir"
+  (paginate)="onPaginate($event)"
+  (sortChange)="onSort($event)"
+  (remove)="onRemove($event)"
+  (view)="onView($event)">
+</app-generic-table>
+
+<app-product-details-modal
+  *ngIf="selectedProduct"
+  [product]="selectedProduct"
+  [histories]="histories"
+  (close)="selectedProduct = null">
+</app-product-details-modal>

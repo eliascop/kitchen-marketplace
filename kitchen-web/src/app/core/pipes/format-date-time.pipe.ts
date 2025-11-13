@@ -6,7 +6,9 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class FormatDateTimePipe implements PipeTransform {
 
-  transform(value: string | Date): string {
+  transform(value: string | Date | undefined): string {
+    if(value === undefined) return '';
+
     const date = new Date(value);
     if (isNaN(date.getTime())) return '';
 

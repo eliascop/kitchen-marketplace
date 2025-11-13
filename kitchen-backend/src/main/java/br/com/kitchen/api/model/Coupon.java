@@ -4,6 +4,8 @@ import br.com.kitchen.api.enumerations.CouponScope;
 import br.com.kitchen.api.enumerations.CouponType;
 import br.com.kitchen.api.enumerations.CouponVisibility;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -35,25 +37,30 @@ import java.util.UUID;
 public class Coupon {
 
     @Id
-    @Column(name = "id", nullable = false, updatable = false, length = 36)
+    @Column(nullable = false, updatable = false, length = 36)
     private String id;
 
-    @Column(name = "code", nullable = false, length = 64)
+    @Column(nullable = false, length = 64)
+    @NotBlank(message = "Coupon must not be blank")
     private String code;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "coupon_type", nullable = false, length = 16)
+    @NotBlank(message = "CouponType must not be blank")
     private CouponType couponType;
 
-    @Column(name = "amount", nullable = false, precision = 18, scale = 2)
+    @Column(nullable = false, precision = 18, scale = 2)
+    @Min(value = 1, message = "Amount must be greater than zero")
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "scope", nullable = false, length = 16)
+    @Column(nullable = false, length = 16)
+    @NotBlank(message = "Scope must not be blank")
     private CouponScope scope;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "visibility", nullable = false, length = 16)
+    @Column(nullable = false, length = 16)
+    @NotBlank(message = "Visibility must not be blank")
     private CouponVisibility visibility;
 
     @Column(name = "issuer_id")
@@ -79,12 +86,15 @@ public class Coupon {
     private BigDecimal maxDiscountAmount;
 
     @Column(name = "usage_limit_total")
+    @Min(value = 1, message = "UsageLimitTotal must be greater than zero")
     private int usageLimitTotal;
 
     @Column(name = "usage_limit_per_buyer")
+    @Min(value = 1, message = "UsageLimitPerBuyer must be greater than zero")
     private int usageLimitPerBuyer;
 
     @Column(name = "usage_count_total")
+    @Min(value = 1, message = "UsageCountTotal must be greater than zero")
     private int usageCountTotal;
 
     @CreationTimestamp
@@ -101,13 +111,17 @@ public class Coupon {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "active", nullable = false)
+    @Column(nullable = false)
     private boolean active;
 
     @PrePersist
     public void prePersist() {
         if (this.id == null) {
             this.id = UUID.randomUUID().toString();
+        }
+
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
         }
     }
 }

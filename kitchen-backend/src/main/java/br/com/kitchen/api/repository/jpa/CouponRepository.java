@@ -3,6 +3,8 @@ package br.com.kitchen.api.repository.jpa;
 import br.com.kitchen.api.enumerations.CouponScope;
 import br.com.kitchen.api.enumerations.CouponVisibility;
 import br.com.kitchen.api.model.Coupon;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -15,12 +17,18 @@ public interface CouponRepository extends GenericRepository<Coupon, String>{
 
     Optional<Coupon> findByCodeAndActiveTrue(String code);
 
-    List<Coupon> findByActiveTrueAndVisibilityAndScopeAndExpiresAtAfter(
-            CouponVisibility visibility, CouponScope scope, LocalDateTime now
+    Page<Coupon> findByActiveTrueAndVisibilityAndScopeAndExpiresAtAfter(
+            CouponVisibility visibility,
+            CouponScope scope,
+            LocalDateTime now,
+            Pageable pageable
     );
 
-    List<Coupon> findByActiveTrueAndScopeAndSellerIdAndExpiresAtAfter(
-            CouponScope scope, Long sellerId, LocalDateTime now
+    Page<Coupon> findByActiveTrueAndScopeAndSellerIdAndExpiresAtAfter(
+            CouponScope scope,
+            Long sellerId,
+            LocalDateTime now,
+            Pageable pageable
     );
 
 }

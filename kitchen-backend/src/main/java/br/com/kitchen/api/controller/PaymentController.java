@@ -25,9 +25,6 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @Value("${app.base.url}")
-    private String urlCheckout;
-
     @PostMapping("/{provider}")
     public ResponseEntity<?> initiatePayment(@AuthenticationPrincipal UserPrincipal userDetails,
                                                @PathVariable String provider) {
