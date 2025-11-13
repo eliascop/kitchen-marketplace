@@ -26,7 +26,7 @@ export const routes: Routes = [
     { path: 'coupons', component: CouponComponent, canActivate: [()=> AuthGuardService(['SELLER'])]},
     { path: 'manage-coupons', component: ManageCouponsComponent, canActivate: [()=> AuthGuardService(['SELLER'])]},
     { path: 'users', component: UsersComponent, canActivate: [()=> AuthGuardService(['ADMIN','SELLER'])] },
-    { path: 'user-details', component: UserDetailsComponent, canActivate: [()=> AuthGuardService(['ADMIN','SELLER'])] },
+    { path: 'user-details', component: UserDetailsComponent, canActivate: [()=> AuthGuardService] },
     { path: 'orders', component: OrdersComponent, canActivate: [AuthGuardService] },
     { path: 'wallet', component: WalletComponent, canActivate: [AuthGuardService] },
     { path: 'orders-painel', component: OrdersPainelComponent, canActivate: [()=> AuthGuardService(['ADMIN','SELLER'])] },

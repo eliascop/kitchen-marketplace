@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,7 +15,7 @@ import { MatSidenav } from '@angular/material/sidenav';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnChanges {
   @Input() collapsed = false;
   @Input() user!: User;
   @Input() totalItems = 0;
@@ -26,8 +26,14 @@ export class SidebarComponent {
   constructor(
     private router: Router,
     private authService: AuthService
-  ) {
-    this.username = this.user?.name || 'Usuário'
+  ) {}
+
+  ngOnChanges() {
+    if (this.user) {
+      this.username = this.user.login;
+    } else {
+      this.username = 'Usuário';
+    }
   }
 
   goHome(event: Event) {
