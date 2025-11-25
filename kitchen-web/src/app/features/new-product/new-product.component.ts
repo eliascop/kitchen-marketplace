@@ -92,6 +92,7 @@ export class NewProductComponent implements OnInit {
 
     const product: any = this.productForm.value;
 
+//Todo: Enable update product functionality
 //    const request$ = this.isEditing
 //      ? this.productService.updateProduct(product.id, product)
 //      : this.productService.createProduct(product);

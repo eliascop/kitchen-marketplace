@@ -1,0 +1,6 @@
+type ProductSkuDTO {
+    id: ID!
+    code: String
+    stock: Int
+    attributes: String
+}

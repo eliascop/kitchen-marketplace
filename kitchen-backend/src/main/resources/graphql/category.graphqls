@@ -1,0 +1,5 @@
+type CategoryDTO {
+    id: ID!
+    name: String!
+    slug: String!
+}

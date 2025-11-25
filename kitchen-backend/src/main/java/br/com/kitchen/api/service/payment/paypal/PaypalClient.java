@@ -27,10 +27,15 @@ public class PaypalClient extends GenericService<Payment, Long> {
     @Value("${paypal.base.url}")
     private String baseUrl;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+    private final PaypalOrderBuilder paypalOrderBuilder;
 
-    public PaypalClient(PaymentRepository paymentRepository) {
+    public PaypalClient(PaymentRepository paymentRepository,
+                        RestTemplate restTemplate,
+                        PaypalOrderBuilder paypalOrderBuilder) {
         super(paymentRepository, Payment.class);
+        this.restTemplate = restTemplate;
+        this.paypalOrderBuilder = paypalOrderBuilder;
     }
 
     public Map<String, String> doPayment(Cart cart) {
@@ -40,7 +45,7 @@ public class PaypalClient extends GenericService<Payment, Long> {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(accessToken);
 
-        String cartJson = PaypalOrderBuilder.buildOrderJson(cart);
+        String cartJson = paypalOrderBuilder.buildOrderJson(cart);
 
         HttpEntity<String> request = new HttpEntity<>(cartJson, headers);
 

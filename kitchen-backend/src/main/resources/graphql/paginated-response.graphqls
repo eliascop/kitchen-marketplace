@@ -1,0 +1,7 @@
+type PaginatedResponse {
+    data: [ProductDTO!]!
+    page: Int!
+    size: Int!
+    totalElements: Float!
+    totalPages: Int!
+}

@@ -7,23 +7,24 @@ import br.com.kitchen.api.model.Product;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+@Component
+@RequiredArgsConstructor
 public class PaypalOrderBuilder {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    private static final String serviceRote = "http://localhost/cart?status=";
+    @Value("${paypal.service-route}")
+    private String serviceRote;
 
-    static {
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    }
-
-    public static String buildOrderJson(Cart cart) {
-        ObjectMapper mapper = new ObjectMapper();
+    public String buildOrderJson(Cart cart) {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         List<PaypalItemDTO> items = cart.getCartItems().stream().map(item -> {
@@ -53,22 +54,25 @@ public class PaypalOrderBuilder {
             items
         )));
 
+        String successUrl = serviceRote + "status=success&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken();
+        String cancelUrl = serviceRote + "status=cancelled&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken();
+
         paypalOrderDTO.setApplicationContext(new PaypalOrderDTO.ApplicationContext(
             "KitchenWeb Marketplace",
             "LOGIN",
             "CONTINUE",
-            serviceRote + "success&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken(),
-            serviceRote + "cancelled&cartId=" + cart.getId() + "&secureToken=" + cart.getPayment().getSecureToken()
+            successUrl,
+            cancelUrl
         ));
 
         try {
             return mapper.writeValueAsString(paypalOrderDTO);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("An error has occurred while PaypalOrderDTO serialization:",e);
         }
     }
 
-    private static String scale(BigDecimal value) {
+    private String scale(BigDecimal value) {
         return value.setScale(2, RoundingMode.HALF_UP).toString();
     }
 }

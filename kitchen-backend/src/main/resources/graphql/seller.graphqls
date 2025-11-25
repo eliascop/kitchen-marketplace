@@ -1,0 +1,4 @@
+type SellerDTO {
+    id: ID!
+    storeName: String!
+}

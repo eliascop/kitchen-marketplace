@@ -26,7 +26,7 @@ public class SnsProducerConfig {
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKeyId))
                 )
-                .region(Region.US_EAST_1)
+                .region(Region.SA_EAST_1)
                 .endpointOverride(java.net.URI.create(snsUri))
                 .build();
     }

@@ -1,0 +1,5 @@
+type Query {
+    product(id: ID!): ProductDTO
+    products(limit: Int = 20, offset: Int = 0): [ProductDTO]
+    searchProducts(text: String!, page: Int = 0, size: Int = 20): PaginatedResponse
+}

@@ -1,0 +1,14 @@
+type ProductDTO {
+    id: ID!
+    name: String!
+    description: String!
+    price: Float!
+    imageUrl: String
+    seller: SellerDTO!
+    catalog: CatalogDTO
+    category: CategoryDTO
+    skus: [ProductSkuDTO!]!
+    createdAt: String
+    activatedAt: String
+    active: Boolean
+}
