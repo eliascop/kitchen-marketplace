@@ -91,6 +91,7 @@ services:
     environment:
       - SERVICES=sqs,sns,lambda,dynamodb
       - DEBUG=0
+      - LS_LOG=warning
       - PERSISTENCE=1
       - AWS_DEFAULT_REGION=us-east-1
       - LAMBDA_EXECUTOR=docker
@@ -196,8 +197,8 @@ services:
       elasticsearch:
         condition: service_healthy
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - SERVER_NAME=kibana
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - SERVER_PUBLICBASEURL=http://localhost:5601
       - TELEMETRY_ENABLED=false
       - MONITORING_ENABLED=false

@@ -13,6 +13,7 @@ import { CartService } from './core/service/cart.service';
 import { UserService } from './core/service/user.service';
 import { SearchService } from './core/service/search.service';
 import { User } from './core/model/user.model';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -55,18 +56,22 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.authService.user$.subscribe(user => {
-      if (user) {
-        this.userService.getUserById(user.id).subscribe(response => {
-          this.user = new User(response.data!);
-          localStorage.setItem('userData', JSON.stringify(this.user));
-          this.loadCart();
-        });
-      } else {
-        this.user = undefined!;
-        this.totalItems = 0;
-      }
-    });
+    this.authService.user$
+      .pipe(take(1))
+      .subscribe(user => {
+        if (user) {
+          this.userService.getUserById(user.id)
+            .pipe(take(1))
+            .subscribe(response => {
+              this.user = new User(response.data!);
+              localStorage.setItem('userData', JSON.stringify(this.user));
+              this.loadCart();
+            });
+        } else {
+          this.user = undefined!;
+          this.totalItems = 0;
+        }
+      });
   }
 
   private loadCart() {

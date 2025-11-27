@@ -31,13 +31,14 @@ export class Stock {
   public availableQuantity: number = 0;
 }
 
-export class Sku {
-  public id: number = 0;
-  public sku: string = '';
-  public price: number = 0;
-  public stock: Stock = new Stock;
-  public attributes: Attribute[] = [];
-  public stockHistory: StockHistory[] = [];
+export interface Sku {
+  id: number;
+  sku: string;
+  price: number;
+  stock: Stock;
+  attributes: Attribute[];
+  stockHistory: StockHistory[];
+  expanded?: boolean;
 }
 
 export interface StockHistory{

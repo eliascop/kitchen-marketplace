@@ -1,5 +1,6 @@
 <div class="product-list-wrapper">
-  <h2 class="product-list-title">{{catalogSlug}}</h2>
+  <h2 class="product-list-title">{{ catalog?.slug }}</h2>
+
   <div class="product-list">
     <div *ngFor="let product of products" class="product-card" (click)="viewDetails(product)">
       <img [src]="product.imageUrl" alt="{{ product.name }}" class="product-image" />
@@ -9,8 +10,9 @@
     </div>
   </div>
 
-  <div #anchor class="loading-anchor">
-    <p *ngIf="loading">Carregando mais produtos...</p>
-    <p *ngIf="allLoaded">Todos os produtos carregados</p>
+  <div #anchor class="scroll-anchor"></div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    Carregando...
   </div>
 </div>

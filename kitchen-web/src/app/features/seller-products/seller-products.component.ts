@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { Subscription, take } from 'rxjs';
 import { ProductService } from '../../core/service/product.service';
 import { Product } from '../../core/model/product.model';
-import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs';
 import { ToastService } from '../../core/service/toast.service';
 import { ProductDetailsModalComponent } from "../../shared/components/product-details-modal/product-details-modal.component";
 import { GenericTableComponent, TableColumn } from "../../shared/components/generic-table/generic-table.component";
@@ -16,9 +16,8 @@ import { MatIcon } from "@angular/material/icon";
   templateUrl: './seller-products.component.html',
   styleUrl: './seller-products.component.css'
 })
-export class SellerProductsComponent implements OnInit {
+export class SellerProductsComponent implements OnInit, OnDestroy {
 
-  userId: number = 1;
   products: Product[] = [];
   selectedProduct: Product | null = null;
   histories: History[] = [];
@@ -31,6 +30,8 @@ export class SellerProductsComponent implements OnInit {
 
   sortField: keyof Product | '' = '';
   sortDir: 'asc' | 'desc' = 'asc';
+
+  private sub?: Subscription;
 
   columns: TableColumn<Product>[] = [
     { key: 'id', label: 'ID', sortable: true },
@@ -50,26 +51,25 @@ export class SellerProductsComponent implements OnInit {
     private productService: ProductService,
     private router: Router,
     private toast: ToastService
-  ) {
-    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+  ) {}
 
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => this.ngOnInit());
-  }
-  
   ngOnInit() {
     this.loadMyProducts();
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
   }
 
   loadMyProducts() {
     this.loading = true;
     const page0 = this.page - 1;
 
-    this.productService.getMyProducts(page0, this.pageSize, this.sortField, this.sortDir)
+    this.sub = this.productService
+      .getMyProducts(page0, this.pageSize, this.sortField, this.sortDir)
+      .pipe(take(1))
       .subscribe({
         next: (resp) => {
-
           const data = resp?.data?.data ?? [];
           this.products = data;
 
@@ -78,13 +78,15 @@ export class SellerProductsComponent implements OnInit {
 
           const backendPage = resp?.data?.page ?? page0;
           this.page = backendPage + 1;
+
+          this.loading = false;
         },
         error: () => {
           this.products = [];
           this.totalItems = 0;
           this.totalPages = 0;
-        },
-        complete: () => this.loading = false
+          this.loading = false;
+        }
       });
   }
 
@@ -93,12 +95,12 @@ export class SellerProductsComponent implements OnInit {
   }
 
   onRemove(product: Product | undefined) {
-    if (product === undefined) return;
+    if (!product) return;
     
     const confirmed = window.confirm('Tem certeza que deseja excluir este produto?');
     if (!confirmed) return;
 
-    this.productService.deleteProduct(product.id!).subscribe({
+    this.productService.deleteProduct(product.id!).pipe(take(1)).subscribe({
       next: () => {
         this.toast.show("Produto removido com sucesso!");
         this.loadMyProducts();
@@ -131,5 +133,4 @@ export class SellerProductsComponent implements OnInit {
     this.page = 1;
     this.loadMyProducts();
   }
-  
 }

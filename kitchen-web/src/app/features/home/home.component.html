@@ -2,16 +2,17 @@
   <div class="catalog-list">
     <div *ngFor="let c of catalogs"
          class="catalog-item"
-         [class.active]="c.slug === selectedCatalogSlug"
+         [class.active]="c === selectedCatalog"
          (click)="selectCatalog(c)">
       {{ c.name }}
     </div>
   </div>
 
   <app-product-list 
-    [catalogSlug]="selectedCatalogSlug"
+    [catalog]="selectedCatalog"
     [products]="products"
-    [isSearchMode]="isSearchMode">
+    [canLoadMore]="canLoadMore"
+    [loading]="loading"
+    (loadMore)="loadMore()">
   </app-product-list>
-
 </div>

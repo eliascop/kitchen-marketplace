@@ -3,6 +3,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CurrencyFormatterPipe } from "../../../core/pipes/currency-input.pipe";
 import { FormatDateTimePipe } from "../../../core/pipes/format-date-time.pipe";
 import { StockStatusPipe } from "../../../core/pipes/stock-status.pipe";
+import { Product } from '../../../core/model/product.model';
 
 @Component({
   selector: 'app-product-details-modal',
@@ -12,8 +13,10 @@ import { StockStatusPipe } from "../../../core/pipes/stock-status.pipe";
   styleUrls: ['./product-details-modal.component.scss']
 })
 export class ProductDetailsModalComponent {
-  @Input() product: any;
-  @Input() histories: any;
-  
+  @Input() product!: Product;  
   @Output() close = new EventEmitter<void>();
+
+  toggleHistory(sku: any) {
+    sku.expanded = !sku.expanded;
+  }
 }

@@ -5,6 +5,9 @@
   width: 75rem;
   border-radius: 12px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+
+  display: flex;
+  flex-direction: column;
 }
 
 .product-list-title {
@@ -20,14 +23,16 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  justify-content: center;
+  justify-content: left;
+
+  width: 100%;
 }
 
 .product-card {
   border-radius: 10px;
   padding: 1rem;
   text-align: center;
-  width: 234px;
+  width: 200px;
   transition: all 0.3s ease-in-out;
   cursor: pointer;
   display: flex;
@@ -36,73 +41,33 @@
   background: #fff;
 }
 
-.product-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-.product-image {
-  max-width: 100%;
-  height: 10rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-  object-fit: cover;
-}
-
-.product-name {
-  font-size: 0.8rem;
-  color: #333;
-  overflow-wrap: break-word;
-  text-overflow: ellipsis;
+.product-name{
+  font-size: 0.75rem;
   font-weight: 600;
 }
-
-.product-description {
-  font-size: 0.75rem;
-  color: #666;
-  margin: 0.5rem 0 1rem;
-  height: 40px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.product-description{
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+.product-price{
+  font-weight: 600;
+  color: #0056b3;
 }
 
-.product-price {
-  font-size: 0.95rem;
-  font-weight: bold;
-  margin-bottom: 1.25rem;
-  color: #004080;
-}
 
-.product-button {
-  background-color: white;
-  color: #3483fa;
-  border: none;
-  padding: 0.4rem 1.2rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.product-button:hover {
-  background-color: #007bff26;
-}
-
-.loading-anchor {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 1.5rem;
-  font-weight: bold;
-  color: #666;
-}
-
-.no-products-message {
-  font-size: 1.3rem;
-  color: #666;
-  text-align: center;
+.scroll-anchor {
   width: 100%;
-  padding: 2.5rem;
+  height: 40px;
+  margin-top: 20px;
+  background: transparent;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 1rem;
+  width: 100%;
+  font-size: 1rem;
+  color: #555;
 }
 
 @media (max-width: 992px) {

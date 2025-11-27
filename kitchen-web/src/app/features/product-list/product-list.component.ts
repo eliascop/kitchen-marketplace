@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Product } from '../../core/model/product.model';
-import { ProductService } from '../../core/service/product.service';
 import { Router } from '@angular/router';
+import { Catalog } from '../../core/model/catalog.model';
 
 @Component({
   selector: 'app-product-list',
@@ -11,72 +11,44 @@ import { Router } from '@angular/router';
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent implements OnInit, AfterViewInit, OnChanges {
-  @Input() catalogSlug?: string;
-  @Input() products: Product[] = [];
-  @Input() isSearchMode = false;
+export class ProductListComponent implements AfterViewInit, OnDestroy {
 
-  currentPage = 0;
-  size = 12;
-  totalPages = 0;
-  loading = false;
-  allLoaded = false;
+  @Input() catalog: Catalog | null = null;
+  @Input() products: Product[] = [];
+  @Input() loading = false;
+  @Input() canLoadMore = false;
+
+  @Output() loadMore = new EventEmitter<void>();
 
   @ViewChild('anchor', { static: false }) anchor!: ElementRef<HTMLElement>;
-  private observer!: IntersectionObserver;
 
-  constructor(
-    private productService: ProductService,
-    private router: Router
-  ) {}
+  private observer?: IntersectionObserver;
 
-  ngOnInit() {
-    if (!this.isSearchMode) {
-      this.loadProducts();
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (this.isSearchMode) return;
-
-    if (changes['catalogSlug'] && !changes['catalogSlug'].firstChange) {
-      this.products = [];
-      this.currentPage = 0;
-      this.allLoaded = false;
-      this.loadProducts();
-    }
-  }
+  constructor(private router: Router) {}
 
   ngAfterViewInit() {
-    this.observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && !this.loading && !this.allLoaded && !this.isSearchMode) {
-        this.loadProducts();
-      }
-    }, { threshold: 1 });
+    this.observer = new IntersectionObserver(
+      entries => {
+        const entry = entries[0];
 
-    if (this.anchor) {
+        if (entry.isIntersecting && this.canLoadMore && !this.loading) {
+          this.loadMore.emit();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+      }
+    );
+
+    if (this.anchor?.nativeElement) {
       this.observer.observe(this.anchor.nativeElement);
     }
   }
 
-  loadProducts() {
-    if (this.allLoaded || this.isSearchMode) return;
-
-    this.loading = true;
-    this.productService.getProductsByCatalogSlug(this.currentPage, this.size, this.catalogSlug).subscribe({
-      next: (res) => {
-        const items = res.data?.data ?? [];
-        if (items.length === 0) {
-          this.allLoaded = true;
-        } else {
-          this.products = [...this.products, ...items];
-          this.currentPage++;
-          this.totalPages = res.data?.totalPages ?? 0;
-        }
-        this.loading = false;
-      },
-      error: () => this.loading = false
-    });
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
   }
 
   viewDetails(product: Product) {

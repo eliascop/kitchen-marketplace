@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs';
+import { Router } from '@angular/router';
 import { User } from '../../core/model/user.model';
 import { UserService } from '../../core/service/user.service';
 import { PhoneNumberPipe } from "../../core/pipes/phone-number.pipe";
 import { ToastService } from '../../core/service/toast.service';
+import { Subscription, take } from 'rxjs';
 
 @Component({
   selector: 'app-users',
@@ -14,51 +14,51 @@ import { ToastService } from '../../core/service/toast.service';
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
-
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
 
   userId: number = 1;
   users: User[] = [];
   selectedOrder: any = null;
 
+  private sub?: Subscription;
+
   constructor(
     private userService: UserService, 
     private router: Router,
-    private toast: ToastService) {
-    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
-      this.ngOnInit();
-    });
-  }
-  
+    private toast: ToastService
+  ) {}
+
   ngOnInit() {
-    this.getUsers();
+    this.loadUsers();
   }
 
-  getUsers() {
-    this.userService.getUsers().subscribe(data => {
-      this.users = data.data!;
-    });
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
+
+  loadUsers() {
+    this.sub = this.userService.getUsers()
+      .pipe(take(1))
+      .subscribe(data => {
+        this.users = data.data ?? [];
+      });
   }
 
   removeUser(userId: number | null): void {
-    if (userId === null) return;
+    if (!userId) return;
     
     const confirmed = window.confirm('Tem certeza de que quer excluir esse usuário ?');
-    if(confirmed){
-      this.userService.deleteUser(userId).subscribe({
-        next: (response) => {
-          this.users = this.users.filter(user => user.id !== userId);
-          this.toast.show("Usuário removido com sucesso!");
-        },
-        error: (err) => {
-          this.toast.show("Ocorreu um erro ao excluir o usuário.");
-          console.error('Erro ao deletar usuário:', err);
-        }
-      });
-    }
+    if (!confirmed) return;
+
+    this.userService.deleteUser(userId).pipe(take(1)).subscribe({
+      next: () => {
+        this.users = this.users.filter(u => u.id !== userId);
+        this.toast.show("Usuário removido com sucesso!");
+      },
+      error: () => {
+        this.toast.show("Ocorreu um erro ao excluir o usuário.");
+      }
+    });
   }
 
   goToNewUser(){
@@ -72,5 +72,4 @@ export class UsersComponent implements OnInit {
   closeModal() {
     this.selectedOrder = null;
   }
-  
 }

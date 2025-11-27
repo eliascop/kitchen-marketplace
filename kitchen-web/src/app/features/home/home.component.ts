@@ -1,29 +1,36 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CatalogService } from '../../core/service/catalog.service';
-import { SearchService } from '../../core/service/search.service';
 import { ProductListComponent } from "../product-list/product-list.component";
-import { distinctUntilChanged, map, of, Subject, switchMap, takeUntil } from 'rxjs';
+import { SearchService } from '../../core/service/search.service';
+import { CatalogService } from '../../core/service/catalog.service';
 import { ProductService } from '../../core/service/product.service';
 import { Product } from '../../core/model/product.model';
+import { Subject, of, switchMap, takeUntil, map, distinctUntilChanged } from 'rxjs';
+import { Catalog } from '../../core/model/catalog.model';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, ProductListComponent],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  catalogs: any[] = [];
+
+  selectedCatalog: Catalog | null = null;
+  catalogs: Catalog[] = [];
   products: Product[] = [];
-  total = 0;
+
+  loading = false;
+  canLoadMore = false;
+
   page = 0;
-  size = 20;
+  size = 10;
+  totalPages = 0;
+
   isSearchMode = false;
 
   private destroy$ = new Subject<void>();
-  selectedCatalogSlug = '';
 
   constructor(
     private catalogService: CatalogService,
@@ -33,56 +40,102 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCatalogs();
-    this.setupSearchListener();
+    this.setupSearch();
   }
 
   loadCatalogs() {
     this.catalogService.getCatalogs().subscribe(resp => {
-      this.catalogs = resp.data ?? [];
+      this.catalogs = resp.data || [];
       if (this.catalogs.length > 0) {
-        this.selectCatalog(this.catalogs[0]);
+        setTimeout(() => {
+          this.selectCatalog(this.catalogs[0]);
+        });
       }
     });
   }
 
-  selectCatalog(catalog: { name: string; slug: string }) {
-    this.selectedCatalogSlug = catalog.slug;
+  selectCatalog(catalog: Catalog) {
+    if (!catalog || catalog === this.selectedCatalog) return;
+  
+    this.selectedCatalog = catalog;
     this.isSearchMode = false;
-    this.loadProductsByCatalog(catalog.slug);
+    this.canLoadMore = false;
+
+    this.page = 0;
+    this.products = [];
+    this.loadProductsPage();
   }
 
-  loadProductsByCatalog(slug: string) {
-    this.productService.getProductsByCatalogSlug(this.page, this.size, slug)
-      .subscribe(resp => {
-        this.products = resp.data?.data ?? [];
-        this.total = resp.data?.totalElements ?? 0;
+  loadMore() {
+    if (this.loading || !this.canLoadMore) return;
+    this.page++;
+    this.loadProductsPage();
+  }
+
+  loadProductsPage() {
+    if (this.loading) return;
+    if (!this.selectedCatalog) return;
+  
+    this.loading = true;
+
+    this.productService
+      .getProductsByCatalogSlug(this.page, this.size, this.selectedCatalog.slug)
+      .subscribe({
+        next: (resp) => {
+          const pageData = resp.data;
+          const items = pageData?.data ?? [];
+          const totalPages = pageData?.totalPages ?? 0;
+  
+          if (this.page === 0) {
+            this.products = items;
+          } else {
+            this.products = [...this.products, ...items];
+          }
+  
+          this.totalPages = totalPages;
+          this.canLoadMore = this.page < this.totalPages - 1;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
       });
   }
 
-  setupSearchListener() {
+  setupSearch() {
     this.searchService.query$
       .pipe(
         map(q => q?.term?.trim() ?? ''),
         distinctUntilChanged(),
         switchMap(term => {
-          if (term.length === 0) {
+
+          if (term === '') {
             this.isSearchMode = false;
-            this.loadCatalogs();
-            return of({ data: { data: [] } });
+
+            this.page = 0;
+            this.products = [];
+            this.selectCatalog(this.selectedCatalog!);
+
+            return of(null);
           }
+
           this.isSearchMode = true;
+          this.loading = true;
+
           return this.productService.searchProducts(this.page, this.size, term);
         }),
-  
         takeUntil(this.destroy$)
       )
       .subscribe(resp => {
-        if (this.isSearchMode) {
-          this.products = resp.data?.data ?? [];
-        }
+        if (!resp) return;
+
+        const items = resp.data?.data ?? [];
+        this.products = items;
+
+        this.loading = false;
+        this.canLoadMore = false;
       });
   }
-      
 
   ngOnDestroy() {
     this.destroy$.next();
