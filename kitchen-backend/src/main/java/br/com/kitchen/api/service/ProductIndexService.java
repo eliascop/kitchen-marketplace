@@ -84,7 +84,7 @@ public class ProductIndexService {
                     .category(product.getCategory() != null ? product.getCategory().getName() : null)
                     .createdAt(product.getCreatedAt())
                     .activatedAt(product.getActivatedAt())
-                    .active(product.getActive())
+                    .productStatus(product.getProductStatus().toString())
                     .skus(
                             product.getSkus().stream().map(sku ->
                                     ProductSkuSearchDocumentDTO.builder()

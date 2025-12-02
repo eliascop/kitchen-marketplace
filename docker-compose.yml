@@ -93,7 +93,7 @@ services:
       - DEBUG=0
       - LS_LOG=warning
       - PERSISTENCE=1
-      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_DEFAULT_REGION=sa-east-1
       - LAMBDA_EXECUTOR=docker
     volumes:
       - "./.localstack:/var/lib/localstack"

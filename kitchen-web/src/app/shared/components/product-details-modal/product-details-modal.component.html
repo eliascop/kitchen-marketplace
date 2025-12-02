@@ -11,11 +11,11 @@
         <p>Categoria: {{ product.category }}</p>
         <p>Catálogo: {{ product.catalog }}</p>
         <p>Preço base: R$ {{ product.price | currencyFormatter }}</p>
-        <p>Status: {{ product.active ? 'Ativo' : 'Inativo' }}</p>
+        <p>Status: {{ product.productStatus }}</p>
       </div>
 
       <div class="image">
-        <img [src]="product.imageUrl" [alt]="product?.name" width="200">
+        <img [src]="product.imageUrl" [alt]="product!.name" width="200">
       </div>
     </div>
 

@@ -23,7 +23,7 @@ public class ProductMapper {
                 .price(product.getPrice())
                 .catalog(product.getCatalog() != null ? product.getCatalog().getName() : null)
                 .category(product.getCategory() != null ? product.getCategory().getName() : null)
-                .active(product.getActive())
+                .productStatus(product.getProductStatus().toString())
                 .seller(SellerMapper.toDTO(product.getSeller()))
                 .skus(product.getSkus().stream()
                         .map(ProductMapper::toSkuResponseDTO)
@@ -89,7 +89,7 @@ public class ProductMapper {
                 .price(doc.getPrice())
                 .catalog(doc.getCatalog())
                 .category(doc.getCategory())
-                .active(doc.getActive())
+                .productStatus(doc.getProductStatus())
 
                 .seller(SellerDTO.builder()
                         .id(doc.getSellerId())

@@ -1,6 +1,7 @@
 package br.com.kitchen.api.controller;
 
 import br.com.kitchen.api.enumerations.OrderStatus;
+import br.com.kitchen.api.enumerations.ProductStatus;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.OrderItems;
 import br.com.kitchen.api.model.Product;
@@ -53,7 +54,7 @@ class OrderControllerTest {
         Product mockProduct = new Product();
         mockProduct.setId(3L);
         mockProduct.setPrice(new BigDecimal("15.50"));
-        mockProduct.setActive(true);
+        mockProduct.setProductStatus(ProductStatus.ACTIVE);
         mockProduct.setName("test");
         mockProduct.setDescription("test");
 

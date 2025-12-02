@@ -8,11 +8,12 @@ import { CepService } from '../../core/service/cep.service';
 import { User } from '../../core/model/user.model';
 import { AuthService } from '../../core/service/auth.service';
 import { Address } from '../../core/model/address.model';
+import { CdkTableModule } from "@angular/cdk/table";
 
 @Component({
   selector: 'app-user-details',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, PhoneNumberPipe],
+  imports: [ReactiveFormsModule, CommonModule, PhoneNumberPipe, CdkTableModule],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.css'
 })

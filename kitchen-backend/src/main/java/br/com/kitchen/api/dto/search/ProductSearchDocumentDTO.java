@@ -28,7 +28,7 @@ public class ProductSearchDocumentDTO {
 
     private LocalDateTime createdAt;
     private LocalDateTime activatedAt;
-    private Boolean active;
+    private String productStatus;
 
     private List<ProductSkuSearchDocumentDTO> skus;
 }

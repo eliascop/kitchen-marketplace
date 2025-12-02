@@ -7,76 +7,94 @@
         <h3>Informações Gerais</h3>
   
         <div class="form-group">
-          <input id="name" type="text" formControlName="name" placeholder="Nome do Produto"/>
+          <label for="name">Nome do Produto</label>
+          <input id="name" type="text" formControlName="name"/>
           <div *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched" class="error-message">
             Nome é obrigatório.
           </div>
         </div>
   
         <div class="form-group">
-          <textarea id="description" formControlName="description"
-          placeholder="Descrição do Produto"
-          class="description-textarea"></textarea>
+          <label for="description">Descrição do Produto</label>
+          <input id="description" type="text" formControlName="description"/>
+          <div *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched" class="error-message">
+            A descrição é obrigatória.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="price">Preço base</label>
+          <app-currency-input formControlName="price" class="input-price"></app-currency-input>
+          <div *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" class="error-message">
+            A descrição é obrigatória.
+          </div>
         </div>
   
         <div class="form-group">
-          <select id="category" formControlName="category">
-            <option value="">Selecione uma categoria: </option>
-            <option value="drink">Bebida</option>
-            <option value="meal">Refeição</option>
-            <option value="accompaniment">Acompanhamento</option>
-            <option value="dessert">Sobremesa</option>
-            <option value="pizza">Pizza</option>
+          <label for="catalog">Catalogo de Produto</label>
+          <select id="catalog" formControlName="catalog">
+            <option value="">Selecione um catálogo</option>
+            <option *ngFor="let catalog of catalogs" [value]="catalog.name">
+              {{ catalog.name }}
+            </option>
           </select>
         </div>
   
         <div class="form-group">
-          <input id="catalog" type="text" formControlName="catalog" placeholder="Catálogo" />
-        </div>
-  
-        <div class="form-group">
-          <input id="imageUrl" type="text" formControlName="imageUrl" placeholder="URL da imagem do produto"/>
-        </div>
-  
-        <div formGroupName="seller" class="form-group">
-          <label for="sellerId">Adicionar o ID do Vendedor na request</label>
+          <label for="imageUrl">Link da Imagem do Produto</label>
+          <input id="imageUrl" type="text" formControlName="imageUrl" />
         </div>
       </div>
-      <div formArrayName="skus" class="form-section">
-        <h3>Criação de SKUs</h3>
-  
+      <div formArrayName="skus">
         <div *ngFor="let sku of skus.controls; let i = index" [formGroupName]="i" class="sku-card">
-  
+      
           <h4>SKU {{ i + 1 }}</h4>
-  
+      
           <div class="sku-row">
-            <input formControlName="sku" type="text" placeholder="SKU" class="input-sku" />
-  
-            <app-currency-input formControlName="price" placeholder="Preço" class="input-price"></app-currency-input>
-  
-            <input type="number" formControlName="totalQuantity"
-              placeholder="Qtd estoque"
-              class="input-stock"
-              formControlName="totalQuantity" />
-          </div>
-  
-          <div formArrayName="attributes" class="attributes-section">
-            <h5>Atributos</h5>
-  
-            <div *ngFor="let attr of attributes(i).controls; let j = index" class="attribute-row">
-              <input placeholder="Nome do atributo" formControlName="attributeName" />
-              <input placeholder="Valor" formControlName="attributeValue" />
-              <button type="button" (click)="removeAttribute(i, j)" class="btn-remove">🗑️</button>
+            <div class="form-group">
+              <label for="sku-{{i}}">SKU</label>
+              <input type="text" formControlName="sku" class="input-sku" readonly/>
             </div>
-  
-            <button type="button" (click)="addAttribute(i)" class="btn-add">+ Adicionar Atributo</button>
+      
+            <div class="form-group">
+              <label for="price-{{i}}">Preço</label>
+              <app-currency-input formControlName="price" class="input-price"></app-currency-input>
+            </div>
+      
+            <div class="form-group" formGroupName="stock">
+              <label for="totalQuantity-{{i}}">Quantidade estoque</label>
+              <input type="number" formControlName="totalQuantity" class="input-stock"/>
+            </div>
           </div>
-  
-          <button type="button" (click)="removeSku(i)" class="btn-remove-sku">Remover SKU</button>
-  
+      
+          <div formArrayName="attributes" class="attributes-section">
+            <h3>Atributos</h3>
+      
+            <div *ngFor="let attr of getAttributesControls(i); let j = index" [formGroupName]="j" class="attribute-row">
+      
+              <div class="form-group">
+                <label>Nome</label>
+                <input type="text" formControlName="attributeName">
+              </div>
+      
+              <div class="form-group">
+                <label>Valor</label>
+                <input type="text" formControlName="attributeValue">
+              </div>
+      
+              <div class="form-group">
+                <button type="button" (click)="removeAttribute(i, j)" class="cancel-button">🗑️</button>
+              </div>
+      
+            </div>
+      
+            <button type="button" (click)="addAttribute(i)" class="confirm-button">+ Adicionar Atributo</button>
+      
+          </div>
+      
+          <button type="button" (click)="removeSku(i)" class="cancel-button">Remover SKU</button>
+      
         </div>
-  
-        <button type="button" (click)="addSku()" class="btn-add-sku">+ Adicionar SKU</button>
       </div>
   
       <div class="form-actions">

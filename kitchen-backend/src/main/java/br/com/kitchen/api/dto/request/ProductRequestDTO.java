@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public record ProductRequestDTO(
+
+        Long productId,
+
         @NotBlank(message = "Product name is required")
         String name,
 
@@ -14,13 +17,13 @@ public record ProductRequestDTO(
 
         @NotNull(message = "Base price is required")
         @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
-        BigDecimal basePrice,
+        BigDecimal price,
 
         @NotBlank(message = "Catalog name is required")
         String catalog,
 
-        @NotBlank(message = "Category name is required")
-        String category,
+        @NotBlank(message = "Product Image is required")
+        String imageUrl,
 
         @NotEmpty(message = "At least one SKU is required")
         List<@NotNull ProductSkuDTO> skus

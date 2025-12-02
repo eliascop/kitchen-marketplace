@@ -5,6 +5,8 @@ import { ProductService } from '../../core/service/product.service';
 import { ToastService } from '../../core/service/toast.service';
 import { CommonModule } from '@angular/common';
 import { CurrencyInputComponent } from '../../shared/components/currency-input/currency-input.component';
+import { Catalog } from '../../core/model/catalog.model';
+import { CatalogService } from '../../core/service/catalog.service';
 
 @Component({
   selector: 'app-new-product',
@@ -15,11 +17,13 @@ import { CurrencyInputComponent } from '../../shared/components/currency-input/c
 })
 export class NewProductComponent implements OnInit {
 
+  catalogs: Catalog[] = [];
   productForm!: FormGroup;
   isEditing = false;
 
   constructor(
     private fb: FormBuilder,
+    private catalogService: CatalogService,
     private productService: ProductService,
     private router: Router,
     private toast: ToastService
@@ -27,6 +31,19 @@ export class NewProductComponent implements OnInit {
 
   ngOnInit(): void {
     this.createForm();
+    this.loadCatalogs();
+  }
+
+  loadCatalogs() {
+    this.catalogService.getCatalogs().subscribe({
+      next: (data) => {
+        this.catalogs = data.data || [];
+      },
+      error: (err) => {
+        this.toast.show('Erro ao carregar catálogos.');
+        console.error(err);
+      }
+    });
   }
 
   createForm() {
@@ -34,9 +51,9 @@ export class NewProductComponent implements OnInit {
       id: [null],
       name: ['', Validators.required],
       description: ['', Validators.required],
+      price: [0.0, Validators.required],
       imageUrl: [''],
-      category: ['', Validators.required],
-      catalog: [''],
+      catalog: ['', Validators.required],
       skus: this.fb.array([this.createSkuForm()])
     });
   }
@@ -55,12 +72,44 @@ export class NewProductComponent implements OnInit {
         totalQuantity: [0]
       }),
 
-      attributes: this.fb.array([])
+      attributes: this.fb.array([this.createAttributeForm()])
     });
   }
+  
 
   addSku() {
     this.skus.push(this.createSkuForm());
+  }
+
+  updateSku(i: number) {
+    const skuGroup = this.skus.at(i) as FormGroup;
+    const product = this.productForm.value;
+    const attributes = skuGroup.get('attributes')?.value;
+  
+    const sku = this.generateSku(product, attributes);
+  
+    skuGroup.patchValue({ sku });
+  }
+
+  generateSku(product: any, attributes: any[]): string {
+    return "PROD-" 
+        + product.seller.id 
+        + "-" 
+        + "{ID}"
+        + attributes
+            .slice()
+            .sort((a, b) => a.attributeName.localeCompare(b.attributeName))
+            .map(attr => "-" + this.normalize(attr.attributeValue))
+            .join("");
+  }
+
+  normalize(value: string): string {
+    return value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toLowerCase();
   }
 
   removeSku(index: number) {
@@ -77,11 +126,13 @@ export class NewProductComponent implements OnInit {
   addAttribute(skuIndex: number) {
     const attrs = this.skus.at(skuIndex).get('attributes') as FormArray;
     attrs.push(this.createAttributeForm());
+    this.updateSku(skuIndex);
   }
 
   removeAttribute(skuIndex: number, attrIndex: number) {
     const attrs = this.skus.at(skuIndex).get('attributes') as FormArray;
     attrs.removeAt(attrIndex);
+    this.updateSku(skuIndex);
   }
 
   onSubmit() {
@@ -106,7 +157,7 @@ export class NewProductComponent implements OnInit {
             ? 'Produto atualizado com sucesso!'
             : 'Produto cadastrado com sucesso.'
         );
-        this.router.navigate(['/products']);
+        this.router.navigate(['/seller-products']);
       },
       error: (err) => {
         this.toast.show('Erro ao salvar o produto.');
@@ -117,5 +168,9 @@ export class NewProductComponent implements OnInit {
 
   attributes(i: number): FormArray {
     return this.skus.at(i).get('attributes') as FormArray;
+  }
+
+  getAttributesControls(i: number) {
+    return (this.skus.at(i).get('attributes') as FormArray).controls;
   }
 }

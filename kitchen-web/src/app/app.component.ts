@@ -57,11 +57,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.authService.user$
-      .pipe(take(1))
       .subscribe(user => {
         if (user) {
           this.userService.getUserById(user.id)
-            .pipe(take(1))
             .subscribe(response => {
               this.user = new User(response.data!);
               localStorage.setItem('userData', JSON.stringify(this.user));

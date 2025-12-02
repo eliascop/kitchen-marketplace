@@ -1,7 +1,5 @@
 input {
     width: 100%;
-    padding: 0.5rem;
-    font-size: 1rem;
   }
   
 .currency-wrapper {
@@ -17,7 +15,7 @@ input {
     display: flex;
     align-items: center;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     overflow: hidden;
 
     &.invalid {
@@ -25,15 +23,13 @@ input {
     }
 
     .prefix {
-      padding: 0 0.75rem;
+      padding: 0.5rem;
       background: #f3f3f3;
       border-right: 1px solid #ddd;
-      font-size: 1rem;
     }
 
     input {
       border: 1px solid #ccc;
-      font-size: 1rem;
       text-align: right;
       flex: 1;
       outline: none;

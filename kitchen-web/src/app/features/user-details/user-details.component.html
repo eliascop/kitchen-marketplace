@@ -4,13 +4,17 @@
   
         <fieldset>
             <legend>Informações do Usuário</legend>
-            <input type="hidden" formControlName="id" />        
-            <input type="text" formControlName="login" placeholder="Usuário" />
-            <input type="text" formControlName="name" placeholder="Nome do Usuário" />
-            <input type="text" formControlName="phone" placeholder="Telefone"
+            <input type="hidden" formControlName="id" />       
+            <label for="login">Usuário</label> 
+            <input type="text" formControlName="login"/>
+            <label for="name">Nome do usuário</label>
+            <input type="text" formControlName="name" />
+            <label for="phone">Telefone</label>
+            <input type="text" formControlName="phone"
                 [value]="userForm.controls['phone'].value | phoneNumber"
                 (input)="updateFormControl($event)" maxlength="13" />
-            <input type="text" formControlName="email" placeholder="E-mail" />
+            <label for="email">E-mail</label>
+            <input type="text" formControlName="email" />
         </fieldset>
   
         <fieldset>

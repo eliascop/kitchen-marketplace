@@ -18,15 +18,15 @@
         <p class="product-description">{{ product.description }}</p>
 
         <div class="product-price-detail">
-          <span *ngIf="selectedSku; else basePrice">
+          <span *ngIf="selectedSku; else price">
             {{ selectedSku.price | currency:'BRL':'symbol':'1.2-2' }}
           </span>
-          <ng-template #basePrice>
+          <ng-template #price>
             {{ product.price | currency:'BRL':'symbol':'1.2-2' }}
           </ng-template>
         </div>
 
-        <section *ngIf="product.skus?.length" class="sku-selection">
+        <section *ngIf="product.skus!.length" class="sku-selection">
           <h2>Variações Disponíveis</h2>
           <div class="sku-list">
             <article *ngFor="let sku of product.skus"
@@ -68,7 +68,7 @@
 
           <button class="btn btn-blue add-to-cart-btn"
                   (click)="addToCart()"
-                  [disabled]="!selectedSku || selectedSku.stock.availableQuantity === 0">
+                  [disabled]="!selectedSku || selectedSku.stock?.availableQuantity === 0">
             Adicionar ao Carrinho
           </button>
         </div>

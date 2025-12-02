@@ -21,7 +21,7 @@ public class ProductDTO {
     private BigDecimal price;
     private String catalog;
     private String category;
-    private boolean active;
+    private String productStatus;
     private SellerDTO seller;
     private List<ProductSkuDTO> skus;
 }

@@ -23,6 +23,7 @@ public class OutboxService {
     public void publishProductCreated(Product product) {
         ProductDTO dto = ProductDTO.builder()
                 .id(product.getId())
+                .productStatus(product.getProductStatus().toString())
                 .build();
 
         saveEvent("PRODUCT", product.getId(), "PRODUCT_CREATED", dto);

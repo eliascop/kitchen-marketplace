@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import br.com.kitchen.api.enumerations.OrderStatus;
+import br.com.kitchen.api.enumerations.ProductStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -61,12 +64,16 @@ public class Product implements Serializable {
 
     private LocalDateTime activatedAt;
 
-    private Boolean active;
+    @Enumerated(EnumType.STRING)
+    private ProductStatus productStatus;
 
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
+        }
+        if (productStatus == null){
+            productStatus = ProductStatus.PENDING_INDEXING;
         }
     }
     

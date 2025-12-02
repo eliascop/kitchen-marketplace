@@ -7,12 +7,11 @@ import { Product } from '../../core/model/product.model';
 import { ToastService } from '../../core/service/toast.service';
 import { ProductDetailsModalComponent } from "../../shared/components/product-details-modal/product-details-modal.component";
 import { GenericTableComponent, TableColumn } from "../../shared/components/generic-table/generic-table.component";
-import { MatIcon } from "@angular/material/icon";
 
 @Component({
   selector: 'app-seller-products',
   standalone: true,
-  imports: [CommonModule, ProductDetailsModalComponent, GenericTableComponent, MatIcon],
+  imports: [CommonModule, ProductDetailsModalComponent, GenericTableComponent],
   templateUrl: './seller-products.component.html',
   styleUrl: './seller-products.component.css'
 })
@@ -38,13 +37,8 @@ export class SellerProductsComponent implements OnInit, OnDestroy {
     { key: 'name', label: 'Nome', sortable: true },
     { key: 'catalog', label: 'Catálogo' },
     { key: 'category', label: 'Categoria' },
-    {
-      key: 'price',
-      label: 'Preço',
-      formatter: (value, row) =>
-        row.price ? `R$ ${value.toFixed(2)}` : '—'
-    },
-    { key: 'active', label: 'Status', formatter: v => v ? 'Ativo' : 'Inativo' }
+    { key: 'price', label: 'Preço', formatter: (value, row) => row.price ? `R$ ${value.toFixed(2)}` : '—', sortable: true },
+    { key: 'productStatus', label: 'Status', sortable: true }
   ];
 
   constructor(

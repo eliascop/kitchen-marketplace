@@ -17,6 +17,6 @@ public interface CatalogRepository extends GenericRepository<Catalog, Long> {
 
     List<Catalog> findBySlug(String slug);
 
-    @Query("select c from Catalog c where c.id in (select min(c2.id) from Catalog c2 group by c2.slug)")
+    @Query("select c from Catalog c where c.id in (select min(c2.id) from Catalog c2 group by c2.slug) order by c.name")
     List<Catalog> findAllDistinctBySlug();
 }

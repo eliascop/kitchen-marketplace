@@ -110,7 +110,7 @@ public class ProductController {
     public ResponseEntity<?> createProduct(@AuthenticationPrincipal UserPrincipal principal,
                                            @RequestBody ProductRequestDTO dto) {
         try {
-            Product created = productService.createProduct(principal.user(), dto);
+            Product created = productService.createProduct(principal.getSeller().get(), dto);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(ProductMapper.toProductResponseDTO(created));
@@ -129,7 +129,7 @@ public class ProductController {
     public ResponseEntity<?> createProductBatch(@AuthenticationPrincipal UserPrincipal principal,
                                                 @RequestBody List<ProductRequestDTO> dtos) {
         try {
-            List<ProductDTO> response = productService.createProducts(principal.user(), dtos)
+            List<ProductDTO> response = productService.createProducts(principal.getSeller().get(), dtos)
                     .stream()
                     .map(ProductMapper::toProductResponseDTO)
                     .toList();
@@ -141,6 +141,25 @@ public class ProductController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of(
                             "message", "An error has occurred when creating the product",
+                            "details", e.getMessage()
+                    ));
+        }
+    }
+
+    @PutMapping
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> updateProduct(@AuthenticationPrincipal UserPrincipal principal,
+                                           @RequestBody ProductRequestDTO dto) {
+        try {
+            Product updated = productService.updateProduct(principal.getSeller().get(), dto);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(ProductMapper.toProductResponseDTO(updated));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message", "An error has occurred when updating the product",
                             "details", e.getMessage()
                     ));
         }

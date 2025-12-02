@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { DataService } from "./data.service";
 import { AuthService } from "./auth.service";
 import { environment } from "../../../environments/environment.dev";
-import { Product } from "../model/product.model";
 import { Catalog } from "../model/catalog.model";
 import { ServiceResponse } from "./model/http-options-request.model";
 

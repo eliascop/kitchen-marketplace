@@ -26,35 +26,8 @@ h3 {
   flex-direction: column;
 }
 
-label {
-  font-weight: 500;
-  margin-bottom: 0px;
-  color: #333;
-}
-
-input[type="number"],
-input[type="text"],
-input[type="datetime-local"],
-select {
-  padding: 0.5rem;
-  margin-bottom: 0px;
-}
-
 #minOrderAmount, #maxDiscountAmount, #usageLimitTotal{
   text-align: right;  
-}
-
-input,
-select {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  outline: none;
-  transition: border 0.2s;
-}
-
-input:focus,
-select:focus {
-  border-color: #007bff;
 }
 
 .form-actions {
@@ -62,15 +35,6 @@ select:focus {
   justify-content: center;
   gap: 1rem;
   margin-top: 1.5rem;
-}
-
-button {
-  border: none;
-  border-radius: 6px;
-  padding: 0.6rem 1.2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .btn-primary {

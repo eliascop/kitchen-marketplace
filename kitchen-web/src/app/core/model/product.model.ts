@@ -8,7 +8,7 @@ export class Product {
   public price: number = 0;
   public catalog: string = '';
   public category: string = '';
-  public active: boolean = false;
+  public productStatus: string = '';
   public skus: Sku[] = [];
   public seller: Seller = new Seller;
 

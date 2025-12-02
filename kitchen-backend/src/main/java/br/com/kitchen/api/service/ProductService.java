@@ -4,6 +4,7 @@ import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.StockHistoryDTO;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
 import br.com.kitchen.api.dto.response.PaginatedResponse;
+import br.com.kitchen.api.enumerations.ProductStatus;
 import br.com.kitchen.api.mapper.PaginateMapper;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.*;
@@ -28,9 +29,7 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService extends GenericService<Product, Long>{
 
-    private final SellerService sellerService;
     private final CatalogService catalogService;
-    private final CategoryService categoryService;
     private final SkuService skuService;
     private final OutboxService outboxService;
     private final ProductRepository productRepository;
@@ -45,9 +44,7 @@ public class ProductService extends GenericService<Product, Long>{
                           HistoryServiceClient historyClient,
                           ProductRepository productRepository, ProductSearchRepository productSearchRepository) {
         super(productRepository, Product.class);
-        this.sellerService = sellerService;
         this.catalogService = catalogService;
-        this.categoryService = categoryService;
         this.skuService = skuService;
         this.outboxService = outboxService;
         this.productRepository = productRepository;
@@ -56,19 +53,17 @@ public class ProductService extends GenericService<Product, Long>{
     }
 
     @Transactional
-    public Product createProduct(User user, ProductRequestDTO dto) {
-        Seller seller = sellerService.getActiveSeller(user);
+    public Product createProduct(Seller seller, ProductRequestDTO dto) {
+        if(seller.isBlocked()) throw new RuntimeException("Seller is blocked");
         Catalog catalog = catalogService.findOrCreate(dto.catalog(), seller);
-        Category category = categoryService.findOrCreate(dto.category());
 
         Product product = new Product();
         product.setName(dto.name());
         product.setDescription(dto.description());
-        product.setPrice(dto.basePrice());
+        product.setPrice(dto.price());
         product.setCatalog(catalog);
-        product.setCategory(category);
         product.setSeller(seller);
-        product.setActive(true);
+        product.setImageUrl(dto.imageUrl());
 
         product = productRepository.save(product);
 
@@ -82,10 +77,10 @@ public class ProductService extends GenericService<Product, Long>{
 
     @Transactional
     @CacheEvict(value = "products", allEntries = true)
-    public List<Product> createProducts(User user, List<ProductRequestDTO> dtos) {
+    public List<Product> createProducts(Seller seller, List<ProductRequestDTO> dtos) {
         log.info("createProducts::{}", dtos.toString());
         return dtos.stream()
-                .map(dto -> createProduct(user, dto))
+                .map(dto -> createProduct(seller, dto))
                 .toList();
     }
 
@@ -137,5 +132,28 @@ public class ProductService extends GenericService<Product, Long>{
         System.out.println("🔍 Elasticsearch query");
         return productSearchRepository.search(query, pageable)
                 .map(ProductMapper::fromSearchDocument);
+    }
+
+    @Transactional
+    public Product updateProduct(Seller seller, ProductRequestDTO dto) {
+        if(seller.isBlocked()) throw new RuntimeException("Seller is blocked");
+
+        Product product = findProductById(dto.productId());
+        Catalog catalog = catalogService.findOrCreate(dto.catalog(), seller);
+        product.setName(dto.name());
+        product.setDescription(dto.description());
+        product.setPrice(dto.price());
+        product.setCatalog(catalog);
+        product.setImageUrl(dto.imageUrl());
+        product.setProductStatus(ProductStatus.PENDING_INDEXING);
+
+        product = productRepository.save(product);
+
+        List<ProductSku> skus = new ArrayList<>(skuService.createOrUpdateSkus(product, seller, dto.skus()));
+        product.setSkus(skus);
+        product = productRepository.save(product);
+
+        outboxService.publishProductCreated(product);
+        return product;
     }
 }

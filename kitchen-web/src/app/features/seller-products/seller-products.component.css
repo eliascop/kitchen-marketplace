@@ -6,11 +6,6 @@
 .item-details{
     flex-grow: 1;
 }
-button {
-    background-color: transparent;
-    border: 1px solid transparent;
-    padding-bottom: 5px;
-}
 
 .view-button{
     margin-bottom: 10px;

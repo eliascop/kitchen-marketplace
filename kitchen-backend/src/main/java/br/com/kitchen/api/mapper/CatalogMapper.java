@@ -10,6 +10,7 @@ public class CatalogMapper {
 
     public static CatalogDTO toDTO(Catalog catalog) {
         return new CatalogDTO(
+                catalog.getId(),
                 catalog.getName(),
                 catalog.getSlug());
 
