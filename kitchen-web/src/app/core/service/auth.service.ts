@@ -20,6 +20,8 @@ export class AuthService {
     this.loggedIn.next(isLogged);
     if (isLogged) {
       this.userSubject.next(this.getUserFromToken());
+    } else {
+      localStorage.removeItem('token');
     }
   }
   
@@ -55,6 +57,10 @@ export class AuthService {
     const token = this.getToken();
     if (!token || token === 'undefined') return null;
 
+    if (this.isTokenExpired(token)) {
+      return null;
+    }
+    
     try {
       const payload = jwtDecode<any>(token);
       return {

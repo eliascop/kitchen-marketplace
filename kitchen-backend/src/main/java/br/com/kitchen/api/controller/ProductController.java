@@ -3,17 +3,17 @@ package br.com.kitchen.api.controller;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
 import br.com.kitchen.api.dto.request.ProductSkuRequestDTO;
-import br.com.kitchen.api.dto.response.PaginatedResponse;
 import br.com.kitchen.api.mapper.PaginateMapper;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.CatalogService;
 import br.com.kitchen.api.service.ProductService;
-import br.com.kitchen.api.service.SkuService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -87,13 +87,11 @@ public class ProductController {
     @GetMapping("/seller")
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<?> listMyProducts(@AuthenticationPrincipal UserPrincipal principal,
-                                                           @RequestParam(defaultValue = "0") int page,
-                                                           @RequestParam(defaultValue = "20") int size
+                                            @PageableDefault(size = 20) Pageable pageable
     ) {
         try {
-            PaginatedResponse<ProductDTO> response = productService.findProductsBySellerId(principal.getSeller().get(),PageRequest.of(page, size));
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(response);
+                    .body(productService.findProductsBySellerId(principal.getSeller().get(),pageable));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of(
