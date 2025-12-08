@@ -13,7 +13,6 @@ import { CartService } from './core/service/cart.service';
 import { UserService } from './core/service/user.service';
 import { SearchService } from './core/service/search.service';
 import { User } from './core/model/user.model';
-import { take } from 'rxjs';
 
 @Component({
   selector: 'app-root',

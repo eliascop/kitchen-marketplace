@@ -7,7 +7,7 @@ import java.util.List;
 
 public record ProductRequestDTO(
 
-        Long productId,
+        Long id,
 
         @NotBlank(message = "Product name is required")
         String name,
@@ -26,5 +26,5 @@ public record ProductRequestDTO(
         String imageUrl,
 
         @NotEmpty(message = "At least one SKU is required")
-        List<@NotNull ProductSkuDTO> skus
+        List<@NotNull ProductSkuRequestDTO> skus
 ) {}

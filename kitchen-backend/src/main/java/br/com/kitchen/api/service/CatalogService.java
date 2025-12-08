@@ -44,6 +44,6 @@ public class CatalogService extends GenericService<Catalog, Long>{
                 .map(Catalog::getId)
                 .toList();
 
-        return productRepository.findByCatalogIdIn(catalogIds, pageRequest);
+        return productRepository.findActiveProductsByCatalogIdIn(catalogIds, pageRequest);
     }
 }

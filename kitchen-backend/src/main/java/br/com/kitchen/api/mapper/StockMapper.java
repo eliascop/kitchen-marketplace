@@ -25,7 +25,6 @@ public class StockMapper {
                 .totalQuantity(stock.getTotalQuantity())
                 .reservedQuantity(stock.getReservedQuantity())
                 .soldQuantity(stock.getSoldQuantity())
-                .availableQuantity(stock.getAvailableQuantity())
                 .build();
     }
 }

@@ -3,7 +3,9 @@ package br.com.kitchen.api.service;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.StockHistoryDTO;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
+import br.com.kitchen.api.dto.request.ProductSkuRequestDTO;
 import br.com.kitchen.api.dto.response.PaginatedResponse;
+import br.com.kitchen.api.enumerations.EventType;
 import br.com.kitchen.api.enumerations.ProductStatus;
 import br.com.kitchen.api.mapper.PaginateMapper;
 import br.com.kitchen.api.mapper.ProductMapper;
@@ -36,9 +38,7 @@ public class ProductService extends GenericService<Product, Long>{
     private final ProductSearchRepository productSearchRepository;
     private final HistoryServiceClient historyClient;
 
-    public ProductService(SellerService sellerService,
-                          CatalogService catalogService,
-                          CategoryService categoryService,
+    public ProductService(CatalogService catalogService,
                           SkuService skuService,
                           OutboxService outboxService,
                           HistoryServiceClient historyClient,
@@ -71,7 +71,7 @@ public class ProductService extends GenericService<Product, Long>{
         product.setSkus(skus);
         product = productRepository.save(product);
 
-        outboxService.publishProductCreated(product);
+        outboxService.publishProductEvent(product, EventType.Created);
         return product;
     }
 
@@ -108,14 +108,20 @@ public class ProductService extends GenericService<Product, Long>{
     }
 
     @Cacheable(value = "products", key = "'page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
-    public Page<Product> findAllproducts(Pageable pageable) {
-        return productRepository.findAll(pageable);
+    public Page<Product> findActiveProducts(Pageable pageable) {
+        return productRepository.findAllActiveProducts(pageable);
     }
 
     public Product findProductById(Long id) {
         log.info("findProductById::{}",id);
         return productRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+    }
+
+    public Product findProductByIdAndSeller(Long id, Seller seller) {
+        log.info("findProductByIdAndSeller::{}-{}",id,seller.getId());
+        return productRepository.findByIdAndSellerId(id, seller.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Product not found for this seller"));
     }
 
     public void deleteProduct(Long id) {
@@ -125,7 +131,7 @@ public class ProductService extends GenericService<Product, Long>{
     public Page<ProductDTO> searchProducts(String query, Pageable pageable) {
         if (query == null || query.isBlank()) {
             System.out.println("🟢 MySQL query (fallback)");
-            return productRepository.findAll(pageable)
+            return productRepository.findAllActiveProducts(pageable)
                     .map(ProductMapper::toProductResponseDTO);
         }
 
@@ -138,7 +144,7 @@ public class ProductService extends GenericService<Product, Long>{
     public Product updateProduct(Seller seller, ProductRequestDTO dto) {
         if(seller.isBlocked()) throw new RuntimeException("Seller is blocked");
 
-        Product product = findProductById(dto.productId());
+        Product product = findProductByIdAndSeller(dto.id(), seller);
         Catalog catalog = catalogService.findOrCreate(dto.catalog(), seller);
         product.setName(dto.name());
         product.setDescription(dto.description());
@@ -149,11 +155,15 @@ public class ProductService extends GenericService<Product, Long>{
 
         product = productRepository.save(product);
 
-        List<ProductSku> skus = new ArrayList<>(skuService.createOrUpdateSkus(product, seller, dto.skus()));
-        product.setSkus(skus);
-        product = productRepository.save(product);
-
-        outboxService.publishProductCreated(product);
+        outboxService.publishProductEvent(product, EventType.Updated);
         return product;
+    }
+
+    public void createOrUpdateSkus(Long productId,
+                                   Seller seller,
+                                   List<ProductSkuRequestDTO> skuDTOs) {
+
+        Product product = findProductByIdAndSeller(productId, seller);
+        skuService.createOrUpdateSkus(product, seller, skuDTOs);
     }
 }

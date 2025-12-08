@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.kitchen.api.enumerations.OrderStatus;
 import br.com.kitchen.api.enumerations.ProductStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

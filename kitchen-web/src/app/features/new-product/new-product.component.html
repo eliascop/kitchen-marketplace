@@ -45,57 +45,6 @@
           <input id="imageUrl" type="text" formControlName="imageUrl" />
         </div>
       </div>
-      <div formArrayName="skus">
-        <div *ngFor="let sku of skus.controls; let i = index" [formGroupName]="i" class="sku-card">
-      
-          <h4>SKU {{ i + 1 }}</h4>
-      
-          <div class="sku-row">
-            <div class="form-group">
-              <label for="sku-{{i}}">SKU</label>
-              <input type="text" formControlName="sku" class="input-sku" readonly/>
-            </div>
-      
-            <div class="form-group">
-              <label for="price-{{i}}">Preço</label>
-              <app-currency-input formControlName="price" class="input-price"></app-currency-input>
-            </div>
-      
-            <div class="form-group" formGroupName="stock">
-              <label for="totalQuantity-{{i}}">Quantidade estoque</label>
-              <input type="number" formControlName="totalQuantity" class="input-stock"/>
-            </div>
-          </div>
-      
-          <div formArrayName="attributes" class="attributes-section">
-            <h3>Atributos</h3>
-      
-            <div *ngFor="let attr of getAttributesControls(i); let j = index" [formGroupName]="j" class="attribute-row">
-      
-              <div class="form-group">
-                <label>Nome</label>
-                <input type="text" formControlName="attributeName">
-              </div>
-      
-              <div class="form-group">
-                <label>Valor</label>
-                <input type="text" formControlName="attributeValue">
-              </div>
-      
-              <div class="form-group">
-                <button type="button" (click)="removeAttribute(i, j)" class="cancel-button">🗑️</button>
-              </div>
-      
-            </div>
-      
-            <button type="button" (click)="addAttribute(i)" class="confirm-button">+ Adicionar Atributo</button>
-      
-          </div>
-      
-          <button type="button" (click)="removeSku(i)" class="cancel-button">Remover SKU</button>
-      
-        </div>
-      </div>
   
       <div class="form-actions">
         <button type="submit" [disabled]="productForm.invalid" class="submit-button">

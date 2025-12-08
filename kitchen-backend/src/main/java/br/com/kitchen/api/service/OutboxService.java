@@ -4,6 +4,7 @@ import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.dto.StockDTO;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.enumerations.EventStatus;
+import br.com.kitchen.api.enumerations.EventType;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.OutboxEvent;
 import br.com.kitchen.api.model.Product;
@@ -20,13 +21,15 @@ public class OutboxService {
         this.outboxRepository = outboxRepository;
     }
 
-    public void publishProductCreated(Product product) {
+    public void publishProductEvent(Product product, EventType type) {
         ProductDTO dto = ProductDTO.builder()
                 .id(product.getId())
                 .productStatus(product.getProductStatus().toString())
                 .build();
 
-        saveEvent("PRODUCT", product.getId(), "PRODUCT_CREATED", dto);
+        String eType = type.equals(EventType.Created) ? "PRODUCT_CREATED" : "PRODUCT_UPDATED";
+
+        saveEvent("PRODUCT", product.getId(), eType, dto);
     }
 
     public void createOrderEvent(Order orderSaved) {

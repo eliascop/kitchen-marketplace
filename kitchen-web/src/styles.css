@@ -67,18 +67,30 @@ button {
   font-weight: bold;
 }
 
+.cancel-button:hover {
+  background: #b91c1c;
+}
+
 .confirm-button {
   background-color: #007bff;
   color: white;
+  font-weight: bold;
+  margin-bottom: 24px;
+  font-size: 15px;
+}
+
+.confirm-button:hover {
+  background: #1e40af;
 }
 
 .cancel-button {
   background-color: #dc3545;
   color: white;
+  font-weight: bold;
 }
 
 .submit-button:hover {
-  background-color: #0056b3;
+  background: #059669;
 }
 
 .submit-button:disabled {

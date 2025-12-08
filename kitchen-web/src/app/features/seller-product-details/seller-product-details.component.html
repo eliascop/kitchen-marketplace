@@ -1,26 +1,32 @@
-<div class="modal-backdrop">
-  <div class="modal">
-    
-    <button (click)="close.emit()" class="close-button">×</button>
+<section class="product-detail-page">
 
-    <h2>{{ product.name }}</h2>
-
-    <div class="header">
+    <button class="btn-back" (click)="goBack()">← Voltar</button>
+  
+    <header class="header">
+  
       <div class="info">
+        <h1>{{ product.name }}</h1>
+  
         <p>{{ product.description }}</p>
-        <p>Categoria: {{ product.category }}</p>
-        <p>Catálogo: {{ product.catalog }}</p>
-        <p>Preço base: R$ {{ product.price | currencyFormatter }}</p>
-        <p>Status: {{ product.productStatus }}</p>
+        <p><strong>Categoria:</strong> {{ product.category }}</p>
+        <p><strong>Catálogo:</strong> {{ product.catalog }}</p>
+        <p><strong>Preço base:</strong> R$ {{ product.price | currencyFormatter }}</p>
+        <p><strong>Status:</strong> {{ product.productStatus }}</p>
+  
+        <div class="actions">
+          <button class="btn-primary" (click)="editProduct()">Editar Produto</button>
+          <button class="btn-secondary" (click)="manageSkus()">Gerenciar SKUs</button>
+        </div>
       </div>
-
+  
       <div class="image">
-        <img [src]="product.imageUrl" [alt]="product!.name" width="200">
+        <img [src]="product.imageUrl" [alt]="product.name" width="250">
       </div>
-    </div>
-
-    <h3>SKUs</h3>
-
+  
+    </header>
+  
+    <h2>SKUs</h2>
+  
     <table class="table-details" *ngIf="product.skus!.length > 0">
       <thead>
         <tr>
@@ -32,15 +38,15 @@
           <th>Histórico</th>
         </tr>
       </thead>
-
+  
       <tbody>
         <ng-container *ngFor="let sku of product.skus">
-          
+  
           <tr>
-            <td>{{ sku.id }}</td>
+            <td>{{ sku.id }}</td> 
             <td>{{ sku.sku }}</td>
             <td>R$ {{ sku.price | currencyFormatter }}</td>
-
+  
             <td>
               <ul>
                 <li *ngFor="let attr of sku.attributes">
@@ -48,25 +54,24 @@
                 </li>
               </ul>
             </td>
-
-            <td>Disponível: {{ sku.stock.availableQuantity }}</td>
-
+  
+            <td>
+              Disponível: {{ sku.stock.availableQuantity }}
+            </td>
+  
             <td class="history-cell">
-              <ng-container *ngIf="sku.stockHistory === null">
+              <ng-container *ngIf="!sku.stockHistory || sku.stockHistory.length === 0">
                 <span>Sem Movimentação</span>
               </ng-container>
-              <ng-container *ngIf="sku.stockHistory && sku.stockHistory.length === 0">
-                <span>Sem Movimentação</span>
-              </ng-container>
+  
               <ng-container *ngIf="sku.stockHistory && sku.stockHistory.length > 0">
-                <button (click)="toggleHistory(sku)">
-                  {{ sku.expanded ? '▲ Esconder' : '▼ Ver histórico' }}
+                <button class="btn-link" (click)="toggleHistory(sku)">
+                  {{ sku.expanded ? '▲ Esconder' : '▼ Ver Histórico' }}
                 </button>
               </ng-container>
-
             </td>
           </tr>
-
+  
           <tr *ngIf="sku.expanded && sku.stockHistory && sku.stockHistory.length > 0">
             <td colspan="6">
               <table class="table-details nested">
@@ -91,10 +96,9 @@
               </table>
             </td>
           </tr>
-
+  
         </ng-container>
       </tbody>
     </table>
-
-  </div>
-</div>
+  
+  </section>

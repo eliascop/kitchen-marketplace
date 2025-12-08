@@ -1,0 +1,55 @@
+<h2>Gerenciar SKUs</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+  <button type="button" class="confirm-button" (click)="addSku()">Novo SKU</button>
+
+  <div formArrayName="skus">
+    <div *ngFor="let sku of skus.controls; let i = index" [formGroupName]="i" class="sku-card">
+      
+      <div class="sku-line">
+        <h3>SKU {{ i + 1 }}</h3>
+        <button mat-icon-button color="warn" (click)="removeSku(i)" class="remove-attribute">
+          <mat-icon matTooltip="Clique para remover o SKU {{ i + 1 }}">delete</mat-icon>
+        </button>
+      </div>
+      <div class="sku-row">
+        <div class="form-group">
+          <label>SKU</label>
+          <input type="text" formControlName="sku" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Preço</label>
+          <app-currency-input formControlName="price"></app-currency-input>
+        </div>
+
+        <div class="form-group" formGroupName="stock">
+          <label>Quantidade</label>
+          <input type="number" formControlName="totalQuantity">
+        </div>
+      </div>
+
+      <h4>Atributos</h4>
+
+      <div formArrayName="attributes">
+        <div *ngFor="let attr of getAttributesControls(i); let j = index" [formGroupName]="j">
+
+          <input type="text" formControlName="attributeName" placeholder="Nome">
+          <input type="text" formControlName="attributeValue" placeholder="Valor">
+
+          <button mat-icon-button color="warn" (click)="removeAttribute(i, j)" class="remove-attribute">
+            <mat-icon matTooltip="Clique para remover o atributo {{ j + 1 }}">delete</mat-icon>
+          </button>
+
+        </div>
+      </div>
+
+      <button type="button" class="confirm-button" (click)="addAttribute(i)">Novo Atributo</button>
+
+    </div>
+  </div>
+
+  <button type="submit" class="submit-button">Salvar Alterações</button>
+
+</form>

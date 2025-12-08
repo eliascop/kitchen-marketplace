@@ -38,7 +38,7 @@ export class ProductService {
     
   }
 
-  getProductById(id: number) {
+  getProductById(id: number): ServiceResponse<Product> {
     return this.dataService.get<Product>({url: `${PRODUCT_REST_SERVICE}/${id}`});
   }
 
@@ -49,9 +49,24 @@ export class ProductService {
     });
   }
 
+  updateProduct(productData: any): ServiceResponse<Product> {
+    return this.dataService.put<Product>({
+      url: PRODUCT_REST_SERVICE,
+      body: productData,
+    });
+  }
+
   deleteProduct(id: number): ServiceResponse<Product>{
     return this.dataService.delete<Product>({
       url: `${PRODUCT_REST_SERVICE}/${id}`
     });
   }
+
+  saveSkus(productId: number, skus: any[]): ServiceResponse<void> {
+    return this.dataService.put<void>({
+      url: `${PRODUCT_REST_SERVICE}/${productId}/skus`,
+      body: skus
+    });
+  }
+
 }

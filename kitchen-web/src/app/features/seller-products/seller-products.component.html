@@ -20,9 +20,3 @@
   (remove)="onRemove($event)"
   (view)="onView($event)">
 </app-generic-table>
-
-<app-product-details-modal
-  *ngIf="selectedProduct"
-  [product]="selectedProduct"
-  (close)="selectedProduct = null">
-</app-product-details-modal>

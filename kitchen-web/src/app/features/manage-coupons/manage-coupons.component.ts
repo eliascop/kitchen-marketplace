@@ -4,13 +4,12 @@ import { Coupon } from '../../core/model/coupon.model';
 import { CouponService } from '../../core/service/coupon.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
-import { FormatDateTimePipe } from "../../core/pipes/format-date-time.pipe";
 import { GenericTableComponent, TableColumn } from "../../shared/components/generic-table/generic-table.component";
 
 @Component({
   selector: 'app-manage-coupons',
   standalone: true,
-  imports: [CommonModule, FormatDateTimePipe, GenericTableComponent],
+  imports: [CommonModule, GenericTableComponent],
   templateUrl: './manage-coupons.component.html',
   styleUrls: ['./manage-coupons.component.css']
 })

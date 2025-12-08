@@ -21,8 +21,8 @@
           <div class="item-details">
             <span class="item-name">{{ item.productName }}</span>
             <span class="item-quantity">x {{ item.quantity }}</span>
-            <span class="item-price">R$ {{ item.value | currencyFormatter}}</span>
-            <span class="item-subTotal">R$ {{ (item.value * item.quantity) | currencyFormatter}}</span>
+            <span class="item-price">{{ item.value | currencyFormatter}}</span>
+            <span class="item-subTotal">{{ (item.value * item.quantity) | currencyFormatter}}</span>
           </div>
           <button class="remove-btn" (click)="onRemoveItem(item.id!)"> <i class="fa fa-trash"></i> </button>
         </div>
@@ -32,8 +32,8 @@
       </div>
 
       <div class="cart-summary">
-        <h3>Total: R$ {{ cart.cartTotal | currencyFormatter }}</h3>
-        <button class="btn-step" (click)="nextStep()">Continuar para meus locais de entrega</button>
+        <h3>Total: {{ cart.cartTotal | currencyFormatter }}</h3>
+        <button class="btn-step" (click)="nextStep()">>> Próximo</button>
       </div>
     </div>
   </div>
@@ -55,20 +55,20 @@
           <div *ngFor="let option of shippingOptions">
             <label>
               <input type="radio" name="shipping-{{ i }}" [value]="option" [checked]="ship.id === option.id" (change)="selectShipping(ship, option)" />
-              {{ option.method }} - R$ {{ option.cost | currencyFormatter }} - {{ option.estimatedDays }} dias
+              {{ option.method }} - {{ option.cost | currencyFormatter }} - {{ option.estimatedDays }} dias
             </label>
           </div>
 
         </div>
       </div>
       <div class="shipping-frete">
-        <div>Total frete: R$ {{shippingTotal | currencyFormatter}}</div>
-        <h3>Total do pedido: R$ {{cart.cartTotal +  shippingTotal | currencyFormatter}}</h3>
+        <div>Total frete: {{shippingTotal | currencyFormatter}}</div>
+        <h3>Total do pedido: {{cart.cartTotal +  shippingTotal | currencyFormatter}}</h3>
       </div>
     </div>
     <div class="actions">
       <button class="btn-step" (click)="prevStep()">Voltar</button>
-      <button class="btn-confirm" (click)="updateShipping()" [disabled]="!allShippingsSelected()">Continuar para pagamento</button>
+      <button class="btn-confirm" (click)="updateShipping()" [disabled]="!allShippingsSelected()">>> Próximo</button>
     </div>
   </div>
   
@@ -83,7 +83,7 @@
 
     <div class="actions">
       <button class="btn-step" (click)="prevStep()">Voltar</button>
-      <button class="btn-step" (click)="onPaymentSelected()" [disabled]="!paymentMethod">Continuar</button>
+      <button class="btn-step" (click)="onPaymentSelected()" [disabled]="!paymentMethod">>>Próximo</button>
     </div>
   </div>
 
@@ -94,8 +94,8 @@
           <div class="item-details">
             <span class="item-name">{{ item.productName }}</span>
             <span class="item-quantity">x {{ item.quantity }}</span>
-            <span class="item-price">R$ {{ item.value | currencyFormatter}}</span>
-            <span class="item-subTotal">R$ {{ (item.value * item.quantity) | currencyFormatter}}</span>
+            <span class="item-price">{{ item.value | currencyFormatter}}</span>
+            <span class="item-subTotal">{{ (item.value * item.quantity) | currencyFormatter}}</span>
           </div>
       </div>
       <div class="resume-box">
@@ -106,12 +106,12 @@
       <div class="resume-box">
         <label>Prazo estimado para entrega:</label>
         <label *ngFor="let ship of cart.shippingMethod">
-          R$ {{ ship.cost | currencyFormatter }} - {{ ship.carrier }} - {{ ship.estimatedDays }} dias
+          {{ ship.cost | currencyFormatter }} - {{ ship.carrier }} - {{ ship.estimatedDays }} dias
         </label>
       </div>
       <div class="resume-box">
-        <div>Total frete: R$ {{shippingTotal | currencyFormatter}}</div>
-        <h3>Total do pedido: R$ {{cart.cartTotal +  shippingTotal | currencyFormatter}}</h3>
+        <div>Total frete: {{shippingTotal | currencyFormatter}}</div>
+        <h3>Total do pedido: {{cart.cartTotal +  shippingTotal | currencyFormatter}}</h3>
       </div>
 
     <div class="actions">

@@ -6,7 +6,6 @@ import { Pipe, PipeTransform } from '@angular/core';
 })
 export class CurrencyFormatterPipe implements PipeTransform {
 
-
   transform(value: string | number | null | undefined): string {
     if (value == null) {
       return '';
@@ -27,7 +26,7 @@ export class CurrencyFormatterPipe implements PipeTransform {
       }
     }
   
-    return formattedValue + ',' + decimalPart;
+    return 'R$ '+formattedValue + ',' + decimalPart;
   }
 
 }

@@ -3,11 +3,12 @@ import { Component, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEm
 import { Product } from '../../core/model/product.model';
 import { Router } from '@angular/router';
 import { Catalog } from '../../core/model/catalog.model';
+import { CurrencyFormatterPipe } from "../../core/pipes/currency-input.pipe";
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CurrencyFormatterPipe],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css']
 })

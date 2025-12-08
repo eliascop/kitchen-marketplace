@@ -21,20 +21,20 @@ public class CartService extends GenericService<Cart, Long> {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final SellerService sellerService;
-    private final ProductSkuService productSkuService;
+    private final SkuService skuService;
 
     @Autowired
     public CartService(AddressService addressService,
                        CartRepository cartRepository,
                        CartItemRepository cartItemRepository,
                        SellerService sellerService,
-                       ProductSkuService productSkuService) {
+                       SkuService skuService) {
         super(cartRepository, Cart.class);
         this.addressService = addressService;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.sellerService = sellerService;
-        this.productSkuService = productSkuService;
+        this.skuService = skuService;
     }
 
     public Cart getOrCreateCart(User user) throws Exception{
@@ -81,7 +81,7 @@ public class CartService extends GenericService<Cart, Long> {
 
     @Transactional
     public Cart manageItems(User user, Long skuId, int quantity) throws Exception{
-        ProductSku productSku = productSkuService.getById(skuId);
+        ProductSku productSku = skuService.getById(skuId);
 
         Cart cart = getOrCreateCart(user);
         addOrUpdateItem(cart, productSku, quantity);

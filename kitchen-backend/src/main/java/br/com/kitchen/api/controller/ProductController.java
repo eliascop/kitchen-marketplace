@@ -2,6 +2,7 @@ package br.com.kitchen.api.controller;
 
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
+import br.com.kitchen.api.dto.request.ProductSkuRequestDTO;
 import br.com.kitchen.api.dto.response.PaginatedResponse;
 import br.com.kitchen.api.mapper.PaginateMapper;
 import br.com.kitchen.api.mapper.ProductMapper;
@@ -9,6 +10,7 @@ import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.CatalogService;
 import br.com.kitchen.api.service.ProductService;
+import br.com.kitchen.api.service.SkuService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,9 +29,11 @@ import java.util.Map;
 public class ProductController {
 
     private final ProductService productService;
+
     private final CatalogService catalogService;
 
-    public ProductController(ProductService productService, CatalogService catalogService) {
+    public ProductController(ProductService productService,
+                             CatalogService catalogService) {
         this.productService = productService;
         this.catalogService = catalogService;
     }
@@ -45,7 +49,7 @@ public class ProductController {
             if (catalog != null && !catalog.isEmpty()) {
                 products = catalogService.findProductsByCatalogSlug(catalog, PageRequest.of(page, size));
             } else {
-                products = productService.findAllproducts(PageRequest.of(page, size));
+                products = productService.findActiveProducts(PageRequest.of(page, size));
             }
 
             Page<ProductDTO> mapped = products.map(ProductMapper::toProductResponseDTO);
@@ -173,5 +177,24 @@ public class ProductController {
                 Map.of("message", "Product deleted successfully",
                         "code", HttpStatus.OK.value())
         );
+    }
+
+    @PutMapping("/{id}/skus")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<?> updateProductSku(@AuthenticationPrincipal UserPrincipal principal,
+                                              @PathVariable Long id,
+                                              @RequestBody List<ProductSkuRequestDTO> dto) {
+        try {
+            productService.createOrUpdateSkus(id,principal.getSeller().get(), dto);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of("message", "Product SKUs updated successfully"));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message", "An error has occurred when updating the product",
+                            "details", e.getMessage()
+                    ));
+        }
     }
 }

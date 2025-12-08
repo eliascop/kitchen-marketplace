@@ -68,12 +68,12 @@
 
           <button class="btn btn-blue add-to-cart-btn"
                   (click)="addToCart()"
-                  [disabled]="!selectedSku || selectedSku.stock?.availableQuantity === 0">
+                  [disabled]="!selectedSku || availableStock === 0">
             Adicionar ao Carrinho
           </button>
         </div>
 
-        <p *ngIf="selectedSku?.stock?.availableQuantity === 0" class="stock-warning">
+        <p *ngIf="availableStock === 0" class="stock-warning">
           Este item está esgotado no momento.
         </p>
       </article>

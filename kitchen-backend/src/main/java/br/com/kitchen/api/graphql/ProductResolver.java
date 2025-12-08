@@ -29,7 +29,7 @@ public class ProductResolver {
     @QueryMapping
     public List<Product> products(@Argument int limit, @Argument int offset) {
         var page = PageRequest.of(offset / limit, limit);
-        return productService.findAllproducts(page).getContent();
+        return productService.findActiveProducts(page).getContent();
     }
 
     @QueryMapping

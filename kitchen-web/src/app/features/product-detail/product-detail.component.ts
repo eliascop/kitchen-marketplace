@@ -100,4 +100,8 @@ export class ProductDetailComponent implements OnInit {
   goBack(): void {
     this.location.back();
   }
+
+  get availableStock(): number {
+    return this.selectedSku.stock?.totalQuantity ?? 0;
+  }
 }

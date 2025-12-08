@@ -5,20 +5,18 @@ import { Subscription, take } from 'rxjs';
 import { ProductService } from '../../core/service/product.service';
 import { Product } from '../../core/model/product.model';
 import { ToastService } from '../../core/service/toast.service';
-import { ProductDetailsModalComponent } from "../../shared/components/product-details-modal/product-details-modal.component";
 import { GenericTableComponent, TableColumn } from "../../shared/components/generic-table/generic-table.component";
 
 @Component({
   selector: 'app-seller-products',
   standalone: true,
-  imports: [CommonModule, ProductDetailsModalComponent, GenericTableComponent],
+  imports: [CommonModule, GenericTableComponent],
   templateUrl: './seller-products.component.html',
   styleUrl: './seller-products.component.css'
 })
 export class SellerProductsComponent implements OnInit, OnDestroy {
 
   products: Product[] = [];
-  selectedProduct: Product | null = null;
   histories: History[] = [];
 
   loading = false;
@@ -107,7 +105,7 @@ export class SellerProductsComponent implements OnInit, OnDestroy {
   }
 
   onView(product: Product) {
-    this.selectedProduct = product;
+    this.router.navigate([`/seller-products/${product.id}`]);
   }
 
   onPaginate({ page, pageSize }: { page: number; pageSize: number }) {
