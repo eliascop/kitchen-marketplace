@@ -19,8 +19,8 @@ public class ProductDTO {
     private String description;
     private String imageUrl;
     private BigDecimal price;
-    private String catalog;
-    private String category;
+    private CatalogDTO catalog;
+    private CategoryDTO category;
     private String productStatus;
     private SellerDTO seller;
     private List<ProductSkuDTO> skus;

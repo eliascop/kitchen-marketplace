@@ -28,7 +28,7 @@ public class StockLambdaHandler implements RequestHandler<SQSEvent, String> {
 
         this.dynamoDbClient = DynamoDbClient.builder()
                 .endpointOverride(endpoint)
-                .region(software.amazon.awssdk.regions.Region.US_EAST_1)
+                .region(software.amazon.awssdk.regions.Region.SA_EAST_1)
                 .build();
     }
 

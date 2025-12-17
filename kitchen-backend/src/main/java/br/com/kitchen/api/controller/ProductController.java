@@ -1,5 +1,6 @@
 package br.com.kitchen.api.controller;
 
+import br.com.kitchen.api.dto.CategoryDTO;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
 import br.com.kitchen.api.dto.request.ProductSkuRequestDTO;
@@ -10,6 +11,7 @@ import br.com.kitchen.api.security.UserPrincipal;
 import br.com.kitchen.api.service.CatalogService;
 import br.com.kitchen.api.service.ProductService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/products/v1")
 @SecurityRequirement(name = "bearer-key")
+@Slf4j
 public class ProductController {
 
     private final ProductService productService;
@@ -187,6 +190,24 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(Map.of("message", "Product SKUs updated successfully"));
         } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message", "An error has occurred when updating the product",
+                            "details", e.getMessage()
+                    ));
+        }
+    }
+
+    @PatchMapping("/{id}/category")
+    public ResponseEntity<?> updateProductCategory(@PathVariable Long id,
+                                                   @RequestBody CategoryDTO category) {
+        try {
+            productService.updateProductCategory(id,category);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Map.of("message", "Product updated with success"));
+        } catch (Exception e) {
+            log.error("ERROR ON Updating product.id={} and category.id={}, category.name={}, error: {}",id,category.getId(),category.getName(), e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of(

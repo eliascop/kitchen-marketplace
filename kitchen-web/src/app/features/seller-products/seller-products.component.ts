@@ -33,8 +33,8 @@ export class SellerProductsComponent implements OnInit, OnDestroy {
   columns: TableColumn<Product>[] = [
     { key: 'id', label: 'ID', sortable: true },
     { key: 'name', label: 'Nome', sortable: true },
-    { key: 'catalog', label: 'Catálogo' },
-    { key: 'category', label: 'Categoria' },
+    { key: 'catalog', label: 'Catálogo', formatter: (value, row) => row.catalog ? row.catalog.name : '—', sortable: true },
+    { key: 'category', label: 'Categoria', formatter: (value, row) => row.category ? row.category.name : '—', sortable: true },
     { key: 'price', label: 'Preço', formatter: (value, row) => row.price ? `R$ ${value.toFixed(2)}` : '—', sortable: true },
     { key: 'productStatus', label: 'Status', sortable: true }
   ];

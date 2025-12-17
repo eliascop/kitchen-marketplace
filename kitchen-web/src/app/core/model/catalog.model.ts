@@ -1,5 +1,5 @@
-export interface Catalog {
-    id: number;
-    name: string;
-    slug: string;
+export class Catalog {
+    public id: number = 0;
+    public name: string = '';
+    public slug: string = '';
   }

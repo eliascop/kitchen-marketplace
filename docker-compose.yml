@@ -10,8 +10,8 @@ services:
       timeout: 3s
       retries: 10
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: kitchen
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "kitchen"
     ports:
       - "3306:3306"
     volumes:
@@ -20,17 +20,21 @@ services:
       - kitchen-network
 
   nginx:
-    image: nginx:latest
+    image: nginx:1.25.3
     container_name: nginx-reverse-proxy
     ports:
       - "80:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - kitchen-api
-      - kitchen-history
-      - kitchen-monitoring
-      - kitchen-web
+      kitchen-api:
+        condition: service_started
+      kitchen-history:
+        condition: service_started
+      kitchen-monitoring:
+        condition: service_started
+      kitchen-web:
+        condition: service_started
     networks:
       - kitchen-network
 
@@ -49,11 +53,10 @@ services:
     ports:
       - "5005:5005"
     environment:
-      JAVA_TOOL_OPTIONS:
-        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kitchen?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SQS_ENDPOINT: http://localstack:4566
-      SNS_ENDPOINT: http://localstack:4566
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/kitchen?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SQS_ENDPOINT: "http://localstack:4566"
+      SNS_ENDPOINT: "http://localstack:4566"
     networks:
       - kitchen-network
 
@@ -82,55 +85,30 @@ services:
       - kitchen-network
 
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:3.0.2
     container_name: localstack
-    logging:
-      driver: "none"
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=sqs,sns,lambda,dynamodb
-      - DEBUG=0
-      - LS_LOG=warning
-      - PERSISTENCE=1
-      - AWS_DEFAULT_REGION=sa-east-1
-      - LAMBDA_EXECUTOR=docker
+      SERVICES: "sqs,sns,lambda,dynamodb,s3"
+      DEBUG: "1"
+      PERSISTENCE: "1"
+      AWS_DEFAULT_REGION: sa-east-1
+      AWS_REGION: sa-east-1
+      AWS_ENDPOINT_URL: http://localstack:4566
+      LAMBDA_RUNTIME_EXECUTOR: "docker"
+      LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT: 120
+      LAMBDA_DOCKER_NETWORK: "kitchen-network"
     volumes:
       - "./.localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - ./localstack/init-resources.sh:/etc/localstack/init/ready.d/init-resources.sh
-      - ./order-lambda/target/order-lambda-1.0-SNAPSHOT.jar:/tmp/order-lambda.jar
-      - ./stock-lambda/target/stock-lambda-1.0-SNAPSHOT.jar:/tmp/stock-lambda.jar
-      - ./payment-lambda/target/payment-lambda-1.0-SNAPSHOT.jar:/tmp/payment-lambda.jar
+      - "./localstack/init-resources.sh:/etc/localstack/init/ready.d/init-resources.sh"
+      - "./order-lambda/target/order-lambda-1.0-SNAPSHOT.jar:/tmp/order-lambda.jar"
+      - "./stock-lambda/target/stock-lambda-1.0-SNAPSHOT.jar:/tmp/stock-lambda.jar"
+      - "./payment-lambda/target/payment-lambda-1.0-SNAPSHOT.jar:/tmp/payment-lambda.jar"
+      - "./product-lambda/target/product-lambda-1.0-SNAPSHOT.jar:/tmp/product-lambda.jar"
     networks:
       - kitchen-network
-
-  stock-lambda:
-    build: ./stock-lambda
-    image: stock-lambda:latest
-    container_name: stock-lambda
-    networks:
-      - kitchen-network
-    depends_on:
-      - localstack
-
-  order-lambda:
-    build: ./order-lambda
-    image: order-lambda:latest
-    container_name: order-lambda
-    networks:
-      - kitchen-network
-    depends_on:
-      - localstack
-
-  payment-lambda:
-    build: ./payment-lambda
-    image: payment-lambda:latest
-    container_name: payment-lambda
-    networks:
-      - kitchen-network
-    depends_on:
-      - localstack
 
   kitchen-web:
     build:
@@ -141,8 +119,8 @@ services:
       - ./kitchen-web:/app
       - /app/node_modules
     environment:
-      - CHOKIDAR_USEPOLLING=true
-    command: npm run start:public
+      CHOKIDAR_USEPOLLING: "true"
+    command: "npm run start:public"
     networks:
       - kitchen-network
 
@@ -163,17 +141,21 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
     container_name: elasticsearch
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - xpack.license.self_generated.type=basic
-      - xpack.security.transport.ssl.enabled=false
-      - xpack.ml.enabled=false
-      - xpack.monitoring.collection.enabled=false
-      - cluster.name=kitchen-cluster
-      - node.name=es01
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    mem_limit: 3g 
+      discovery.type: "single-node"
+      xpack.security.enabled: "false"
+      xpack.security.http.ssl.enabled: "false"
+      xpack.security.transport.ssl.enabled: "false"
+      xpack.license.self_generated.type: "basic"
+      xpack.ml.enabled: "false"
+      xpack.monitoring.collection.enabled: "false"
+      cluster.name: "kitchen-cluster"
+      node.name: "es01"
+      bootstrap.memory_lock: "true"
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+    deploy:
+      resources:
+        limits:
+          memory: 4g
     ports:
       - "9200:9200"
     ulimits:
@@ -197,11 +179,11 @@ services:
       elasticsearch:
         condition: service_healthy
     environment:
-      - SERVER_NAME=kibana
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - SERVER_PUBLICBASEURL=http://localhost:5601
-      - TELEMETRY_ENABLED=false
-      - MONITORING_ENABLED=false
+      SERVER_NAME: "kibana"
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+      SERVER_PUBLICBASEURL: "http://localhost:5601"
+      TELEMETRY_ENABLED: "false"
+      MONITORING_ENABLED: "false"
     ports:
       - "5601:5601"
     networks:
@@ -209,7 +191,9 @@ services:
 
 networks:
   kitchen-network:
+    name: kitchen-network
     driver: bridge
+    attachable: true
 
 volumes:
   mysql_data:

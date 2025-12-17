@@ -1,5 +1,7 @@
 package br.com.kitchen.api.service;
 
+import br.com.kitchen.api.dto.CatalogDTO;
+import br.com.kitchen.api.dto.CategoryDTO;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.StockHistoryDTO;
 import br.com.kitchen.api.dto.request.ProductRequestDTO;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
 public class ProductService extends GenericService<Product, Long>{
 
     private final CatalogService catalogService;
+    private final CategoryService categoryService;
     private final SkuService skuService;
     private final OutboxService outboxService;
     private final ProductRepository productRepository;
@@ -39,12 +43,15 @@ public class ProductService extends GenericService<Product, Long>{
     private final HistoryServiceClient historyClient;
 
     public ProductService(CatalogService catalogService,
+                          CategoryService categoryService,
                           SkuService skuService,
                           OutboxService outboxService,
                           HistoryServiceClient historyClient,
-                          ProductRepository productRepository, ProductSearchRepository productSearchRepository) {
+                          ProductRepository productRepository,
+                          ProductSearchRepository productSearchRepository) {
         super(productRepository, Product.class);
         this.catalogService = catalogService;
+        this.categoryService = categoryService;
         this.skuService = skuService;
         this.outboxService = outboxService;
         this.productRepository = productRepository;
@@ -55,7 +62,7 @@ public class ProductService extends GenericService<Product, Long>{
     @Transactional
     public Product createProduct(Seller seller, ProductRequestDTO dto) {
         if(seller.isBlocked()) throw new RuntimeException("Seller is blocked");
-        Catalog catalog = catalogService.findOrCreate(dto.catalog(), seller);
+        Catalog catalog = catalogService.findOrCreate(dto.catalogName(), seller);
 
         Product product = new Product();
         product.setName(dto.name());
@@ -66,6 +73,10 @@ public class ProductService extends GenericService<Product, Long>{
         product.setImageUrl(dto.imageUrl());
 
         product = productRepository.save(product);
+
+        if(dto.skus() == null || dto.skus().isEmpty()){
+            return product;
+        }
 
         List<ProductSku> skus = new ArrayList<>(skuService.createOrUpdateSkus(product, seller, dto.skus()));
         product.setSkus(skus);
@@ -145,7 +156,7 @@ public class ProductService extends GenericService<Product, Long>{
         if(seller.isBlocked()) throw new RuntimeException("Seller is blocked");
 
         Product product = findProductByIdAndSeller(dto.id(), seller);
-        Catalog catalog = catalogService.findOrCreate(dto.catalog(), seller);
+        Catalog catalog = catalogService.findOrCreate(dto.catalogName(), seller);
         product.setName(dto.name());
         product.setDescription(dto.description());
         product.setPrice(dto.price());
@@ -165,5 +176,19 @@ public class ProductService extends GenericService<Product, Long>{
 
         Product product = findProductByIdAndSeller(productId, seller);
         skuService.createOrUpdateSkus(product, seller, skuDTOs);
+        outboxService.publishProductEvent(product, EventType.Updated);
+    }
+
+    @Transactional
+    public void updateProductCategory(Long id, CategoryDTO categoryDTO) {
+        if(categoryDTO.getId() != null && categoryDTO.getId() > 0) {
+            productRepository.updateCategoryAndStatus(id, categoryDTO.getId());
+        }else{
+            Category newCategory = categoryService.findOrCreate(categoryDTO.getName());
+            Product product = findProductById(id);
+            product.setCategory(newCategory);
+            product.setProductStatus(ProductStatus.ACTIVE);
+            product.setActivatedAt(LocalDateTime.now());
+        }
     }
 }

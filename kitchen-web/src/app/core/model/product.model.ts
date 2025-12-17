@@ -1,4 +1,6 @@
 import { Seller } from "./user.model";
+import { Category } from "./category.model";
+import { Catalog } from "./catalog.model";
 
 export class Product {
   public id: number | null = null;
@@ -6,8 +8,8 @@ export class Product {
   public description: string = '';
   public imageUrl: string = '';
   public price: number = 0;
-  public catalog: string = '';
-  public category: string = '';
+  public catalog: Catalog = new Catalog;
+  public category: Category = new Category;
   public productStatus: string = '';
   public skus: Sku[] = [];
   public seller: Seller = new Seller;

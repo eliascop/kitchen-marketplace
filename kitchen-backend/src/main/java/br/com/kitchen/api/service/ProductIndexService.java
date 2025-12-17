@@ -1,8 +1,6 @@
 package br.com.kitchen.api.service;
 
-import br.com.kitchen.api.dto.search.ProductSearchDocumentDTO;
-import br.com.kitchen.api.dto.search.ProductSkuSearchDocumentDTO;
-import br.com.kitchen.api.dto.search.SkuAttributeSearchDocumentDTO;
+import br.com.kitchen.api.dto.search.*;
 import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.repository.jpa.ProductRepository;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -39,8 +37,10 @@ public class ProductIndexService {
                             .properties("imageUrl", p -> p.keyword(k -> k))
                             .properties("sellerId", p -> p.long_(l -> l))
                             .properties("sellerName", p -> p.text(t -> t.analyzer("standard")))
-                            .properties("catalog", p -> p.keyword(k -> k))
-                            .properties("category", p -> p.keyword(k -> k))
+                            .properties("catalogId", p -> p.long_(k -> k))
+                            .properties("catalogName", p -> p.keyword(n -> n))
+                            .properties("categoryId", p -> p.long_(o -> o))
+                            .properties("categoryName", p -> p.keyword(d -> d))
                             .properties("createdAt", p -> p.date(d -> d))
                             .properties("activatedAt", p -> p.date(d -> d))
                             .properties("active", p -> p.boolean_(b -> b))
@@ -80,8 +80,8 @@ public class ProductIndexService {
                     .imageUrl(product.getImageUrl())
                     .sellerId(product.getSeller().getId())
                     .sellerName(product.getSeller().getStoreName())
-                    .catalog(product.getCatalog() != null ? product.getCatalog().getName() : null)
-                    .category(product.getCategory() != null ? product.getCategory().getName() : null)
+                    .catalogId(product.getCatalog().getId())
+                    .catalogName(product.getCatalog().getName())
                     .createdAt(product.getCreatedAt())
                     .activatedAt(product.getActivatedAt())
                     .productStatus(product.getProductStatus().toString())
@@ -111,7 +111,7 @@ public class ProductIndexService {
             );
         }
 
-        System.out.println("✅ " + products.size() + " produtos sincronizados com Elasticsearch!");
+        System.out.println("✅ " + products.size() + " synchronized in the Elasticsearch!");
     }
 
 

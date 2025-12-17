@@ -81,7 +81,7 @@ export class NewProductComponent implements OnInit {
       description: ['', Validators.required],
       price: [0.0, Validators.required],
       imageUrl: ['', Validators.required],
-      catalog: ['', Validators.required]
+      catalogName: ['', Validators.required]
     });
   }
 

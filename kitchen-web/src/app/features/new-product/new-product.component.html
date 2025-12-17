@@ -31,8 +31,8 @@
         </div>
   
         <div class="form-group">
-          <label for="catalog">Catalogo de Produto</label>
-          <select id="catalog" formControlName="catalog">
+          <label for="catalogName">Catalogo de Produto</label>
+          <select id="catalogName" formControlName="catalogName">
             <option value="">Selecione um catálogo</option>
             <option *ngFor="let catalog of catalogs" [value]="catalog.name">
               {{ catalog.name }}

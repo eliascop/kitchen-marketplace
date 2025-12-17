@@ -20,7 +20,7 @@ public record ProductRequestDTO(
         BigDecimal price,
 
         @NotBlank(message = "Catalog name is required")
-        String catalog,
+        String catalogName,
 
         @NotBlank(message = "Product Image is required")
         String imageUrl,

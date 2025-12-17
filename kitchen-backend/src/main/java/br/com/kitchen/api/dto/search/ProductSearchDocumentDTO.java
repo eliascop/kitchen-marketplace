@@ -23,8 +23,11 @@ public class ProductSearchDocumentDTO {
     private Long sellerId;
     private String sellerName;
 
-    private String catalog;
-    private String category;
+    private Long catalogId;
+    private String catalogName;
+
+    private Long categoryId;
+    private String categoryName;
 
     private LocalDateTime createdAt;
     private LocalDateTime activatedAt;

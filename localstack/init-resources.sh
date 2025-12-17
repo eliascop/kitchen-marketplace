@@ -10,7 +10,7 @@ awslocal sqs create-queue --queue-name payment-lambda-queue
 awslocal sqs create-queue --queue-name order-queue
 awslocal sqs create-queue --queue-name stock-queue
 awslocal sqs create-queue --queue-name payment-queue
-awslocal sqs create-queue --queue-name product-queue
+awslocal sqs create-queue --queue-name product-indexation-queue
 awslocal sqs create-queue --queue-name wallet-transaction-queue
 
 QUEUE_URL_ORDER_LAMBDA=$(awslocal sqs get-queue-url --queue-name order-lambda-queue --query "QueueUrl" --output text)
@@ -20,9 +20,8 @@ QUEUE_URL_PAYMENT_LAMBDA=$(awslocal sqs get-queue-url --queue-name payment-lambd
 QUEUE_URL_ORDER=$(awslocal sqs get-queue-url --queue-name order-queue --query "QueueUrl" --output text)
 QUEUE_URL_STOCK=$(awslocal sqs get-queue-url --queue-name stock-queue --query "QueueUrl" --output text)
 QUEUE_URL_PAYMENT=$(awslocal sqs get-queue-url --queue-name payment-queue --query "QueueUrl" --output text)
-QUEUE_URL_PRODUCT=$(awslocal sqs get-queue-url --queue-name product-queue --query "QueueUrl" --output text)
+QUEUE_URL_PRODUCT=$(awslocal sqs get-queue-url --queue-name product-indexation-queue --query "QueueUrl" --output text)
 QUEUE_URL_WALLET_TRANSACTION=$(awslocal sqs get-queue-url --queue-name wallet-transaction-queue --query "QueueUrl" --output text)
-
 
 QUEUE_ARN_ORDER_LAMBDA=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_ORDER_LAMBDA  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
 QUEUE_ARN_STOCK_LAMBDA=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_STOCK_LAMBDA  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
@@ -82,7 +81,10 @@ awslocal lambda create-function \
   --runtime java17 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --handler br.com.kitchen.lambda.OrderLambdaHandler::handleRequest \
-  --zip-file fileb:///tmp/order-lambda.jar
+  --zip-file fileb:///tmp/order-lambda.jar \
+  || awslocal lambda update-function-code \
+       --function-name order-lambda \
+       --zip-file fileb:///tmp/order-lambda.jar
 
 echo ">> Criando Stock-Lambda function..."
 awslocal lambda create-function \
@@ -90,7 +92,10 @@ awslocal lambda create-function \
   --runtime java17 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --handler br.com.kitchen.lambda.StockLambdaHandler::handleRequest \
-  --zip-file fileb:///tmp/stock-lambda.jar
+  --zip-file fileb:///tmp/stock-lambda.jar \
+  || awslocal lambda update-function-code \
+       --function-name stock-lambda \
+       --zip-file fileb:///tmp/stock-lambda.jar
 
 echo ">> Criando Payment-Lambda function..."
 awslocal lambda create-function \
@@ -98,23 +103,51 @@ awslocal lambda create-function \
   --runtime java17 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --handler br.com.kitchen.lambda.PaymentLambdaHandler::handleRequest \
-  --zip-file fileb:///tmp/payment-lambda.jar
+  --zip-file fileb:///tmp/payment-lambda.jar \
+  || awslocal lambda update-function-code \
+       --function-name payment-lambda \
+       --zip-file fileb:///tmp/payment-lambda.jar
 
-echo ">> Criando Event Source Mapping Lambda - Order"
-awslocal lambda create-event-source-mapping \
-  --function-name order-lambda \
-  --batch-size 1 \
-  --event-source-arn $QUEUE_ARN_ORDER_LAMBDA
+echo ">> Criando Product-Lambda function..."
+awslocal lambda create-function \
+  --function-name product-lambda \
+  --runtime java17 \
+  --role arn:aws:iam::000000000000:role/lambda-role \
+  --handler br.com.kitchen.indexation.ProductIndexationLambda::handleRequest \
+  --zip-file fileb:///tmp/product-lambda.jar \
+  --timeout 60 \
+  --memory-size 1024 \
+  || awslocal lambda update-function-code \
+       --function-name product-lambda \
+       --zip-file fileb:///tmp/product-lambda.jar
 
-echo ">> Criando Event Source Mapping Lambda - Stock"
-awslocal lambda create-event-source-mapping \
-  --function-name stock-lambda \
-  --batch-size 1 \
-  --event-source-arn $QUEUE_ARN_STOCK_LAMBDA
+ensure_mapping() {
+  local FUNCTION_NAME="$1"
+  local EVENT_SOURCE_ARN="$2"
 
-echo ">> Criando Event Source Mapping Lambda - PaymentHistory"
-awslocal lambda create-event-source-mapping \
-  --function-name payment-lambda \
-  --batch-size 1 \
-  --event-source-arn $QUEUE_ARN_PAYMENT_LAMBDA
+  local UUID
+  UUID=$(awslocal lambda list-event-source-mappings \
+    --function-name "$FUNCTION_NAME" \
+    --query "EventSourceMappings[?EventSourceArn=='${EVENT_SOURCE_ARN}'].UUID" \
+    --output text 2>/dev/null || true)
 
+  if [ -n "$UUID" ] && [ "$UUID" != "None" ]; then
+    echo ">> Removendo mapping existente ($UUID) de $FUNCTION_NAME"
+    awslocal lambda delete-event-source-mapping --uuid "$UUID" || true
+  fi
+
+  echo ">> Criando mapping para $FUNCTION_NAME"
+  awslocal lambda create-event-source-mapping \
+    --function-name "$FUNCTION_NAME" \
+    --batch-size 5 \
+    --event-source-arn "$EVENT_SOURCE_ARN" \
+    --maximum-batching-window-in-seconds 1
+}
+
+ensure_mapping "order-lambda" "$QUEUE_ARN_ORDER_LAMBDA"
+
+ensure_mapping "product-lambda" "$QUEUE_ARN_PRODUCT"
+
+ensure_mapping "stock-lambda" "$QUEUE_ARN_STOCK_LAMBDA"
+
+ensure_mapping "payment-lambda" "$QUEUE_ARN_PAYMENT_LAMBDA"

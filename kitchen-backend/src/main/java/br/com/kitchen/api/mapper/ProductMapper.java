@@ -1,9 +1,6 @@
 package br.com.kitchen.api.mapper;
 
-import br.com.kitchen.api.dto.ProductAttributeDTO;
-import br.com.kitchen.api.dto.ProductDTO;
-import br.com.kitchen.api.dto.ProductSkuDTO;
-import br.com.kitchen.api.dto.SellerDTO;
+import br.com.kitchen.api.dto.*;
 import br.com.kitchen.api.dto.search.ProductSearchDocumentDTO;
 import br.com.kitchen.api.model.Product;
 import br.com.kitchen.api.model.ProductAttribute;
@@ -21,8 +18,8 @@ public class ProductMapper {
                 .description(product.getDescription())
                 .imageUrl(product.getImageUrl())
                 .price(product.getPrice())
-                .catalog(product.getCatalog() != null ? product.getCatalog().getName() : null)
-                .category(product.getCategory() != null ? product.getCategory().getName() : null)
+                .catalog(CatalogMapper.toDTO(product.getCatalog()))
+                .category(CategoryMapper.toDTO(product.getCategory()))
                 .productStatus(product.getProductStatus().toString())
                 .seller(SellerMapper.toDTO(product.getSeller()))
                 .skus(product.getSkus().stream()
@@ -64,7 +61,6 @@ public class ProductMapper {
                 .id(sku.getId())
                 .sku(sku.getSku())
                 .price(sku.getPrice())
-                .product(toProductDTO(sku.getProduct()))
                 .stock(StockMapper.toStockResponseDTO(sku.getStock()))
                 .stockHistory(sku.getStockHistory())
                 .attributes(sku.getAttributes().stream()
@@ -87,8 +83,14 @@ public class ProductMapper {
                 .description(doc.getDescription())
                 .imageUrl(doc.getImageUrl())
                 .price(doc.getPrice())
-                .catalog(doc.getCatalog())
-                .category(doc.getCategory())
+                .catalog(CatalogDTO.builder()
+                        .id(doc.getCatalogId())
+                        .name(doc.getCatalogName())
+                        .build())
+                .category(CategoryDTO.builder()
+                        .id(doc.getCategoryId())
+                        .name(doc.getCategoryName())
+                        .build())
                 .productStatus(doc.getProductStatus())
 
                 .seller(SellerDTO.builder()
