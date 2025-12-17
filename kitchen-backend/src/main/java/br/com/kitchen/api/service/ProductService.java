@@ -67,7 +67,7 @@ public class ProductService extends GenericService<Product, Long>{
         Product product = new Product();
         product.setName(dto.name());
         product.setDescription(dto.description());
-        product.setPrice(dto.price());
+        product.setPrice(dto.basePrice());
         product.setCatalog(catalog);
         product.setSeller(seller);
         product.setImageUrl(dto.imageUrl());
@@ -159,7 +159,7 @@ public class ProductService extends GenericService<Product, Long>{
         Catalog catalog = catalogService.findOrCreate(dto.catalogName(), seller);
         product.setName(dto.name());
         product.setDescription(dto.description());
-        product.setPrice(dto.price());
+        product.setPrice(dto.basePrice());
         product.setCatalog(catalog);
         product.setImageUrl(dto.imageUrl());
         product.setProductStatus(ProductStatus.PENDING_INDEXING);

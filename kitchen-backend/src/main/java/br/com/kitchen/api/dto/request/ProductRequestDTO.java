@@ -17,7 +17,7 @@ public record ProductRequestDTO(
 
         @NotNull(message = "Base price is required")
         @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
-        BigDecimal price,
+        BigDecimal basePrice,
 
         @NotBlank(message = "Catalog name is required")
         String catalogName,

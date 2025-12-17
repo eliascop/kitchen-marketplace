@@ -103,10 +103,10 @@ services:
       - "./.localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./localstack/init-resources.sh:/etc/localstack/init/ready.d/init-resources.sh"
-      - "./order-lambda/target/order-lambda-1.0-SNAPSHOT.jar:/tmp/order-lambda.jar"
-      - "./stock-lambda/target/stock-lambda-1.0-SNAPSHOT.jar:/tmp/stock-lambda.jar"
-      - "./payment-lambda/target/payment-lambda-1.0-SNAPSHOT.jar:/tmp/payment-lambda.jar"
-      - "./product-lambda/target/product-lambda-1.0-SNAPSHOT.jar:/tmp/product-lambda.jar"
+      - "./order-lambda/target/order-lambda-1.0-SNAPSHOT.jar:/artifacts/order-lambda.jar"
+      - "./stock-lambda/target/stock-lambda-1.0-SNAPSHOT.jar:/artifacts/stock-lambda.jar"
+      - "./payment-lambda/target/payment-lambda-1.0-SNAPSHOT.jar:/artifacts/payment-lambda.jar"
+      - "./product-lambda/target/product-lambda-1.0-SNAPSHOT.jar:/artifacts/product-lambda.jar"
     networks:
       - kitchen-network
 

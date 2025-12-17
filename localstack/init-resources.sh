@@ -75,51 +75,64 @@ awslocal dynamodb create-table \
   --key-schema AttributeName=id,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST || true
 
-echo ">> Criando Order-Lambda function..."
+echo ">> Criando bucket para lambdas..."
+awslocal s3 mb s3://lambda-artifacts || true
+
+echo ">> Subindo artifacts das lambdas para o S3..."
+awslocal s3 cp /artifacts/order-lambda.jar s3://lambda-artifacts/order-lambda.jar
+awslocal s3 cp /artifacts/stock-lambda.jar s3://lambda-artifacts/stock-lambda.jar
+awslocal s3 cp /artifacts/payment-lambda.jar s3://lambda-artifacts/payment-lambda.jar
+awslocal s3 cp /artifacts/product-lambda.jar s3://lambda-artifacts/product-lambda.jar
+
+echo ">> Criando Order-Lambda function (S3)..."
 awslocal lambda create-function \
   --function-name order-lambda \
   --runtime java17 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --handler br.com.kitchen.lambda.OrderLambdaHandler::handleRequest \
-  --zip-file fileb:///tmp/order-lambda.jar \
+  --code S3Bucket=lambda-artifacts,S3Key=order-lambda.jar \
   || awslocal lambda update-function-code \
        --function-name order-lambda \
-       --zip-file fileb:///tmp/order-lambda.jar
+       --s3-bucket lambda-artifacts \
+       --s3-key order-lambda.jar
 
-echo ">> Criando Stock-Lambda function..."
+echo ">> Criando Stock-Lambda function (S3)..."
 awslocal lambda create-function \
   --function-name stock-lambda \
   --runtime java17 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --handler br.com.kitchen.lambda.StockLambdaHandler::handleRequest \
-  --zip-file fileb:///tmp/stock-lambda.jar \
+  --code S3Bucket=lambda-artifacts,S3Key=stock-lambda.jar \
   || awslocal lambda update-function-code \
        --function-name stock-lambda \
-       --zip-file fileb:///tmp/stock-lambda.jar
+       --s3-bucket lambda-artifacts \
+       --s3-key stock-lambda.jar
 
-echo ">> Criando Payment-Lambda function..."
+echo ">> Criando Payment-Lambda function (S3)..."
 awslocal lambda create-function \
   --function-name payment-lambda \
   --runtime java17 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --handler br.com.kitchen.lambda.PaymentLambdaHandler::handleRequest \
-  --zip-file fileb:///tmp/payment-lambda.jar \
+  --code S3Bucket=lambda-artifacts,S3Key=payment-lambda.jar \
   || awslocal lambda update-function-code \
        --function-name payment-lambda \
-       --zip-file fileb:///tmp/payment-lambda.jar
+       --s3-bucket lambda-artifacts \
+       --s3-key payment-lambda.jar
 
-echo ">> Criando Product-Lambda function..."
+echo ">> Criando Product-Lambda function (S3)..."
 awslocal lambda create-function \
   --function-name product-lambda \
   --runtime java17 \
   --role arn:aws:iam::000000000000:role/lambda-role \
   --handler br.com.kitchen.indexation.ProductIndexationLambda::handleRequest \
-  --zip-file fileb:///tmp/product-lambda.jar \
   --timeout 60 \
   --memory-size 1024 \
+  --code S3Bucket=lambda-artifacts,S3Key=product-lambda.jar \
   || awslocal lambda update-function-code \
        --function-name product-lambda \
-       --zip-file fileb:///tmp/product-lambda.jar
+       --s3-bucket lambda-artifacts \
+       --s3-key product-lambda.jar
 
 ensure_mapping() {
   local FUNCTION_NAME="$1"
