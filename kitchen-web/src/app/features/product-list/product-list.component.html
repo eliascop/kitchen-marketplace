@@ -6,7 +6,7 @@
       <img [src]="product.imageUrl" alt="{{ product.name }}" class="product-image" />
       <div class="product-name">{{ product.name }}</div>
       <div class="product-description">{{ product.description }}</div>
-      <div class="product-price">{{ product.price | currencyFormatter }}</div>
+      <div class="product-price">{{ product.basePrice | currencyFormatter }}</div>
     </div>
   </div>
 

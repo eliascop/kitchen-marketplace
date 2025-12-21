@@ -1,53 +1,39 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { select } from '@ngneat/elf';
 
 import { Product } from '../../core/model/product.model';
 import { CurrencyFormatterPipe } from "../../core/pipes/currency-input.pipe";
 import { FormatDateTimePipe } from "../../core/pipes/format-date-time.pipe";
 import { StockStatusPipe } from "../../core/pipes/stock-status.pipe";
-import { ProductService } from '../../core/service/product.service';
+import { sellerProductDetailStore } from '../../core/state/seller-product-detail.store';
 
 @Component({
   selector: 'app-seller-product-details',
   standalone: true,
   imports: [CommonModule, CurrencyFormatterPipe, FormatDateTimePipe, StockStatusPipe],
   templateUrl: './seller-product-details.component.html',
-  styleUrl: './seller-product-details.component.css'
+  styleUrls: ['./seller-product-details.component.css']
 })
 export class SellerProductDetailsComponent implements OnInit {
 
-  product!: Product;
+  product$!: Observable<Product | null>;
   loading = false;
 
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly productService: ProductService,
     private readonly router: Router
   ) {}
 
   ngOnInit(): void {
     this.loading = true;
-
-    this.route.paramMap
-      .pipe(
-        take(1),
-        switchMap(params => {
-          const productId = params.get('id');
-          return productId ? this.productService.getProductById(+productId) : of(null);
-        })
-      )
-      .subscribe({
-        next: (res) => {
-          this.product = res!.data!;
-          this.loading = false;
-        },
-        error: () => {
-          this.loading = false;
-        }
-      });
+    this.product$ = sellerProductDetailStore.pipe(
+      select(state => state.product)
+    );
+    this.loading = false;
   }
 
   toggleHistory(sku: any) {
@@ -55,14 +41,20 @@ export class SellerProductDetailsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/seller-products']);
+    const page = this.route.snapshot.queryParams['page'] ?? 0;
+    const size = this.route.snapshot.queryParams['pageSize'] ?? 10;
+    this.router.navigate(['/seller-products'],{ queryParams: {page, size }});
   }
 
   editProduct() {
-    this.router.navigate(['/new-product'], { queryParams: { id: this.product?.id } });
+    this.product$.pipe(take(1)).subscribe(product => {
+      this.router.navigate(['/new-product'], { queryParams: { id: product?.id } });
+    });
   }
 
   manageSkus() {
-    this.router.navigate([`/seller-products/${this.product?.id}/skus`]);
+    this.product$.pipe(take(1)).subscribe(product => {
+      this.router.navigate([`/seller-products/${product?.id}/skus`]);
+    });
   }
 }

@@ -4,6 +4,10 @@ import br.com.kitchen.indexation.dto.CategoryDTO;
 import br.com.kitchen.indexation.dto.ProductDTO;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 public record ProductIndexDocument(
@@ -12,8 +16,11 @@ public record ProductIndexDocument(
         String description,
         Long categoryId,
         String categoryName,
-        BigDecimal price,
-        List<SkuIndexDocument> skus
+        BigDecimal basePrice,
+        List<SkuIndexDocument> skus,
+        OffsetDateTime createdAt,
+        OffsetDateTime activatedAt
+
 ) {
     public static ProductIndexDocument from(ProductDTO product, CategoryDTO category) {
 
@@ -38,8 +45,19 @@ public record ProductIndexDocument(
                 product.getDescription(),
                 category.getId(),
                 category.getName(),
-                product.getPrice(),
-                skuDocuments
+                product.getBasePrice(),
+                skuDocuments,
+                toOffset(product.getCreatedAt()),
+                toOffset(product.getActivatedAt())
+
         );
+
+    }
+
+    private static OffsetDateTime toOffset(LocalDateTime ldt) {
+        return ldt != null
+                ? ldt.atOffset(ZoneOffset.UTC)
+                .truncatedTo(ChronoUnit.MILLIS)
+                : null;
     }
 }

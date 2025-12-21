@@ -15,7 +15,7 @@ public class CategoryService extends GenericService<Category, Long> {
     }
 
     public Category findOrCreate(String categoryName) {
-        return categoryRepository.findByName(categoryName)
+        return categoryRepository.findByNameIgnoreCase(categoryName)
                 .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
     }
 

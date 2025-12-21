@@ -7,6 +7,8 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -29,11 +31,17 @@ public class StockLambdaHandler implements RequestHandler<SQSEvent, String> {
         this.dynamoDbClient = DynamoDbClient.builder()
                 .endpointOverride(endpoint)
                 .region(software.amazon.awssdk.regions.Region.SA_EAST_1)
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(
+                                AwsBasicCredentials.create("test", "test")
+                        )
+                )
                 .build();
     }
 
     @Override
     public String handleRequest(SQSEvent event, Context context) {
+        log.info("################## Stocklambda initialized ################## ");
         try {
             for (SQSEvent.SQSMessage msg: event.getRecords()) {
 
@@ -55,7 +63,8 @@ public class StockLambdaHandler implements RequestHandler<SQSEvent, String> {
                 item.put("stockAction", AttributeValue.builder().s(stockDTO.getStockAction()).build());
                 item.put("reservedQuantity", AttributeValue.builder().s(String.valueOf(stockDTO.getReservedQuantity())).build());
                 item.put("totalQuantity", AttributeValue.builder().s(String.valueOf(stockDTO.getTotalQuantity())).build());
-                item.put("createdAt", AttributeValue.builder().s(LocalDateTime.now().toString()).build());
+                item.put("createdAt", AttributeValue.builder().s(String.valueOf(System.currentTimeMillis())).build());
+
                 dynamoDbClient.putItem(builder -> builder.tableName("StockHistory").item(item));
                 log.info("Stock Update stored: {}", item.toString());
             }

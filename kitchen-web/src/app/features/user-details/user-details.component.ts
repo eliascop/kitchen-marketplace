@@ -137,7 +137,6 @@ export class UserDetailsComponent implements OnInit {
     const shippingAddress = this.extractAddressFromForm('shipping');
     this.patchAddressToForm('billing', shippingAddress);
   }
-  
 
   onSubmit() {
     this.errorMessage = null;
@@ -174,7 +173,6 @@ export class UserDetailsComponent implements OnInit {
     }
   }
   
-
   updateFormControl(event: any) {
     const inputElement = event.target as HTMLInputElement;
     const rawValue = this.phoneNumberPipe.unmask(inputElement.value);
@@ -194,18 +192,18 @@ export class UserDetailsComponent implements OnInit {
       return;
     }
   
-    this.cepService.search(cep).subscribe({
+    this.cepService.getAddressByCEP(cep).subscribe({
       next: (data) => {
         this.cepLoading = false;
   
-        if (data.erro) {
+        if (data.error) {
           this.cepErrorMessage = 'CEP não encontrado.';
-        } else {
+        } else if (data.data){
           this.userForm.patchValue({
-            [`${type}Street`]: data.logradouro,
-            [`${type}District`]: data.bairro,
-            [`${type}City`]: data.localidade,
-            [`${type}State`]: data.uf,
+            [`${type}Street`]: data.data.street,
+            [`${type}District`]: data.data.neighborhood,
+            [`${type}City`]: data.data.city,
+            [`${type}State`]: data.data.state,
             [`${type}Country`]: 'Brasil'
           });
         }

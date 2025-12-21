@@ -19,10 +19,10 @@
 
         <div class="product-price-detail">
           <span *ngIf="selectedSku; else price">
-            {{ selectedSku.price | currency:'BRL':'symbol':'1.2-2' }}
+            {{ selectedSku.price | currencyFormatter}}
           </span>
           <ng-template #price>
-            {{ product.price | currency:'BRL':'symbol':'1.2-2' }}
+            {{ product.basePrice | currencyFormatter }}
           </ng-template>
         </div>
 
@@ -50,7 +50,7 @@
               </div>
 
               <div class="sku-price">
-                R$ {{ sku.price | currencyFormatter }}
+                {{ sku.price | currencyFormatter }}
               </div>
             </article>
           </div>
@@ -65,7 +65,6 @@
               </option>
             </select>
           </div>
-
           <button class="btn btn-blue add-to-cart-btn"
                   (click)="addToCart()"
                   [disabled]="!selectedSku || availableStock === 0">

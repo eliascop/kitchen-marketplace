@@ -17,7 +17,7 @@ public class ProductMapper {
                 .name(product.getName())
                 .description(product.getDescription())
                 .imageUrl(product.getImageUrl())
-                .price(product.getPrice())
+                .basePrice(product.getBasePrice())
                 .catalog(CatalogMapper.toDTO(product.getCatalog()))
                 .category(CategoryMapper.toDTO(product.getCategory()))
                 .productStatus(product.getProductStatus().toString())
@@ -25,28 +25,8 @@ public class ProductMapper {
                 .skus(product.getSkus().stream()
                         .map(ProductMapper::toSkuResponseDTO)
                         .toList())
-                .build();
-    }
-
-    public static ProductDTO toProductResponseDTO(ProductSku sku) {
-        return ProductDTO.builder()
-                .id(sku.getId())
-                .name(sku.getProduct().getName())
-                .description(sku.getProduct().getDescription())
-                .price(sku.getPrice())
-                .seller(SellerMapper.toDTO(sku.getProduct().getSeller()))
-                .skus(List.of(ProductSkuDTO.builder()
-                        .id(sku.getId())
-                        .sku(sku.getSku())
-                        .build()))
-                .build();
-    }
-
-    public static ProductDTO toProductDTO(Product product) {
-        return ProductDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .seller(SellerMapper.toDTO(product.getSeller()))
+                .createdAt(product.getCreatedAt())
+                .activatedAt(product.getActivatedAt())
                 .build();
     }
 
@@ -82,7 +62,7 @@ public class ProductMapper {
                 .name(doc.getName())
                 .description(doc.getDescription())
                 .imageUrl(doc.getImageUrl())
-                .price(doc.getPrice())
+                .basePrice(doc.getBasePrice())
                 .catalog(CatalogDTO.builder()
                         .id(doc.getCatalogId())
                         .name(doc.getCatalogName())

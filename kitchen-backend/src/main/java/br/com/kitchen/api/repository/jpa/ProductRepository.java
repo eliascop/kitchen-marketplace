@@ -33,5 +33,5 @@ public interface ProductRepository extends GenericRepository<Product, Long> {
                p.activatedAt = CURRENT_TIMESTAMP
          WHERE p.id = :productId
     """)
-    void updateCategoryAndStatus(Long productId, Long categoryId);
+    Product updateCategoryAndStatus(Long productId, Long categoryId);
 }

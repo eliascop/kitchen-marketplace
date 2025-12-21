@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
@@ -17,7 +18,7 @@ public class ProductSearchDocumentDTO {
     private Long id;
     private String name;
     private String description;
-    private BigDecimal price;
+    private BigDecimal basePrice;
     private String imageUrl;
 
     private Long sellerId;
@@ -29,8 +30,8 @@ public class ProductSearchDocumentDTO {
     private Long categoryId;
     private String categoryName;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime activatedAt;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime activatedAt;
     private String productStatus;
 
     private List<ProductSkuSearchDocumentDTO> skus;

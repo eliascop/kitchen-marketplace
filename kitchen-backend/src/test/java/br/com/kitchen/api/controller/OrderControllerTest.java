@@ -53,7 +53,7 @@ class OrderControllerTest {
 
         Product mockProduct = new Product();
         mockProduct.setId(3L);
-        mockProduct.setPrice(new BigDecimal("15.50"));
+        mockProduct.setBasePrice(new BigDecimal("15.50"));
         mockProduct.setProductStatus(ProductStatus.ACTIVE);
         mockProduct.setName("test");
         mockProduct.setDescription("test");

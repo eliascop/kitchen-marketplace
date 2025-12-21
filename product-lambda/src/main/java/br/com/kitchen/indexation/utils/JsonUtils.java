@@ -1,4 +1,4 @@
-package br.com.kitchen.indexation;
+package br.com.kitchen.indexation.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;

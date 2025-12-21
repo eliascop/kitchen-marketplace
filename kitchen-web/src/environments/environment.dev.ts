@@ -20,7 +20,7 @@ export const environment = {
     
     WALLET_REST_SERVICE: '/api/wallets/v1',
 
-    VIACEP_SERVICE_WS: 'https://viacep.com.br/ws/',
+    CEP_REST_SERVICE: '/api/cep/v1',
 
     jwtToken: ''
 

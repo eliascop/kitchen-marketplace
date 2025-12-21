@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -47,10 +48,11 @@ public class PaypalOrderBuilder {
             new PaypalOrderDTO.ItemTotal("BRL", scale(cart.getCartTotal()))
         ));
 
+        String invoiceId = "PAY-"+cart.getId() + "-" + UUID.randomUUID();
         paypalOrderDTO.setPurchaseUnits(List.of(new PaypalOrderDTO.PurchaseUnit(
-            "Pedido da KitchenApp",
+            "Kitchen order payment",
             amount,
-            cart.getId().toString(),
+            invoiceId,
             items
         )));
 

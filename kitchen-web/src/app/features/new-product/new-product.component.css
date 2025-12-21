@@ -61,4 +61,16 @@
     margin-bottom: 8px;
   }
 
+  .btn-back {
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    color: #1d4ed8;
+    font-weight: bold;
+  }
   
+  .btn-back:hover {
+    text-decoration: underline;
+  }

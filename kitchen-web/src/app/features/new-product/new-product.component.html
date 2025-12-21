@@ -1,3 +1,4 @@
+<button class="btn-back" (click)="goBack()">← Voltar</button>
 <div class="product-form-container">
     <h2>{{ isEditing ? 'Editar Produto' : 'Cadastro de Produto' }}</h2>
   
@@ -23,18 +24,21 @@
         </div>
 
         <div class="form-group">
-          <label for="price">Preço base</label>
-          <app-currency-input formControlName="price" class="input-price"></app-currency-input>
-          <div *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched" class="error-message">
+          <label for="basePrice">Preço base</label>
+          <app-currency-input formControlName="basePrice" class="input-price"></app-currency-input>
+          <div *ngIf="productForm.get('basePrice')?.invalid && productForm.get('basePrice')?.touched" class="error-message">
             A descrição é obrigatória.
           </div>
         </div>
   
         <div class="form-group">
-          <label for="catalogName">Catalogo de Produto</label>
-          <select id="catalogName" formControlName="catalogName">
+          <label for="catalog">Catalogo de Produto</label>
+          <select id="catalog" 
+                  formControlName="catalog" 
+                  [compareWith]="compareCatalogs"
+                  *ngIf="catalogs && catalogs.length > 0">
             <option value="">Selecione um catálogo</option>
-            <option *ngFor="let catalog of catalogs" [value]="catalog.name">
+            <option *ngFor="let catalog of catalogs" [ngValue]="catalog">
               {{ catalog.name }}
             </option>
           </select>

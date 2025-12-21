@@ -29,4 +29,5 @@ export class User{
 export class Seller{
   public id: number | null = null;
   public storeName: string = '';
+  shippingId: number | null = null;
 }

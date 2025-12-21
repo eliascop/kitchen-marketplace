@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../core/service/product.service';
@@ -7,6 +7,13 @@ import { CommonModule } from '@angular/common';
 import { CurrencyInputComponent } from '../../shared/components/currency-input/currency-input.component';
 import { Catalog } from '../../core/model/catalog.model';
 import { CatalogService } from '../../core/service/catalog.service';
+import { ProductRequest } from '../../core/model/request/product-request.model';
+import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
+import { Product } from '../../core/model/product.model';
+import { sellerProductDetailStore } from '../../core/state/seller-product-detail.store';
+import { select } from '@ngneat/elf';
 
 @Component({
   selector: 'app-new-product',
@@ -15,11 +22,14 @@ import { CatalogService } from '../../core/service/catalog.service';
   styleUrls: ['./new-product.component.css'],
   imports: [CommonModule,ReactiveFormsModule, CurrencyInputComponent] 
 })
-export class NewProductComponent implements OnInit {
+export class NewProductComponent implements OnInit, OnDestroy {
 
   catalogs: Catalog[] = [];
   productForm!: FormGroup;
   isEditing = false;
+  productId: number | null = null;
+  product$!: Observable<Product>;
+  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
@@ -32,34 +42,34 @@ export class NewProductComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.loadCatalogs();
     this.createForm();
 
-    const id = this.route.snapshot.queryParams['id']; 
-    if(id){
+    this.productId = this.route.snapshot.queryParams['id']; 
+    if(this.productId){
       this.isEditing = true;
-      this.loadProduct(id);
+      this.loadProduct(this.productId );
     }
-
-    this.loadCatalogs();
   }
 
   loadProduct(id: number) {
-    this.productService.getProductById(id).subscribe({
-      next: (res) => {
-        const p = res.data!;
+    this.product$ = sellerProductDetailStore.pipe(
+      select(state => state.product),
+      filter((product): product is Product => !!product)
+    );
+
+    this.product$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(product => {
         this.productForm.patchValue({
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          price: p.price,
-          imageUrl: p.imageUrl,
-          catalog: p.catalog
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          basePrice: product.basePrice,
+          imageUrl: product.imageUrl,
+          catalog: product.catalog
         });
-      },
-      error: () => {
-        this.toast.show("Erro ao carregar produto.");
-      }
-    });
+      });
   }
 
   loadCatalogs() {
@@ -79,37 +89,107 @@ export class NewProductComponent implements OnInit {
       id: [null],
       name: ['', Validators.required],
       description: ['', Validators.required],
-      price: [0.0, Validators.required],
+      basePrice: [0.0, Validators.required],
       imageUrl: ['', Validators.required],
-      catalogName: ['', Validators.required]
+      catalog: [null, Validators.required]
     });
   }
 
+  compareCatalogs(c1: Catalog, c2: Catalog): boolean {
+    return c1 && c2 ? c1.id === c2.id : c1 === c2;
+  }
+
+  /*
   onSubmit() {
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
       return;
     }
 
-    const product: any = this.productForm.value;
-    const request$ = this.isEditing
-      ? this.productService.updateProduct(product)
-      : this.productService.createProduct(product);
+    const productform = this.productForm.value;
+    const selectedCatalog = this.productForm.get('catalog')?.value;
+  
+    if (!selectedCatalog) {
+      this.toast.show('Catálogo inválido.');
+      return;
+    }
 
-    request$.subscribe({
-      next: () => {
-        this.toast.show(
-          this.isEditing
-            ? 'Produto atualizado com sucesso!'
-            : 'Produto cadastrado com sucesso.'
-        );
-        this.router.navigate(['/seller-products']);
-      },
-      error: (err) => {
-        this.toast.show('Erro ao salvar o produto.');
-        console.error(err);
-      }
-    });
+    const product: ProductRequest = { ...productform, catalog: { ... selectedCatalog } };
+
+    if (this.isEditing) {
+      this.productService.updateProduct(product).subscribe({
+        next: (res) => {
+          const updatedProduct = res.data as Product;
+          sellerProductDetailStore.update(state => ({
+            ...state,
+            product: updatedProduct
+          }));
+
+          this.toast.show('Produto atualizado com sucesso!');
+          this.router.navigate(['/seller-products']);
+        },
+        error: (err) => {
+          this.toast.show('Erro ao atualizar o produto.');
+          console.error(err);
+        }
+      });
+    } else {
+      this.productService.createProduct(product).subscribe({
+        next: () => {
+          this.toast.show('Produto cadastrado com sucesso.');
+          this.router.navigate(['/seller-products']);
+        },
+        error: (err) => {
+          this.toast.show('Erro ao cadastrar o produto.');
+          console.error(err);
+        }
+      });
+    }
+  }
+*/
+
+onSubmit() {
+  if (this.productForm.invalid) {
+    this.productForm.markAllAsTouched();
+    return;
   }
 
+  const productform = this.productForm.value;
+  const selectedCatalog = this.productForm.get('catalog')?.value;
+
+  if (!selectedCatalog) {
+    this.toast.show('Catálogo inválido.');
+    return;
+  }
+
+  const product: ProductRequest = { ...productform, catalog: { ... selectedCatalog } };
+
+  const request$ = this.isEditing
+    ? this.productService.updateProduct(product)
+    : this.productService.createProduct(product);
+
+  request$.subscribe({
+    next: () => {
+      this.toast.show(
+        this.isEditing
+          ? 'Produto atualizado com sucesso!'
+          : 'Produto cadastrado com sucesso.'
+      );
+      this.router.navigate(['/seller-products']);
+    },
+    error: (err) => {
+      this.toast.show('Erro ao salvar o produto.');
+      console.error(err);
+    }
+  });
+}
+
+  goBack() {
+    this.router.navigate(['/seller-products/'+this.productId]);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

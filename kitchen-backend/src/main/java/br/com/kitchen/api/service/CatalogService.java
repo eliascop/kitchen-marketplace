@@ -1,6 +1,7 @@
 package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.dto.CatalogDTO;
+import br.com.kitchen.api.dto.request.CatalogRequestDTO;
 import br.com.kitchen.api.mapper.CatalogMapper;
 import br.com.kitchen.api.model.Catalog;
 import br.com.kitchen.api.model.Product;
@@ -33,9 +34,14 @@ public class CatalogService extends GenericService<Catalog, Long>{
         return CatalogMapper.toDTOList(catalog);
     }
 
-    public Catalog findOrCreate(String catalogName, Seller seller) {
-        return repository.findByNameAndSellerId(catalogName, seller.getId())
-                .orElseGet(() -> repository.save(new Catalog(seller, catalogName)));
+    public Catalog findOrCreate(CatalogRequestDTO catalog, Seller seller) {
+        if (catalog.id() != null) {
+            return repository.findById(catalog.id())
+                    .orElseThrow(() -> new RuntimeException("Catalog not found with id " + catalog.id()));
+        }
+
+        return repository.findByNameIgnoreCaseAndSellerId(catalog.name(), seller.getId())
+                .orElseGet(() -> repository.save(new Catalog(seller, catalog.name())));
     }
 
     public Page<Product> findProductsByCatalogSlug(String catalogSlug, PageRequest pageRequest) {

@@ -25,6 +25,7 @@ public class Catalog implements Serializable{
 
     @NotBlank(message = "Name must not be blank")
     @Size(min = 4, message = "Catalog name must be at least 4 characters long")
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     private String slug;

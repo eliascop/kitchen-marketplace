@@ -191,8 +191,22 @@
 }
 
 .resume-box{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   background-color: white;
   border:1px solid #dee2e6;
   border-radius: 6px;
   padding: 1rem;
+}
+
+.delivery-options{
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 1rem;
+}
+
+.payment-options{
+  display: flex;
+  flex-direction: column;
 }

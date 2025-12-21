@@ -203,9 +203,8 @@ public class ProductController {
     public ResponseEntity<?> updateProductCategory(@PathVariable Long id,
                                                    @RequestBody CategoryDTO category) {
         try {
-            productService.updateProductCategory(id,category);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(Map.of("message", "Product updated with success"));
+                    .body(productService.updateProductCategory(id,category));
         } catch (Exception e) {
             log.error("ERROR ON Updating product.id={} and category.id={}, category.name={}, error: {}",id,category.getId(),category.getName(), e.getMessage());
             return ResponseEntity

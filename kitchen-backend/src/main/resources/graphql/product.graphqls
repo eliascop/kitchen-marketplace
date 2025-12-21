@@ -2,7 +2,7 @@ type ProductDTO {
     id: ID!
     name: String!
     description: String!
-    price: Float!
+    basePrice: Float!
     imageUrl: String
     seller: SellerDTO!
     catalog: CatalogDTO

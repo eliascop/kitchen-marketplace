@@ -26,9 +26,6 @@ select {
   outline: none;
   transition: border-color 0.3s ease;
   width: 100%;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
 }
 
 input[type="text"]:focus,
@@ -38,6 +35,12 @@ select:focus {
   border-color: #007bff;
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+select {
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
 }
 
 label {

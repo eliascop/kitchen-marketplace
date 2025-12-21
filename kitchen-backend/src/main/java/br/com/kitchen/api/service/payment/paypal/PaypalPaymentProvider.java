@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.UUID;
 
@@ -46,7 +47,7 @@ public class PaypalPaymentProvider implements PaymentProvider {
                     existing.setAmount(cart.getCartTotal());
                     existing.setSecureToken(UUID.randomUUID().toString().replace("-", "").substring(0, 16));
                     existing.setCart(cart);
-                    existing.setCreatedAt(LocalDateTime.now());
+                    existing.setCreatedAt(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
                     return existing;
                 })
                 .orElseGet(() -> Payment.builder()
@@ -55,7 +56,7 @@ public class PaypalPaymentProvider implements PaymentProvider {
                         .amount(cart.getCartTotal())
                         .secureToken(UUID.randomUUID().toString().replace("-", "").substring(0, 16))
                         .cart(cart)
-                        .createdAt(LocalDateTime.now())
+                        .createdAt(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))
                         .build());
         cart.setPayment(payment);
         Map<String, String> providerResponse = paypalClient.doPayment(cart);

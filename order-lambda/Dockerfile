@@ -4,8 +4,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:17-jdk
+FROM public.ecr.aws/lambda/java:17
 WORKDIR /app
 COPY --from=build /app/target/order-lambda-1.0-SNAPSHOT.jar order-lambda.jar
-
-#CMD ["java", "-jar", "order-lambda.jar"]
+CMD ["br.com.kitchen.lambda.OrderLambdaHandler::handleRequest"]

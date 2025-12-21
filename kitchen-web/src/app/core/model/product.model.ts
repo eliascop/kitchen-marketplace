@@ -1,13 +1,14 @@
 import { Seller } from "./user.model";
 import { Category } from "./category.model";
 import { Catalog } from "./catalog.model";
+import { Stock, StockHistory } from "./stock.model";
 
 export class Product {
   public id: number | null = null;
   public name: string = '';
   public description: string = '';
   public imageUrl: string = '';
-  public price: number = 0;
+  public basePrice: number = 0;
   public catalog: Catalog = new Catalog;
   public category: Category = new Category;
   public productStatus: string = '';
@@ -26,13 +27,6 @@ export class Attribute {
   public attributeValue: string = '';
 }
 
-export class Stock {
-  public totalQuantity: number = 0;
-  public reservedQuantity: number = 0;
-  public soldQuantity: number = 0;
-  public availableQuantity: number = 0;
-}
-
 export interface Sku {
   id: number;
   sku: string;
@@ -41,20 +35,4 @@ export interface Sku {
   attributes: Attribute[];
   stockHistory: StockHistory[];
   expanded?: boolean;
-}
-
-export interface StockHistory{
-  id: number;
-  createdAt: string;
-  eventType: string;
-  sku: string;
-  soldQuantity: number;
-  reservedQuantity: number;
-  totalQuantity: number;
-}
-
-export interface SellerStore {
-  id: number;
-  storeName: string;
-  shippingId: number;
 }

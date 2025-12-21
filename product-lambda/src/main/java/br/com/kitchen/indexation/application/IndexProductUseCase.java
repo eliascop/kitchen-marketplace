@@ -27,9 +27,9 @@ public class IndexProductUseCase {
 
         CategoryDTO category = resolveCategory(product);
 
-        indexer.index(ProductIndexDocument.from(product, category));
+        ProductDTO productUpdated = productClient.updateProduct(product.getId(), category);
 
-        productClient.updateProduct(product.getId(), category);
+        indexer.index(ProductIndexDocument.from(productUpdated, category));
     }
 
     private CategoryDTO resolveCategory(ProductDTO product) {

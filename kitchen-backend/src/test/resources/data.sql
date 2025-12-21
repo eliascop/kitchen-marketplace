@@ -27,7 +27,7 @@ INSERT INTO category (id,name) VALUES
 (1,'informatica');
 
 -- Inserir produtos
-INSERT INTO product (id, name, description, price, image_url, seller_id, catalog_id, category_id, product_status) VALUES
+INSERT INTO product (id, name, description, base_price, image_url, seller_id, catalog_id, category_id, product_status) VALUES
 (1, 'Produto 1', 'Descricao produto 1', 15.50, 'www.image1', 1, 1, 1, 'ACTIVE'),
 (2, 'Produto 2', 'Descricao produto 2', 20.00, 'www.image2', 1, 1, 1, 'ACTIVE');
 

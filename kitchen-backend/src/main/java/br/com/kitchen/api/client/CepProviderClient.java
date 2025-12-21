@@ -6,17 +6,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class ViaCepClient {
+public class CepProviderClient {
 
-    @Value("${via.cep.endpoint}")
-    private String viaCepUrl;
+    @Value("${cep.provider.endpoint}")
+    private String providerUrl;
+
     private final RestTemplate restTemplate;
 
-    public ViaCepClient(RestTemplate restTemplate) {
+    public CepProviderClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public CepResponseDTO getCep(String cep) {
-        return restTemplate.getForObject(viaCepUrl, CepResponseDTO.class, cep);
+        return restTemplate.getForObject(providerUrl, CepResponseDTO.class, cep);
     }
 }

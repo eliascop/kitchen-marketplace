@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -30,20 +32,19 @@ public class ProductIndexService {
                             .numberOfReplicas("0")
                     )
                     .mappings(m -> m
-                            .properties("id", p -> p.keyword(k -> k))
+                            .properties("id", p -> p.long_(l -> l))
                             .properties("name", p -> p.text(t -> t.analyzer("standard")))
                             .properties("description", p -> p.text(t -> t.analyzer("standard")))
-                            .properties("price", p -> p.double_(d -> d))
+                            .properties("basePrice", p -> p.double_(d -> d))
                             .properties("imageUrl", p -> p.keyword(k -> k))
                             .properties("sellerId", p -> p.long_(l -> l))
                             .properties("sellerName", p -> p.text(t -> t.analyzer("standard")))
-                            .properties("catalogId", p -> p.long_(k -> k))
-                            .properties("catalogName", p -> p.keyword(n -> n))
-                            .properties("categoryId", p -> p.long_(o -> o))
-                            .properties("categoryName", p -> p.keyword(d -> d))
+                            .properties("catalogId", p -> p.long_(l -> l))
+                            .properties("catalogName", p -> p.keyword(k -> k))
+                            .properties("categoryId", p -> p.long_(l -> l))
+                            .properties("categoryName", p -> p.keyword(k -> k))
                             .properties("createdAt", p -> p.date(d -> d))
-                            .properties("activatedAt", p -> p.date(d -> d))
-                            .properties("active", p -> p.boolean_(b -> b))
+                            .properties("productStatus", p -> p.text(t -> t.analyzer("standard")))
 
                             // ✅ SKUs nested
                             .properties("skus", p -> p.nested(n -> n
@@ -76,14 +77,22 @@ public class ProductIndexService {
                     .id(product.getId())
                     .name(product.getName())
                     .description(product.getDescription())
-                    .price(product.getPrice())
+                    .basePrice(product.getBasePrice())
                     .imageUrl(product.getImageUrl())
                     .sellerId(product.getSeller().getId())
                     .sellerName(product.getSeller().getStoreName())
                     .catalogId(product.getCatalog().getId())
                     .catalogName(product.getCatalog().getName())
-                    .createdAt(product.getCreatedAt())
-                    .activatedAt(product.getActivatedAt())
+                    .createdAt(product.getCreatedAt()
+                            .atOffset(ZoneOffset.UTC)
+                            .truncatedTo(ChronoUnit.MILLIS))
+                    .activatedAt(
+                            product.getActivatedAt() != null
+                                    ? product.getActivatedAt()
+                                    .atOffset(ZoneOffset.UTC)
+                                    .truncatedTo(ChronoUnit.MILLIS)
+                                    : null
+                    )
                     .productStatus(product.getProductStatus().toString())
                     .skus(
                             product.getSkus().stream().map(sku ->

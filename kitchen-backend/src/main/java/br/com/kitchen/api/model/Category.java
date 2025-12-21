@@ -25,7 +25,8 @@ public class Category implements Serializable{
     private Long id;
 
     @NotBlank(message = "Name must not be blank")
-    @Size(min = 4, message = "Username must be at least 8 characters long")
+    @Size(min = 8, message = "Username must be at least 8 characters long")
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @OneToMany(mappedBy = "category")

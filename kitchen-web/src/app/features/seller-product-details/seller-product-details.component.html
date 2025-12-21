@@ -1,4 +1,4 @@
-<section class="product-detail-page">
+<section class="product-detail-page" *ngIf="product$ | async as product">
 
     <button class="btn-back" (click)="goBack()">← Voltar</button>
   
@@ -10,7 +10,7 @@
         <p>{{ product.description }}</p>
         <p><strong>Categoria:</strong> {{ product.category.name }}</p>
         <p><strong>Catálogo:</strong> {{ product.catalog.name }}</p>
-        <p><strong>Preço base:</strong> R$ {{ product.price | currencyFormatter }}</p>
+        <p><strong>Preço base:</strong> {{ product.basePrice | currencyFormatter }}</p>
         <p><strong>Status:</strong> {{ product.productStatus }}</p>
   
         <div class="actions">
@@ -45,7 +45,7 @@
           <tr>
             <td>{{ sku.id }}</td> 
             <td>{{ sku.sku }}</td>
-            <td>R$ {{ sku.price | currencyFormatter }}</td>
+            <td>{{ sku.price | currencyFormatter }}</td>
   
             <td>
               <ul>
@@ -56,7 +56,7 @@
             </td>
   
             <td>
-              Disponível: {{ sku.stock.availableQuantity }}
+              Disponível: {{ sku.stock.totalQuantity - sku.stock.reservedQuantity - sku.stock.soldQuantity }}<br> 
             </td>
   
             <td class="history-cell">

@@ -7,6 +7,8 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -26,12 +28,18 @@ public class OrderLambdaHandler implements RequestHandler<SQSEvent, String> {
 
         this.dynamoDbClient = DynamoDbClient.builder()
                 .endpointOverride(endpoint)
-                .region(software.amazon.awssdk.regions.Region.US_EAST_1)
+                .region(software.amazon.awssdk.regions.Region.SA_EAST_1)
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(
+                                AwsBasicCredentials.create("test", "test")
+                        )
+                )
                 .build();
     }
 
     @Override
     public String handleRequest(SQSEvent event, Context context) {
+        log.info("################## OrderLambda initialized ################## ");
         try {
             for (SQSEvent.SQSMessage msg: event.getRecords()) {
 

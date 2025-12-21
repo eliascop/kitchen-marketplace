@@ -1,6 +1,5 @@
 package br.com.kitchen.api.dto.request;
 
-import br.com.kitchen.api.dto.ProductSkuDTO;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,8 +18,7 @@ public record ProductRequestDTO(
         @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
         BigDecimal basePrice,
 
-        @NotBlank(message = "Catalog name is required")
-        String catalogName,
+        CatalogRequestDTO catalog,
 
         @NotBlank(message = "Product Image is required")
         String imageUrl,

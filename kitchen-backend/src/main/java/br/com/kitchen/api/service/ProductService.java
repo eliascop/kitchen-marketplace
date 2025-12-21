@@ -1,6 +1,5 @@
 package br.com.kitchen.api.service;
 
-import br.com.kitchen.api.dto.CatalogDTO;
 import br.com.kitchen.api.dto.CategoryDTO;
 import br.com.kitchen.api.dto.ProductDTO;
 import br.com.kitchen.api.dto.StockHistoryDTO;
@@ -62,13 +61,14 @@ public class ProductService extends GenericService<Product, Long>{
     @Transactional
     public Product createProduct(Seller seller, ProductRequestDTO dto) {
         if(seller.isBlocked()) throw new RuntimeException("Seller is blocked");
-        Catalog catalog = catalogService.findOrCreate(dto.catalogName(), seller);
+        Catalog catalog = catalogService.findOrCreate(dto.catalog() , seller);
 
         Product product = new Product();
         product.setName(dto.name());
         product.setDescription(dto.description());
-        product.setPrice(dto.basePrice());
+        product.setBasePrice(dto.basePrice());
         product.setCatalog(catalog);
+        product.setCategory(Category.builder().id(1L).name("UNCATEGORIZED").build());
         product.setSeller(seller);
         product.setImageUrl(dto.imageUrl());
 
@@ -156,10 +156,11 @@ public class ProductService extends GenericService<Product, Long>{
         if(seller.isBlocked()) throw new RuntimeException("Seller is blocked");
 
         Product product = findProductByIdAndSeller(dto.id(), seller);
-        Catalog catalog = catalogService.findOrCreate(dto.catalogName(), seller);
+        Catalog catalog = catalogService.findOrCreate(dto.catalog(), seller);
+
         product.setName(dto.name());
         product.setDescription(dto.description());
-        product.setPrice(dto.basePrice());
+        product.setBasePrice(dto.basePrice());
         product.setCatalog(catalog);
         product.setImageUrl(dto.imageUrl());
         product.setProductStatus(ProductStatus.PENDING_INDEXING);
@@ -180,15 +181,17 @@ public class ProductService extends GenericService<Product, Long>{
     }
 
     @Transactional
-    public void updateProductCategory(Long id, CategoryDTO categoryDTO) {
+    public ProductDTO updateProductCategory(Long id, CategoryDTO categoryDTO) {
+        Product productToReturn;
         if(categoryDTO.getId() != null && categoryDTO.getId() > 0) {
-            productRepository.updateCategoryAndStatus(id, categoryDTO.getId());
+            productToReturn = productRepository.updateCategoryAndStatus(id, categoryDTO.getId());
         }else{
             Category newCategory = categoryService.findOrCreate(categoryDTO.getName());
-            Product product = findProductById(id);
-            product.setCategory(newCategory);
-            product.setProductStatus(ProductStatus.ACTIVE);
-            product.setActivatedAt(LocalDateTime.now());
+            productToReturn = findProductById(id);
+            productToReturn.setCategory(newCategory);
+            productToReturn.setProductStatus(ProductStatus.ACTIVE);
+            productToReturn.setActivatedAt(LocalDateTime.now());
         }
+        return ProductMapper.toProductResponseDTO(productToReturn);
     }
 }

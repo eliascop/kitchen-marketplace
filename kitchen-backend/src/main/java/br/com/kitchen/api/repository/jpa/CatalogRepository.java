@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface CatalogRepository extends GenericRepository<Catalog, Long> {
-    Optional<Catalog> findByNameAndSellerId(String name, Long sellerId);
+    Optional<Catalog> findByNameIgnoreCaseAndSellerId(String name, Long sellerId);
 
     @Query("select c.slug from Catalog c where c.id = :id")
     String findSlugById(@Param("id") Long id);

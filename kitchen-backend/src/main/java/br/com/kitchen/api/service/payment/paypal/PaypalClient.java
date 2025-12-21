@@ -14,6 +14,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class PaypalClient extends GenericService<Payment, Long> {
@@ -88,6 +89,7 @@ public class PaypalClient extends GenericService<Payment, Long> {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(accessToken);
+        headers.set("PayPal-Request-Id", UUID.randomUUID().toString());
 
         HttpEntity<String> captureRequest = new HttpEntity<>(null, headers);
 

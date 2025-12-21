@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -40,7 +41,7 @@ public class CouponService extends GenericService<Coupon, String>{
     public CouponDTO saveOrUpdate(Seller seller, CouponDTO dto) {
         Coupon entity;
 
-        if (dto.getStartsAt().isBefore(LocalDateTime.now())) {
+        if (dto.getStartsAt().isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) {
             throw new IllegalArgumentException("The field startsAt cannot be in the past");
         }
 
