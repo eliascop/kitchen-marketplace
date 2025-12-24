@@ -1,4 +1,4 @@
-package br.com.kitchen.dto;
+package br.com.kitchen.lambda.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

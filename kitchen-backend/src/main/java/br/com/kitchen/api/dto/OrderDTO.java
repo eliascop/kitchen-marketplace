@@ -1,24 +1,28 @@
 package br.com.kitchen.api.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import br.com.kitchen.api.dto.response.PaymentResponseDTO;
+import br.com.kitchen.api.enumerations.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Builder
-@AllArgsConstructor
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
 @NoArgsConstructor
 public class OrderDTO {
 
     private Long id;
-    private String status;
+    private LocalDateTime creation;
+    private OrderStatus status;
+    private BigDecimal total;
+    @JsonProperty("items")
+    private List<OrderItemsDTO> orderItems = new ArrayList<>();
+    private PaymentResponseDTO payment;
 
-    public OrderDTO(Long id){
-        this.id = id;
-    }
-    @Override
-    public String toString() {
-        return "OrderDTO{id=" + id + ", status='" + status + "'}";
-    }
 }

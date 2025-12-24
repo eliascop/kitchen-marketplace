@@ -1,6 +1,6 @@
 package br.com.kitchen.api.controller;
 
-import br.com.kitchen.api.dto.response.OrderResponseDTO;
+import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.mapper.OrderMapper;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.security.UserPrincipal;
@@ -42,7 +42,7 @@ public class OrderController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<OrderResponseDTO>> findOrdersByUserId(@AuthenticationPrincipal UserPrincipal userDetails) {
+    public ResponseEntity<List<OrderDTO>> findOrdersByUserId(@AuthenticationPrincipal UserPrincipal userDetails) {
         List<Order> ordersList = orderService.findOrdersByUserId(userDetails.user());
 
         if (ordersList.isEmpty()) {

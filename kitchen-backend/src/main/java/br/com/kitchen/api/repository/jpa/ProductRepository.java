@@ -21,7 +21,7 @@ public interface ProductRepository extends GenericRepository<Product, Long> {
 
     Optional<Product> findByIdAndSellerId(Long id, Long sellerId);
 
-    @Query("SELECT p FROM Product p WHERE p.catalog.id IN :catalogIds AND p.productStatus = 'ACTIVE'")
+    @Query("SELECT p FROM Product p WHERE p.catalog.id IN :catalogIds AND p.productStatus = 'ACTIVE' order by p.name desc ")
     Page<Product> findActiveProductsByCatalogIdIn(List<Long> catalogIds, Pageable pageable);
 
     @Modifying

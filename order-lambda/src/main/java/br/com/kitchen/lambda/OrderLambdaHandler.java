@@ -1,70 +1,76 @@
 package br.com.kitchen.lambda;
 
-import br.com.kitchen.dto.OrderDTO;
-import br.com.kitchen.dto.SnsNotificationDTO;
+import br.com.kitchen.lambda.application.IndexOrderUseCase;
+import br.com.kitchen.lambda.dto.OrderDTO;
+import br.com.kitchen.lambda.dto.SnsNotificationDTO;
+import br.com.kitchen.lambda.factory.DynamoDbClientFactory;
+import br.com.kitchen.lambda.repository.OrderRepository;
+import br.com.kitchen.lambda.repository.impl.DynamoOrderRepository;
+import br.com.kitchen.lambda.utils.JsonUtils;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 public class OrderLambdaHandler implements RequestHandler<SQSEvent, String> {
-
-    private final ObjectMapper mapper = new ObjectMapper();
-    private final DynamoDbClient dynamoDbClient;
+    
+    private final IndexOrderUseCase indexOrderUseCase;
+    
+    private final OrderRepository orderRepository;
 
     public OrderLambdaHandler() {
-        String lsHost = System.getenv().getOrDefault("LOCALSTACK_HOSTNAME", "localstack");
-        URI endpoint = URI.create("http://" + lsHost + ":4566");
-
-        this.dynamoDbClient = DynamoDbClient.builder()
-                .endpointOverride(endpoint)
-                .region(software.amazon.awssdk.regions.Region.SA_EAST_1)
-                .credentialsProvider(
-                        StaticCredentialsProvider.create(
-                                AwsBasicCredentials.create("test", "test")
-                        )
-                )
-                .build();
+        DynamoDbClient dynamoDbClient = DynamoDbClientFactory.create();
+        this.orderRepository = new DynamoOrderRepository(dynamoDbClient);
+        this.indexOrderUseCase = new IndexOrderUseCase();
     }
 
     @Override
     public String handleRequest(SQSEvent event, Context context) {
-        log.info("################## OrderLambda initialized ################## ");
-        try {
-            for (SQSEvent.SQSMessage msg: event.getRecords()) {
+        log.info("################## OrderLambda initialized ##################");
 
-                SnsNotificationDTO notification = mapper.readValue(msg.getBody(), SnsNotificationDTO.class);
-                OrderDTO orderDTO = mapper.readValue(notification.getMessage(), OrderDTO.class);
+        for (SQSEvent.SQSMessage msg : event.getRecords()) {
+            try {
+                OrderDTO orderDTO = extractOrder(msg);
 
-                if (orderDTO.getId() == null) {
-                    log.warn("Message was ignored by lambda. Order id is null");
+                if (orderDTO == null) {
+                    log.warn("OrderDTO is null, skipping message {}", msg.getMessageId());
                     continue;
                 }
 
                 log.info("Order received in Lambda: {}", orderDTO);
 
-                Map<String, AttributeValue> item = new HashMap<>();
-                item.put("id", AttributeValue.builder().n(orderDTO.getId().toString()).build());
-                item.put("status", AttributeValue.builder().s(orderDTO.getStatus()).build());
+                orderRepository.save(orderDTO);
+                indexOrderUseCase.execute(orderDTO);
 
-                dynamoDbClient.putItem(builder -> builder.tableName("Order").item(item));
-                log.info("Order DTO was stored, order:"+ item.toString());
+            } catch (Exception e) {
+                log.error("Error processing SQS message {}", msg.getMessageId(), e);
+            }
+        }
+
+        return "OK";
+    }
+
+    private OrderDTO extractOrder(SQSEvent.SQSMessage msg) {
+        try {
+            SnsNotificationDTO notification =
+                    JsonUtils.MAPPER.readValue(msg.getBody(), SnsNotificationDTO.class);
+
+            if (notification == null || notification.getMessage() == null) {
+                log.error("Invalid SNS notification payload");
+                return null;
             }
 
-            return "OK";
+            OrderDTO order =
+                    JsonUtils.MAPPER.readValue(notification.getMessage(), OrderDTO.class);
+
+            log.info("Processando pedido {}", order.toString());
+            return order;
+
         } catch (Exception e) {
-            log.error("An error occurred on processing lambda: {}", e.getMessage());
-            throw new RuntimeException(e);
+            log.error("Erro ao deserializar o pedido da mensagem SQS", e);
+            return null;
         }
     }
 }

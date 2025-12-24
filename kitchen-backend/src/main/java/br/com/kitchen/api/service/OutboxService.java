@@ -1,10 +1,11 @@
 package br.com.kitchen.api.service;
 
-import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.dto.StockDTO;
 import br.com.kitchen.api.dto.ProductDTO;
+import br.com.kitchen.api.dto.OrderDTO;
 import br.com.kitchen.api.enumerations.EventStatus;
 import br.com.kitchen.api.enumerations.EventType;
+import br.com.kitchen.api.mapper.OrderMapper;
 import br.com.kitchen.api.mapper.ProductMapper;
 import br.com.kitchen.api.model.Order;
 import br.com.kitchen.api.model.OutboxEvent;
@@ -30,11 +31,7 @@ public class OutboxService {
     }
 
     public void createOrderEvent(Order orderSaved) {
-        OrderDTO dto = OrderDTO.builder()
-                .id(orderSaved.getId())
-                .status(orderSaved.getStatus().toString())
-                .build();
-
+        OrderDTO dto = OrderMapper.toDTO(orderSaved);
         saveEvent("ORDER", orderSaved.getId(), "ORDER_CONFIRMED", dto);
     }
 

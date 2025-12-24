@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService extends GenericService<Order, Long>{
@@ -154,13 +156,23 @@ public class OrderService extends GenericService<Order, Long>{
         order.setBillingAddress(cart.getBillingAddress());
         order.setPayment(cart.getPayment());
 
-        Map<Seller, SellerOrder> sellerOrderMap = new HashMap<>();
+        Map<Seller, Shipping> shippingBySeller =
+                cart.getShippingMethods()
+                        .stream()
+                        .collect(Collectors.toMap(Shipping::getSeller, Function.identity()));
 
+        Map<Seller, SellerOrder> sellerOrderMap = new HashMap<>();
         for (CartItems item: cart.getCartItems()) {
             Seller seller = item.getProductSku().getProduct().getSeller();
             SellerOrder sellerOrder = sellerOrderMap.computeIfAbsent(seller, s -> {
+                Shipping shipping = shippingBySeller.get(s);
+                if (shipping == null) {
+                    throw new IllegalStateException("Shipping not found for the seller id: " + s.getId());
+                }
                 SellerOrder so = new SellerOrder();
                 so.setOrder(order);
+                so.setShipping(shipping);
+                so.setFreightValue(shipping.getCost());
                 so.setSeller(seller);
                 so.setStatus(OrderStatus.PREPARING);
                 return so;
