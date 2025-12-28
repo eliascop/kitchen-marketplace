@@ -66,7 +66,7 @@ class OrderControllerTest {
 
         mockOrder = new Order();
         mockOrder.setId(2L);
-        mockOrder.setStatus(OrderStatus.PENDING);
+        mockOrder.setStatus(OrderStatus.CREATED);
         mockOrder.setCreation(LocalDateTime.now());
         mockOrder.getOrderItems().add(mockOrderItem);
 

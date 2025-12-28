@@ -1,7 +1,5 @@
 package br.com.kitchen.api.dto;
 
-import br.com.kitchen.api.dto.response.PaymentResponseDTO;
-import br.com.kitchen.api.enumerations.OrderStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,10 +17,11 @@ public class OrderDTO {
 
     private Long id;
     private LocalDateTime creation;
-    private OrderStatus status;
+    private String status;
     private BigDecimal total;
+    private Long customerId;
     @JsonProperty("items")
     private List<OrderItemsDTO> orderItems = new ArrayList<>();
-    private PaymentResponseDTO payment;
+    private PaymentDTO payment;
 
 }

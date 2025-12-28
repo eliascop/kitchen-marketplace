@@ -14,15 +14,11 @@ import java.math.BigDecimal;
 public class ShippingDTO {
 
     private Long id;
-
     private String carrier;
-
     private String method;
-
     private BigDecimal cost;
-
     private Long estimatedDays;
-
+    private String status;
     private SellerDTO seller;
 
 }

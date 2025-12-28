@@ -44,7 +44,7 @@ public record UserPrincipal(User user, Seller seller) implements UserDetails {
                 .anyMatch(r -> r.name().equals("ADMIN"));
     }
 
-    public boolean isBuyer() {
+    public boolean isCustomer() {
         return user.getRoles().stream()
                 .anyMatch(r -> r.name().equals("USER"));
     }

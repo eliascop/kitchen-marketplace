@@ -16,6 +16,5 @@ public class PaymentDTO {
     private String status;
     private BigDecimal amount;
     private LocalDateTime createdAt;
-
 }
 

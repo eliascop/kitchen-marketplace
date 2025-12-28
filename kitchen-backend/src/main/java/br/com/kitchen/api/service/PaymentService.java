@@ -49,16 +49,16 @@ public class PaymentService extends GenericService<Payment, Long> {
         PaymentProvider paymentProvider = paymentProviderFactory.getProvider(provider);
 
         if (!paymentProvider.isValidSecureToken(secureToken)) {
-            return PaymentStatus.FAILED;
+            return PaymentStatus.ERROR;
         }
 
         return cartService.findById(cartId)
                 .map(cart -> {
                     cart.getPayment().setGatewayTransactionId(token);
                     cartService.save(cart);
-                    return PaymentStatus.SUCCESS;
+                    return PaymentStatus.PAID;
                 })
-                .orElseGet(() -> PaymentStatus.FAILED);
+                .orElseGet(() -> PaymentStatus.ERROR);
     }
 
     public Payment findByCartId(Long cartId) {
@@ -69,16 +69,16 @@ public class PaymentService extends GenericService<Payment, Long> {
         Payment payment = findByCartId(Long.valueOf(paymentNotification.getCartId()));
         Order order = orderService.findOrderByPaymentId(payment.getId());
         Cart cart = payment.getCart();
-        if(order.getStatus() != OrderStatus.CONFIRMED && order.getStatus() != OrderStatus.CANCELLED) {
+        if(order.getStatus() != OrderStatus.CANCELLED) {
             switch (paymentNotification.getStatus()) {
                 case "PENDING" -> {
                     payment.setStatus(PaymentStatus.PENDING);
                     System.out.println("Payment is pending");
                 }
                 case "COMPLETED" -> {
-                    payment.setStatus(PaymentStatus.SUCCESS);
+                    payment.setStatus(PaymentStatus.PAID);
                     stockService.confirmStockFromCart(cart);
-                    order.setStatus(OrderStatus.CONFIRMED);
+                    order.setStatus(OrderStatus.CREATED);
                     outboxService.createOrderEvent(order);
                     System.out.println("Order confirmed");
                 }

@@ -12,6 +12,7 @@ public record OrderIndexDocument(
         OffsetDateTime creation,
         String status,
         BigDecimal total,
+        Long customerId,
         List<OrderItemsIndexDocument> items,
         PaymentIndexDocument payment
 
@@ -35,6 +36,7 @@ public record OrderIndexDocument(
                 DateUtils.toOffset(order.getCreation()),
                 order.getStatus(),
                 order.getTotal(),
+                order.getCustomerId(),
                 itemsDocuments,
                 PaymentIndexDocument.from(order.getPayment())
         );

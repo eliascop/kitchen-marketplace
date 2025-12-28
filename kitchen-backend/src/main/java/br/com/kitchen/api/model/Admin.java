@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
+@Table(schema = "kitchen")
 @Getter
 @Setter
 public class Admin{

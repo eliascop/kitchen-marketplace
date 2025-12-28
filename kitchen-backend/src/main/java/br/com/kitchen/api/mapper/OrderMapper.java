@@ -13,8 +13,9 @@ public class OrderMapper {
         OrderDTO dto = new OrderDTO();
         dto.setId(order.getId());
         dto.setCreation(order.getCreation());
-        dto.setStatus(order.getStatus());
+        dto.setStatus(order.getStatus().toString());
         dto.setTotal(order.getTotal());
+        dto.setCustomerId(order.getUser().getId());
         dto.setOrderItems(toItemDTOList(order.getOrderItems()));
         dto.setPayment(PaymentMapper.toDTO(order.getPayment()));
         return dto;

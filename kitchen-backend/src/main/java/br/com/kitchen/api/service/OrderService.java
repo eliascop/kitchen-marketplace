@@ -81,16 +81,15 @@ public class OrderService extends GenericService<Order, Long>{
         PaymentProvider paymentProvider = paymentProviderFactory.getProvider(cart.getPayment().getMethod().name());
         String paymentStatus = paymentProvider.confirmPayment(cart.getPayment().getProviderOrderId());
         cart.getPayment().setStatus(PaymentStatus.PENDING);
-        order.setStatus(OrderStatus.PENDING_PAYMENT);
 
         if("DECLINED".equals(paymentStatus) || "DENIED".equals(paymentStatus)) {
             stockService.releaseStockFromCart(cart);
-            cart.getPayment().setStatus(PaymentStatus.FAILED);
+            cart.getPayment().setStatus(PaymentStatus.ERROR);
             order.setStatus(OrderStatus.CANCELLED);
         }else if("COMPLETED".equals(paymentStatus) || "APPROVED".equals(paymentStatus) || "SUCCESS".equals(paymentStatus)) {
             stockService.confirmStockFromCart(cart);
-            cart.getPayment().setStatus(PaymentStatus.SUCCESS);
-            order.setStatus(OrderStatus.CONFIRMED);
+            cart.getPayment().setStatus(PaymentStatus.PAID);
+            order.setStatus(OrderStatus.CREATED);
         }else {
             System.err.println("Unhandled PayPal payment status: " + paymentStatus);
         }
@@ -151,7 +150,7 @@ public class OrderService extends GenericService<Order, Long>{
     private Order createOrderFromCart(Cart cart) {
         Order order = new Order();
         order.setUser(cart.getUser());
-        order.setStatus(OrderStatus.PENDING_PROCESSING);
+        order.setStatus(OrderStatus.CREATED);
         order.setShippingAddress(cart.getShippingAddress());
         order.setBillingAddress(cart.getBillingAddress());
         order.setPayment(cart.getPayment());

@@ -1,5 +1,6 @@
 package br.com.kitchen.api.model;
 
+import br.com.kitchen.api.enumerations.ShippingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,7 +32,8 @@ public class Shipping implements Serializable{
 
     private String trackingCode;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ShippingStatus status;
 
     @ManyToOne
     @JoinColumn(name = "cart_id")

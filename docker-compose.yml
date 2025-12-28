@@ -29,6 +29,8 @@ services:
     depends_on:
       kitchen-api:
         condition: service_started
+      kitchen-notification:
+        condition: service_started
       kitchen-history:
         condition: service_started
       kitchen-monitoring:
@@ -81,6 +83,24 @@ services:
     depends_on:
       localstack:
         condition: service_started
+    networks:
+      - kitchen-network
+
+  kitchen-notification:
+    build:
+      context: ./kitchen-notification
+      dockerfile: Dockerfile
+    container_name: kitchen-notification
+    depends_on:
+      mysql:
+        condition: service_healthy
+      localstack:
+        condition: service_started
+    ports:
+      - "5006:5006"
+    environment:
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/notification_service?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
     networks:
       - kitchen-network
 

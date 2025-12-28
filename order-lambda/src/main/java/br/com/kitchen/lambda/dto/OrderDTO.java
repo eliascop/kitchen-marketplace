@@ -17,6 +17,7 @@ public class OrderDTO {
     private LocalDateTime creation;
     private String status;
     private BigDecimal total;
+    private Long customerId;
     private List<OrderItemsDTO> items = new ArrayList<>();
     private PaymentDTO payment;
 }

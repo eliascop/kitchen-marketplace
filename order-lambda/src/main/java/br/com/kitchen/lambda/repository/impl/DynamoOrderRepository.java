@@ -23,6 +23,7 @@ public class DynamoOrderRepository implements OrderRepository {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("id", AttributeValue.builder().n(order.getId().toString()).build());
         item.put("status", AttributeValue.builder().s(order.getStatus()).build());
+        item.put("customerId", AttributeValue.builder().n(order.getCustomerId().toString()).build());
 
         dynamoDbClient.putItem(builder ->
                 builder.tableName("Order").item(item)

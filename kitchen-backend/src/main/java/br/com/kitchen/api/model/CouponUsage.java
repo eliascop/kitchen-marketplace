@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
         name = "coupon_usage",
+        schema = "kitchen",
         indexes = {
                 @Index(name = "idx_usage_coupon_buyer", columnList = "coupon_id,buyer_id")
         }

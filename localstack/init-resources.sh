@@ -3,41 +3,49 @@ set -e
 set -x
 
 echo ">> Criando filas SQS no LocalStack..."
+awslocal sqs create-queue --queue-name order-queue
 awslocal sqs create-queue --queue-name order-lambda-queue
+awslocal sqs create-queue --queue-name order-notification-queue
+
+awslocal sqs create-queue --queue-name stock-queue
 awslocal sqs create-queue --queue-name stock-lambda-queue
+
+awslocal sqs create-queue --queue-name payment-queue
 awslocal sqs create-queue --queue-name payment-lambda-queue
 
-awslocal sqs create-queue --queue-name order-queue
-awslocal sqs create-queue --queue-name stock-queue
-awslocal sqs create-queue --queue-name payment-queue
 awslocal sqs create-queue --queue-name product-indexation-DLQ
 awslocal sqs create-queue --queue-name product-indexation-queue
 awslocal sqs create-queue --queue-name wallet-transaction-queue
 
+QUEUE_URL_ORDER=$(awslocal sqs get-queue-url --queue-name order-queue --query "QueueUrl" --output text)
 QUEUE_URL_ORDER_LAMBDA=$(awslocal sqs get-queue-url --queue-name order-lambda-queue --query "QueueUrl" --output text)
+QUEUE_URL_ORDER_NOTIFICATION=$(awslocal sqs get-queue-url --queue-name order-notification-queue --query "QueueUrl" --output text)
+
+QUEUE_URL_STOCK=$(awslocal sqs get-queue-url --queue-name stock-queue --query "QueueUrl" --output text)
 QUEUE_URL_STOCK_LAMBDA=$(awslocal sqs get-queue-url --queue-name stock-lambda-queue --query "QueueUrl" --output text)
+
+QUEUE_URL_PAYMENT=$(awslocal sqs get-queue-url --queue-name payment-queue --query "QueueUrl" --output text)
 QUEUE_URL_PAYMENT_LAMBDA=$(awslocal sqs get-queue-url --queue-name payment-lambda-queue --query "QueueUrl" --output text)
 
-QUEUE_URL_ORDER=$(awslocal sqs get-queue-url --queue-name order-queue --query "QueueUrl" --output text)
-QUEUE_URL_STOCK=$(awslocal sqs get-queue-url --queue-name stock-queue --query "QueueUrl" --output text)
-QUEUE_URL_PAYMENT=$(awslocal sqs get-queue-url --queue-name payment-queue --query "QueueUrl" --output text)
 QUEUE_URL_PRODUCT=$(awslocal sqs get-queue-url --queue-name product-indexation-queue --query "QueueUrl" --output text)
 QUEUE_URL_PRODUCT_DLQ=$(awslocal sqs get-queue-url --queue-name product-indexation-DLQ --query "QueueUrl" --output text)
 QUEUE_URL_WALLET_TRANSACTION=$(awslocal sqs get-queue-url --queue-name wallet-transaction-queue --query "QueueUrl" --output text)
 
+QUEUE_ARN_ORDER=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_ORDER  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
 QUEUE_ARN_ORDER_LAMBDA=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_ORDER_LAMBDA  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
+QUEUE_ARN_ORDER_NOTIFICATION=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_ORDER_NOTIFICATION  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
+
+QUEUE_ARN_STOCK=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_STOCK  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
 QUEUE_ARN_STOCK_LAMBDA=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_STOCK_LAMBDA  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
+
+QUEUE_ARN_PAYMENT=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_PAYMENT  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
 QUEUE_ARN_PAYMENT_LAMBDA=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_PAYMENT_LAMBDA  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
 
-QUEUE_ARN_ORDER=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_ORDER  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
-QUEUE_ARN_STOCK=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_STOCK  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
-QUEUE_ARN_PAYMENT=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_PAYMENT  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
 QUEUE_ARN_PRODUCT=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_PRODUCT  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
 QUEUE_ARN_PRODUCT_DLQ=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_PRODUCT_DLQ  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
 QUEUE_ARN_WALLET_TRANSACTION=$(awslocal sqs get-queue-attributes --queue-url $QUEUE_URL_WALLET_TRANSACTION  --attribute-names QueueArn --query "Attributes.QueueArn" --output text)
 
-awslocal sqs set-queue-attributes --queue-url $QUEUE_URL_PRODUCT \
-  --attributes "{\"RedrivePolicy\": \"{\\\"deadLetterTargetArn\\\":\\\"$QUEUE_ARN_PRODUCT_DLQ\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}"
+awslocal sqs set-queue-attributes --queue-url $QUEUE_URL_PRODUCT --attributes "{\"RedrivePolicy\": \"{\\\"deadLetterTargetArn\\\":\\\"$QUEUE_ARN_PRODUCT_DLQ\\\",\\\"maxReceiveCount\\\":\\\"3\\\"}\"}"
 
 echo ">> Criando tópico SNS..."
 TOPIC_ARN_ORDER=$(awslocal sns create-topic --name order-events --query "TopicArn" --output text)
@@ -46,13 +54,16 @@ TOPIC_ARN_PAYMENT=$(awslocal sns create-topic --name payment-events --query "Top
 TOPIC_ARN_PRODUCT=$(awslocal sns create-topic --name product-events --query "TopicArn" --output text)
 TOPIC_ARN_WALLET_TRANSACTION=$(awslocal sns create-topic --name wallet-transaction-events --query "TopicArn" --output text)
 
+awslocal sns subscribe --topic-arn $TOPIC_ARN_ORDER --protocol sqs --notification-endpoint $QUEUE_ARN_ORDER
 awslocal sns subscribe --topic-arn $TOPIC_ARN_ORDER --protocol sqs --notification-endpoint $QUEUE_ARN_ORDER_LAMBDA
+awslocal sns subscribe --topic-arn $TOPIC_ARN_ORDER --protocol sqs --notification-endpoint $QUEUE_ARN_ORDER_NOTIFICATION
+
+awslocal sns subscribe --topic-arn $TOPIC_ARN_STOCK --protocol sqs --notification-endpoint $QUEUE_ARN_STOCK
 awslocal sns subscribe --topic-arn $TOPIC_ARN_STOCK --protocol sqs --notification-endpoint $QUEUE_ARN_STOCK_LAMBDA
+
+awslocal sns subscribe --topic-arn $TOPIC_ARN_PAYMENT --protocol sqs --notification-endpoint $QUEUE_ARN_PAYMENT
 awslocal sns subscribe --topic-arn $TOPIC_ARN_PAYMENT --protocol sqs --notification-endpoint $QUEUE_ARN_PAYMENT_LAMBDA
 
-awslocal sns subscribe --topic-arn $TOPIC_ARN_ORDER --protocol sqs --notification-endpoint $QUEUE_ARN_ORDER
-awslocal sns subscribe --topic-arn $TOPIC_ARN_STOCK --protocol sqs --notification-endpoint $QUEUE_ARN_STOCK
-awslocal sns subscribe --topic-arn $TOPIC_ARN_PAYMENT --protocol sqs --notification-endpoint $QUEUE_ARN_PAYMENT
 awslocal sns subscribe --topic-arn $TOPIC_ARN_PRODUCT --protocol sqs --notification-endpoint $QUEUE_ARN_PRODUCT
 awslocal sns subscribe --topic-arn $TOPIC_ARN_WALLET_TRANSACTION --protocol sqs --notification-endpoint $QUEUE_ARN_WALLET_TRANSACTION
 

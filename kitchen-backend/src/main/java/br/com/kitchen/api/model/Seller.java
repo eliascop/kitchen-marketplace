@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(schema = "kitchen")
 @Getter
 @Setter
 @NoArgsConstructor
