@@ -96,7 +96,7 @@ public class OrderService extends GenericService<Order, Long>{
         cart.setActive(false);
         cartService.save(cart);
         Order orderSaved = orderRepository.save(order);
-        outboxService.createOrderEvent(orderSaved);
+        outboxService.createOrderEvent(orderSaved, "ORDER_CREATED");
         return orderSaved;
     }
 

@@ -1,5 +1,6 @@
 package br.com.kitchen.api.model;
 
+import br.com.kitchen.api.enumerations.AggregateType;
 import br.com.kitchen.api.enumerations.EventStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,9 @@ public class OutboxEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String aggregateType;
+    @Enumerated(EnumType.STRING)
+    private AggregateType aggregateType;
+
     private Long aggregateId;
 
     @Enumerated(EnumType.STRING)

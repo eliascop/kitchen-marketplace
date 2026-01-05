@@ -30,7 +30,7 @@ export const routes: Routes = [
     path: 'users',
     loadComponent: () => import('./features/users/users.component')
       .then(m => m.UsersComponent),
-    canActivate: [() => AuthGuardService(['ADMIN','SELLER'])]
+    canActivate: [() => AuthGuardService(['ADMIN'])]
   },
   { 
     path: 'user-details',

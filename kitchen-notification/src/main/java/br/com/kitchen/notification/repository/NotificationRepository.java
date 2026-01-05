@@ -1,7 +1,7 @@
 package br.com.kitchen.notification.repository;
 
-import br.com.kitchen.notification.enums.UserType;
-import br.com.kitchen.notification.model.Notification;
+import br.com.kitchen.notification.domain.enums.UserType;
+import br.com.kitchen.notification.domain.model.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

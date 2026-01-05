@@ -79,8 +79,7 @@ public class PaymentService extends GenericService<Payment, Long> {
                     payment.setStatus(PaymentStatus.PAID);
                     stockService.confirmStockFromCart(cart);
                     order.setStatus(OrderStatus.CREATED);
-                    outboxService.createOrderEvent(order);
-                    System.out.println("Order confirmed");
+                    outboxService.createOrderEvent(order, "ORDER_CONFIRMED");
                 }
                 default -> System.err.println("Unhandled PayPal webhook status: " + paymentNotification.getStatus());
             }

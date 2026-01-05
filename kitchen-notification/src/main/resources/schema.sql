@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS notifications (
  created_at DATETIME(6),
  external_reference_id BIGINT NOT NULL,
  message TEXT,
- is_read BIT NOT NULL,
+ is_read BIT DEFAULT 0 NOT NULL,
  reference_id BIGINT NOT NULL,
  title VARCHAR(255),
  type VARCHAR(50) NOT NULL,
@@ -23,4 +23,4 @@ ALTER TABLE notifications
                 type,
                 reference_id,
                 external_reference_id
-            );
+        );

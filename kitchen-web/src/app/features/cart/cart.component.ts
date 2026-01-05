@@ -86,7 +86,7 @@ export class CartComponent implements OnInit {
     this.cartService.validadePaymentMethod('paypal', paymentToken, secureToken, cartId).subscribe({
       next: (data) => {
         const paymentStatusStored = data.data?.message;
-        if (paymentStatusStored === 'SUCCESS') {
+        if (paymentStatusStored === 'PAID') {
           this.toast.show('Pagamento aprovado com sucesso!');
           this.currentStep = 4;
         } else {

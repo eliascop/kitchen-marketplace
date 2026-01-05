@@ -7,7 +7,7 @@ public class SellerMapper {
 
     public static SellerDTO toDTO(Seller seller) {
         return new SellerDTO(
-                seller.getId(),
+                seller.getUser().getId(),
                 seller.getStoreName()
         );
     }

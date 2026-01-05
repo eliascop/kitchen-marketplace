@@ -2,12 +2,9 @@ package br.com.kitchen.api.service;
 
 import br.com.kitchen.api.enumerations.TransactionStatus;
 import br.com.kitchen.api.enumerations.TransactionType;
-import br.com.kitchen.api.model.OutboxEvent;
 import br.com.kitchen.api.model.Wallet;
 import br.com.kitchen.api.model.WalletTransaction;
-import br.com.kitchen.api.repository.jpa.OutboxRepository;
 import br.com.kitchen.api.repository.jpa.WalletTransactionRepository;
-import br.com.kitchen.api.util.JsonUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +16,13 @@ import java.util.Optional;
 public class WalletTransactionService extends GenericService<WalletTransaction, Long> {
 
     private final WalletTransactionRepository walletTransactionRepository;
-    private final OutboxRepository outboxRepository;
+    private final OutboxService outboxService;
 
     public WalletTransactionService(WalletTransactionRepository walletTransactionRepository,
-                                    OutboxRepository outboxRepository) {
+                                    OutboxService outboxService) {
         super(walletTransactionRepository, WalletTransaction.class);
         this.walletTransactionRepository = walletTransactionRepository;
-        this.outboxRepository = outboxRepository;
+        this.outboxService = outboxService;
     }
 
     @Transactional
@@ -48,14 +45,8 @@ public class WalletTransactionService extends GenericService<WalletTransaction, 
         tx.setType(TransactionType.DEBIT);
         tx.setDescription(description);
         tx.setStatus(TransactionStatus.AUTHORIZED);
-        walletTransactionRepository.save(tx);
-        OutboxEvent event = OutboxEvent.builder()
-                .aggregateType("WALLET-TRANSACTION")
-                .aggregateId(tx.getId())
-                .eventType("WALLET-TRANSACTION-DEBIT_CONFIRMED")
-                .payload(JsonUtils.toJson(tx))
-                .build();
-        outboxRepository.save(event);
+        WalletTransaction ntx = walletTransactionRepository.save(tx);
+        outboxService.publishWalletTransactionEvent(ntx, "DEBIT_CONFIRMED");
     }
 
     public Optional<List<WalletTransaction>> getTransactions(Wallet wallet) {
@@ -70,14 +61,8 @@ public class WalletTransactionService extends GenericService<WalletTransaction, 
         wallet.setBalance(wallet.getBalance().add(tx.getAmount()));
 
         tx.setStatus(TransactionStatus.AUTHORIZED);
-        walletTransactionRepository.save(tx);
-        OutboxEvent event = OutboxEvent.builder()
-                .aggregateType("WALLET-TRANSACTION")
-                .aggregateId(tx.getId())
-                .eventType("WALLET-TRANSACTION-VALIDATE_CONFIRMED")
-                .payload(JsonUtils.toJson(tx))
-                .build();
-        outboxRepository.save(event);
+        WalletTransaction ntx = walletTransactionRepository.save(tx);
+        outboxService.publishWalletTransactionEvent(ntx, "VALIDATE_CONFIRMED");
     }
 
     @Transactional
@@ -85,14 +70,8 @@ public class WalletTransactionService extends GenericService<WalletTransaction, 
         WalletTransaction tx = walletTransactionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
         tx.setStatus(TransactionStatus.CANCELED);
-        walletTransactionRepository.save(tx);
-        OutboxEvent event = OutboxEvent.builder()
-                .aggregateType("WALLET-TRANSACTION")
-                .aggregateId(tx.getId())
-                .eventType("WALLET-TRANSACTION-CANCELLED_CONFIRMED")
-                .payload(JsonUtils.toJson(tx))
-                .build();
-        outboxRepository.save(event);
+        WalletTransaction ntx = walletTransactionRepository.save(tx);
+        outboxService.publishWalletTransactionEvent(ntx, "CANCELLED_CONFIRMED");
     }
 
     public BigDecimal getBalanceForUser(Long userId) {

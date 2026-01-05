@@ -9,7 +9,7 @@
     <span *ngIf="!collapsed" class="menu-label">Gestão de Cupons</span>
   </a>
 
-  <a mat-list-item *ngIf="isSeller()" (click)="userList($event)">
+  <a mat-list-item *ngIf="isAdmin()" (click)="userList($event)">
     <mat-icon>group</mat-icon>
     <span *ngIf="!collapsed" class="menu-label">Lista de Usuários</span>
   </a>

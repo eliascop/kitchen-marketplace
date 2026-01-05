@@ -24,6 +24,10 @@ export class User{
     get isSeller(): boolean {
       return this.roles.includes('ROLE_SELLER');
     }
+
+    get isAdmin(): boolean {
+      return this.roles.includes('ROLE_ADMIN');
+    }
 }
 
 export class Seller{

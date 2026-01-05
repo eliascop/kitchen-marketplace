@@ -19,7 +19,7 @@ public class ShippingMapper {
                 .method(shipping.getMethod())
                 .cost(shipping.getCost())
                 .estimatedDays(shipping.getEstimatedDays())
-                .status(shipping.getStatus().toString())
+                .status(shipping.getStatus() != null ? shipping.getStatus().toString() : null)
                 .seller(shipping.getSeller() != null ? SellerMapper.toDTO(shipping.getSeller()) : null)
                 .build();
     }

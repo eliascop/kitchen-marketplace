@@ -70,6 +70,10 @@ export class SidebarComponent implements OnChanges {
     event.preventDefault();
     this.router.navigate(['/user-details']);
   }
+  
+  isAdmin(): boolean {
+    return !!this.user?.isAdmin;
+  }
 
   isSeller(): boolean {
     return !!this.user?.isSeller;

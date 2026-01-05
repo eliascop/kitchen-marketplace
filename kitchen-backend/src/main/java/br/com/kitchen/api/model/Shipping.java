@@ -42,5 +42,12 @@ public class Shipping implements Serializable{
     @ManyToOne
     @JoinColumn(name = "seller_id")
     private Seller seller;
+
+    @PrePersist
+    public void prePersist() {
+        if (status == null) {
+            status = ShippingStatus.NOT_STARTED;
+        }
+    }
 }
 

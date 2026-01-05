@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class SellerDTO {
-    private Long id;
+    private Long id; //devolver o user id para o front
     private String storeName;
 }

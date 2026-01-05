@@ -9,6 +9,6 @@ WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 
-EXPOSE 8083 5006
+EXPOSE 8082 5006
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ENTRYPOINT ["java", "-jar", "app.jar"]
