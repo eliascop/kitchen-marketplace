@@ -45,12 +45,6 @@ export const routes: Routes = [
     canActivate: [AuthGuardService]
   },
   { 
-    path: 'orders-painel',
-    loadComponent: () => import('./shared/components/orders-painel/orders-painel.component')
-      .then(m => m.OrdersPainelComponent),
-    canActivate: [() => AuthGuardService(['ADMIN','SELLER'])]
-  },
-  { 
     path: 'wallet',
     loadComponent: () => import('./features/wallet/wallet.component')
       .then(m => m.WalletComponent),

@@ -1,10 +1,11 @@
 <div class="header" *ngIf="user">
-    <div class="header-container">
-      <div class="header-row row-1">
-        <div class="logo">
-          <span class="title">Seja bem vindo à Kitchen</span>
-        </div>
-  
+  <div class="header-container">
+    <div class="header-row">
+      <div class="left-column">
+        <span class="title">Seja bem vindo à Kitchen</span>
+      </div>
+
+      <div class="middle-column">
         <div class="search-field" *ngIf="user">
           <input
             type="text"
@@ -13,8 +14,54 @@
             (keyup.enter)="onSearchEnter($event)"
           />
         </div>
-        <div style="width: 20rem;"></div>
       </div>
+      <div class="right-column">
+        <button
+          *ngIf="totalNotifications > 0"
+          mat-icon-button
+          class="notification-bell"
+          [matMenuTriggerFor]="notificationMenu"
+          #menuTrigger="matMenuTrigger"
+          (click)="onBellClick()">
+
+          <mat-icon
+            class="bell"
+            [class.shake]="shakeBell">
+            notifications
+          </mat-icon>
+
+          <span class="badge">
+            {{ totalNotifications }} avisos
+          </span>
+        </button>
+      </div>
+
+      <mat-menu #notificationMenu="matMenu" panelClass="notification-menu">
+        <ng-container *ngIf="notifications$ | async as notifications">
+          <button 
+            mat-menu-item 
+            *ngFor="let n of notifications"
+            class="notification-item"
+           [class.read]="n.read">
+            <mat-icon class="notification-icon">
+              notifications
+            </mat-icon>
+            <div class="notification-content">
+              <span class="notification-title">
+                <span class="notification-title-label">{{ n.title }}</span>
+                <span class="notification-title-time">{{n.createdAt | formatDateTime}}</span>
+              </span>
+              <span class="notification-message">{{ n.message }}</span>
+            </div>
+          </button>
+        </ng-container>
+      
+        <ng-template #empty>
+          <div class="empty-state">
+            Nenhuma notificação
+          </div>
+        </ng-template>
+      </mat-menu>
     </div>
   </div>
-  
+</div>

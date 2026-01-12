@@ -8,6 +8,8 @@ export const environment = {
 
     COUPON_REST_SERVICE: '/api/coupons/v1',
 
+    NOTIFICATION_REST_SERVICE: '/kns/notification/v1',
+
     ORDER_REST_SERVICE: '/api/orders/v1',
 
     ORDER_SOCKET_SERVICE: '/monitoring/orders/v1',

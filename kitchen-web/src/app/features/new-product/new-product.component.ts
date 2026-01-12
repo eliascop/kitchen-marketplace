@@ -99,7 +99,6 @@ export class NewProductComponent implements OnInit, OnDestroy {
     return c1 && c2 ? c1.id === c2.id : c1 === c2;
   }
 
-  /*
   onSubmit() {
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
@@ -108,7 +107,7 @@ export class NewProductComponent implements OnInit, OnDestroy {
 
     const productform = this.productForm.value;
     const selectedCatalog = this.productForm.get('catalog')?.value;
-  
+
     if (!selectedCatalog) {
       this.toast.show('Catálogo inválido.');
       return;
@@ -116,73 +115,25 @@ export class NewProductComponent implements OnInit, OnDestroy {
 
     const product: ProductRequest = { ...productform, catalog: { ... selectedCatalog } };
 
-    if (this.isEditing) {
-      this.productService.updateProduct(product).subscribe({
-        next: (res) => {
-          const updatedProduct = res.data as Product;
-          sellerProductDetailStore.update(state => ({
-            ...state,
-            product: updatedProduct
-          }));
+    const request$ = this.isEditing
+      ? this.productService.updateProduct(product)
+      : this.productService.createProduct(product);
 
-          this.toast.show('Produto atualizado com sucesso!');
-          this.router.navigate(['/seller-products']);
-        },
-        error: (err) => {
-          this.toast.show('Erro ao atualizar o produto.');
-          console.error(err);
-        }
-      });
-    } else {
-      this.productService.createProduct(product).subscribe({
-        next: () => {
-          this.toast.show('Produto cadastrado com sucesso.');
-          this.router.navigate(['/seller-products']);
-        },
-        error: (err) => {
-          this.toast.show('Erro ao cadastrar o produto.');
-          console.error(err);
-        }
-      });
-    }
+    request$.subscribe({
+      next: () => {
+        this.toast.show(
+          this.isEditing
+            ? 'Produto atualizado com sucesso!'
+            : 'Produto cadastrado com sucesso.'
+        );
+        this.router.navigate(['/seller-products']);
+      },
+      error: (err) => {
+        this.toast.show('Erro ao salvar o produto.');
+        console.error(err);
+      }
+    });
   }
-*/
-
-onSubmit() {
-  if (this.productForm.invalid) {
-    this.productForm.markAllAsTouched();
-    return;
-  }
-
-  const productform = this.productForm.value;
-  const selectedCatalog = this.productForm.get('catalog')?.value;
-
-  if (!selectedCatalog) {
-    this.toast.show('Catálogo inválido.');
-    return;
-  }
-
-  const product: ProductRequest = { ...productform, catalog: { ... selectedCatalog } };
-
-  const request$ = this.isEditing
-    ? this.productService.updateProduct(product)
-    : this.productService.createProduct(product);
-
-  request$.subscribe({
-    next: () => {
-      this.toast.show(
-        this.isEditing
-          ? 'Produto atualizado com sucesso!'
-          : 'Produto cadastrado com sucesso.'
-      );
-      this.router.navigate(['/seller-products']);
-    },
-    error: (err) => {
-      this.toast.show('Erro ao salvar o produto.');
-      console.error(err);
-    }
-  });
-}
 
   goBack() {
     this.router.navigate(['/seller-products/'+this.productId]);

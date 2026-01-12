@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { MatSidenav, MatSidenavContainer, MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
@@ -13,6 +13,12 @@ import { CartService } from './core/service/cart.service';
 import { UserService } from './core/service/user.service';
 import { SearchService } from './core/service/search.service';
 import { User } from './core/model/user.model';
+import { NotificationManager } from './core/manager/notification.manager';
+import { Subscription } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AuthUser } from './core/model/auth.model';
+import { NotificationEventService } from './core/event/notification.event.service';
 
 @Component({
   selector: 'app-root',
@@ -36,14 +42,21 @@ export class AppComponent implements OnInit {
   @ViewChild(MatSidenavContainer) sidenavContainer!: MatSidenavContainer;
   user!: User;
   totalItems = 0;
+  totalNotifications = 0;
+  lastNotificationTotal = 0;
   isCollapsed = true;
+
+  private notificationSubscription?: Subscription;
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,
     private cartService: CartService,
+    private notificationManager: NotificationManager,
     private router: Router,
     private searchService: SearchService,
-    private userService: UserService
+    private userService: UserService,
+    private notificationEvents: NotificationEventService
   ) {}
 
   expandMenu() {
@@ -56,19 +69,49 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.authService.user$
-      .subscribe(user => {
-        if (user) {
-          this.userService.getUserById(user.id)
-            .subscribe(response => {
-              this.user = new User(response.data!);
-              localStorage.setItem('userData', JSON.stringify(this.user));
-              this.loadCart();
-            });
-        } else {
-          this.user = undefined!;
-          this.totalItems = 0;
-        }
-      });
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        tap((authUser) => {
+          if (!authUser) this.handleLoggedOutState();
+        }),
+        filter((authUser): authUser is AuthUser => authUser !== null),
+        switchMap((authUser) => this.userService.getUserById(authUser.id)),
+        tap((response) => this.handleLoggedInState(response.data))
+      )
+      .subscribe();
+  }
+
+  private handleLoggedInState(userData: any) {
+    this.user = new User(userData);
+    localStorage.setItem('userData', JSON.stringify(this.user));
+    this.loadCart();
+    this.initNotifications();
+  }
+
+  private handleLoggedOutState() {
+    this.user = undefined!;
+    this.notificationManager.stopPolling();
+    this.notificationSubscription?.unsubscribe();
+    this.notificationSubscription = undefined;
+
+    this.totalNotifications = 0;
+    this.lastNotificationTotal = 0;
+    this.totalItems = 0;
+  }
+
+  private initNotifications() {
+    this.notificationManager.startPolling();
+    this.notificationSubscription?.unsubscribe();
+    this.notificationSubscription = new Subscription();
+  
+    this.notificationManager.total().subscribe(total => {
+      if (total > this.lastNotificationTotal) {
+        this.notificationEvents.emitNew();
+      }
+
+      this.lastNotificationTotal = total;
+      this.totalNotifications = total;
+    });
   }
 
   private loadCart() {

@@ -232,3 +232,8 @@ button {
 .mat-drawer-inner-container {
   overflow: hidden !important;
 }
+
+.mat-mdc-menu-panel {
+  min-width: 20rem !important;
+  max-width: 25rem !important;
+}

@@ -21,8 +21,10 @@
     <app-header
       [user]="user"
       [totalItems]="totalItems"
+      [totalNotifications]="totalNotifications"
       (goHome)="goHome($event)"
-      (searchChange)="onSearchChange($event)">
+      (searchChange)="onSearchChange($event)"
+      >
     </app-header>
 
     <div class="app-content">
