@@ -120,11 +120,7 @@ public class UserService extends GenericService<User, Long> {
         if (id == null || id <= 0L) return Optional.empty();
 
         return userRepository.findById(id)
-                .map(userEntity -> {
-                    UserDTO dto = UserMapper.toDTO(userEntity);
-                    dto.setAddresses(addressService.findByUserId(id));
-                    return dto;
-                });
+                .map(UserMapper::toDTO);
     }
 
     public List<UserDTO> findUserByName(String name){
