@@ -1,8 +1,10 @@
 package br.com.kitchen.api.service;
 
+import br.com.kitchen.api.dto.AddressDTO;
 import br.com.kitchen.api.dto.UserDTO;
 import br.com.kitchen.api.enumerations.Role;
 import br.com.kitchen.api.mapper.AddressMapper;
+import br.com.kitchen.api.mapper.UserMapper;
 import br.com.kitchen.api.model.Address;
 import br.com.kitchen.api.model.Seller;
 import br.com.kitchen.api.model.User;
@@ -23,15 +25,18 @@ public class UserService extends GenericService<User, Long> {
 
     private final SellerRepository sellerRepository;
     private final UserRepository userRepository;
+    private final AddressService addressService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(SellerRepository sellerRepository,
                        UserRepository userRepository,
+                       AddressService addressService,
                        PasswordEncoder passwordEncoder) {
         super(userRepository, User.class);
         this.sellerRepository = sellerRepository;
         this.userRepository = userRepository;
+        this.addressService = addressService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -90,7 +95,6 @@ public class UserService extends GenericService<User, Long> {
         return userRepository.save(user);
     }
 
-
     public User registerUser(User user) {
         userRepository.findByLogin(user.getLogin())
                 .ifPresent(u -> { throw new RuntimeException("user already exists."); });
@@ -113,10 +117,14 @@ public class UserService extends GenericService<User, Long> {
     }
 
     public Optional<UserDTO> findUserById(Long id){
-        return super.findById(id)
-                .stream()
-                .map(UserDTO::new)
-                .findAny();
+        if (id == null || id <= 0L) return Optional.empty();
+
+        return userRepository.findById(id)
+                .map(userEntity -> {
+                    UserDTO dto = UserMapper.toDTO(userEntity);
+                    dto.setAddresses(addressService.findByUserId(id));
+                    return dto;
+                });
     }
 
     public List<UserDTO> findUserByName(String name){

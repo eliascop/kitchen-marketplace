@@ -7,6 +7,7 @@ import { AuthGuardService } from './core/service/auth.guard.service';
 import { TrackingComponent } from './features/tracking/tracking.component';
 import { ProductDetailComponent } from './features/product-detail/product-detail.component';
 import { NewProductComponent } from './features/new-product/new-product.component';
+import { SalesComponent } from './features/sales/sales.component';
 
 export const routes: Routes = [
 
@@ -78,6 +79,11 @@ export const routes: Routes = [
     path: 'new-product',
     loadComponent: () => import('./features/new-product/new-product.component')
       .then(m => m.NewProductComponent),
+    canActivate: [() => AuthGuardService(['SELLER'])]
+  },
+  { 
+    path: 'sales',
+    component: SalesComponent,
     canActivate: [() => AuthGuardService(['SELLER'])]
   },
   { 

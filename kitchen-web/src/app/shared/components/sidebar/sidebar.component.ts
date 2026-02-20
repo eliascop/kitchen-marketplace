@@ -66,6 +66,11 @@ export class SidebarComponent implements OnChanges {
     this.router.navigate(['/orders']);
   }
 
+  mySales(event: Event) {
+    event.preventDefault();
+    this.router.navigate(['/sales']);
+  }
+
   userDetails(event: Event) {
     event.preventDefault();
     this.router.navigate(['/user-details']);

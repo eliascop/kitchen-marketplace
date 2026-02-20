@@ -29,6 +29,11 @@
     <span *ngIf="!collapsed" class="menu-label">Minhas Compras</span>
   </a>
 
+  <a mat-list-item *ngIf="isSeller()" (click)="mySales($event)">
+    <mat-icon>local_mall</mat-icon>
+    <span *ngIf="!collapsed" class="menu-label">Minhas Vendas</span>
+  </a>
+
   <a mat-list-item (click)="myCart($event)">
     <mat-icon>shopping_cart</mat-icon>
     <span *ngIf="!collapsed" class="menu-label">Meu Carrinho

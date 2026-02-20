@@ -1,6 +1,7 @@
 package br.com.kitchen.api.dto;
 
 import br.com.kitchen.api.enumerations.AddressType;
+import br.com.kitchen.api.model.Address;
 import lombok.*;
 
 @Getter
